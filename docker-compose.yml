@@ -1,0 +1,33 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: marido_de_aluguel
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: symfony_user
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/var/www/html:z
+    environment:
+      DATABASE_URL: "postgresql://symfony_user:password@database:5432/marido_de_aluguel?serverVersion=16&charset=utf8"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html:z
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:Z
+    depends_on:
+      - php
+
+volumes:
+  db-data:
