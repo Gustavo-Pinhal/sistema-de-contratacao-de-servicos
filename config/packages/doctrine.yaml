@@ -21,6 +21,9 @@ doctrine:
                 prefix: 'App\Entity'
                 alias: App
 
+    types:
+        uuid: 'Symfony\Bridge\Doctrine\Types\UuidType'
+
 when@test:
     doctrine:
         dbal:
