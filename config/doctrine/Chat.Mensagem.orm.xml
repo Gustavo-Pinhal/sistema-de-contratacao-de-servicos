@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Chat\Mensagem" 
+            table="mensagens" 
+            schema="chat" 
+            repository-class="App\Repository\Chat\MensagemRepository">
+
+        <id name="id" type="uuid" column="id" />
+
+        <many-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
+            <join-column name="id_usuario" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="sala" target-entity="App\Entity\Chat\Sala" inversed-by="mensagens">
+            <join-column name="id_sala" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <field name="conteudo" type="json" column="conteudo" />
+        
+        <field name="envioEm" type="datetimetz_immutable" column="envio_em">
+            <options>
+                <option name="default">CURRENT_TIMESTAMP</option>
+            </options>
+        </field>
+
+        <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
+
+    </entity>
+</doctrine-mapping>

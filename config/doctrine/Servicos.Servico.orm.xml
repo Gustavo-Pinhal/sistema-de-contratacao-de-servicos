@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Servicos\Servico" 
+            table="servicos" 
+            schema="servicos" 
+            repository-class="App\Repository\Servicos\ServicoRepository">
+
+        <id name="id" type="uuid" column="id" />
+
+        <field name="inicio" type="datetime_immutable" column="inicio" />
+        <field name="encerramento" type="datetime_immutable" column="encerramento" nullable="true" />
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <many-to-one field="cliente" target-entity="App\Entity\Auth\Cliente">
+            <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="prestador" target-entity="App\Entity\Servicos\Prestador">
+            <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+    </entity>
+</doctrine-mapping>

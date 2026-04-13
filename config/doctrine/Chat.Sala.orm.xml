@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Chat\Sala" 
+            table="sala" 
+            schema="chat" 
+            repository-class="App\Repository\Chat\SalaRepository">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+
+        <one-to-one field="servico" target-entity="App\Entity\Servicos\Servico">
+            <join-column name="id_servico" referenced-column-name="id" unique="true" nullable="false" />
+        </one-to-one>
+
+        <many-to-one field="prestador" target-entity="App\Entity\Servicos\Prestador">
+            <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="cliente" target-entity="App\Entity\Auth\Cliente">
+            <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <one-to-many field="mensagens" target-entity="App\Entity\Chat\Mensagem" mapped-by="sala" />
+
+    </entity>
+</doctrine-mapping>
