@@ -1,40 +1,40 @@
 <?php
 
-namespace App\Repository\Servicos;
+namespace App\Repository\Servico;
 
-use App\Entity\Servicos\Prestador;
+use App\Entity\Servico\Servico;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Prestador>
+ * @extends ServiceEntityRepository<Servico>
  */
-class PrestadorRepository extends ServiceEntityRepository
+class ServicoRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Prestador::class);
+        parent::__construct($registry, Servico::class);
     }
 
     //    /**
-    //     * @return Prestador[] Returns an array of Prestador objects
+    //     * @return Servico[] Returns an array of Servico objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
+    //        return $this->createQueryBuilder('s')
+    //            ->andWhere('s.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
+    //            ->orderBy('s.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Prestador
+    //    public function findOneBySomeField($value): ?Servico
     //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
+    //        return $this->createQueryBuilder('s')
+    //            ->andWhere('s.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

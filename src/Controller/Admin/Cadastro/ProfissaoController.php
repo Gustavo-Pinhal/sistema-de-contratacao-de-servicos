@@ -2,8 +2,8 @@
 
 namespace App\Controller\Admin\Cadastro;
 
-use App\Entity\Servicos\Profissao;
-use App\Repository\Servicos\ProfissaoRepository;
+use App\Entity\Servico\Profissao;
+use App\Repository\Servico\ProfissaoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/admin/cadastro/profissoes')]
+#[Route('/api/admin/cadastro/profissoes')]
 final class ProfissaoController extends AbstractController
 {
     public function __construct(

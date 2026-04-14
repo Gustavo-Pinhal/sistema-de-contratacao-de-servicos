@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Servicos;
+namespace App\Entity\Servico;
 
-use App\Entity\Auth\Cliente;
-use App\Entity\Servicos\Prestador;
+use App\Entity\Servico\Cliente;
+use App\Entity\Servico\Prestador;
 use Symfony\Component\Uid\Uuid;
 
 class Servico

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Servicos;
+namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
 use Doctrine\Common\Collections\ArrayCollection;

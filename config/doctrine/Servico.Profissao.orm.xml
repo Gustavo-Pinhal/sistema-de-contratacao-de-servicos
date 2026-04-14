@@ -4,10 +4,10 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Entity\Servicos\Profissao" 
+    <entity name="App\Entity\Servico\Profissao" 
             table="profissoes" 
             schema="servico" 
-            repository-class="App\Repository\Servicos\ProfissaoRepository">
+            repository-class="App\Repository\Servico\ProfissaoRepository">
 
         <id name="id" type="integer" column="id">
             <generator strategy="IDENTITY"/>
@@ -19,7 +19,7 @@
 
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
-        <many-to-many field="prestadores" target-entity="App\Entity\Servicos\Prestador" mapped-by="profissoes" />
+        <many-to-many field="prestadores" target-entity="App\Entity\Servico\Prestador" mapped-by="profissoes" />
 
     </entity>
 </doctrine-mapping>

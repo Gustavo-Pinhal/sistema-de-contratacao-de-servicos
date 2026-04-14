@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity\Servicos;
+namespace App\Entity\Servico;
 
-use App\Entity\Servicos\Prestador;
+use App\Entity\Servico\Prestador;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 

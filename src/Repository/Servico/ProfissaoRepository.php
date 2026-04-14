@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\Servicos;
+namespace App\Repository\Servico;
 
-use App\Entity\Servicos\Profissao;
+use App\Entity\Servico\Profissao;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

@@ -4,10 +4,10 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Entity\Servicos\Servico" 
+    <entity name="App\Entity\Servico\Servico" 
             table="servicos" 
             schema="servicos" 
-            repository-class="App\Repository\Servicos\ServicoRepository">
+            repository-class="App\Repository\Servico\ServicoRepository">
 
         <id name="id" type="uuid" column="id" />
 
@@ -19,7 +19,7 @@
             <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <many-to-one field="prestador" target-entity="App\Entity\Servicos\Prestador">
+        <many-to-one field="prestador" target-entity="App\Entity\Servico\Prestador">
             <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
