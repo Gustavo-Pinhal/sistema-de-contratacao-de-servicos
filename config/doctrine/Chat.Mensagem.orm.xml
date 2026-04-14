@@ -19,13 +19,13 @@
             <join-column name="id_sala" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <field name="conteudo" type="json" column="conteudo" />
-        
-        <field name="envioEm" type="datetimetz_immutable" column="envio_em">
+        <field name="conteudo" type="json" column="conteudo">
             <options>
-                <option name="default">CURRENT_TIMESTAMP</option>
+                <option name="jsonb">true</option>
             </options>
         </field>
+        
+        <field name="envioEm" type="datetimetz_immutable" column="envio_em" />
 
         <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
 
