@@ -6,15 +6,20 @@
 
     <entity name="App\Entity\Servicos\Profissao" 
             table="profissoes" 
-            schema="servicos" 
+            schema="servico" 
             repository-class="App\Repository\Servicos\ProfissaoRepository">
 
         <id name="id" type="integer" column="id">
             <generator strategy="IDENTITY"/>
         </id>
 
-        <field name="descricao" type="string" length="60" nullable="true" column="descricao" /> 
-        <field name="criadoEm" type="datetime_immutable" column="criado_em" /> 
+        <field name="descricao" type="string" length="60" nullable="true" column="descricao" />
+
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <many-to-many field="prestadores" target-entity="App\Entity\Servicos\Prestador" mapped-by="profissoes" />
+
     </entity>
 </doctrine-mapping>

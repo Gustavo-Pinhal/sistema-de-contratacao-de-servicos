@@ -2,16 +2,24 @@
 
 namespace App\Entity\Servicos;
 
+use App\Entity\Servicos\Prestador;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 class Profissao
 {
     private ?int $id = null;
     private ?string $descricao = null;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
+    
+    /** @var Collection<int, Prestador> */
+    private Collection $prestadores;
 
     public function __construct()
     {
         $this->criadoEm = new \DateTimeImmutable();
+        $this->prestadores = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -35,12 +43,6 @@ class Profissao
         return $this->criadoEm;
     }
 
-    public function setCriadoEm(\DateTimeImmutable $criadoEm): self
-    {
-        $this->criadoEm = $criadoEm;
-        return $this;
-    }
-
     public function getExcluidoEm(): ?\DateTimeImmutable
     {
         return $this->excluidoEm;
@@ -49,6 +51,31 @@ class Profissao
     public function setExcluidoEm(?\DateTimeImmutable $excluidoEm): self
     {
         $this->excluidoEm = $excluidoEm;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Prestador>
+     */
+    public function getPrestadores(): Collection
+    {
+        return $this->prestadores;
+    }
+
+    public function addPrestador(Prestador $prestador): self
+    {
+        if (!$this->prestadores->contains($prestador)) {
+            $this->prestadores->add($prestador);
+            $prestador->addProfissao($this);
+        }
+        return $this;
+    }
+
+    public function removePrestador(Prestador $prestador): self
+    {
+        if ($this->prestadores->removeElement($prestador)) {
+            $prestador->removeProfissao($this);
+        }
         return $this;
     }
 }

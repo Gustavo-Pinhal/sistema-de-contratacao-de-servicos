@@ -6,19 +6,33 @@
 
     <entity name="App\Entity\Servicos\Prestador" 
             table="prestadores" 
-            schema="servicos" 
+            schema="servico" 
             repository-class="App\Repository\Servicos\PrestadorRepository">
 
         <id name="id" type="uuid" column="id" />
 
         <field name="nome" type="string" length="255" nullable="false" />
+
         <field name="ativo" type="boolean" nullable="false" />
+
         <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
         <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
             <join-column name="id_usuario" referenced-column-name="id" unique="true" nullable="false" />
         </one-to-one>
+
+        <many-to-many field="profissoes" target-entity="App\Entity\Servicos\Profissao" inversed-by="prestadores">
+            <join-table name="prestadores_profissoes" schema="servico">
+                <join-columns>
+                    <join-column name="id_prestador" referenced-column-name="id" on-delete="CASCADE" />
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="id_profissao" referenced-column-name="id" on-delete="CASCADE" />
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
 
     </entity>
 </doctrine-mapping>

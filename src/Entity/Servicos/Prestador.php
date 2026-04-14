@@ -3,6 +3,8 @@
 namespace App\Entity\Servicos;
 
 use App\Entity\Auth\Usuario;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class Prestador
@@ -14,11 +16,15 @@ class Prestador
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
+    /** @var Collection<int, Profissao> */
+    private Collection $profissoes;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
         $this->criadoEm = new \DateTimeImmutable();
         $this->ativo = true;
+        $this->profissoes = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -72,6 +78,28 @@ class Prestador
     public function setExcluidoEm(?\DateTimeImmutable $excluidoEm): self
     {
         $this->excluidoEm = $excluidoEm;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Profissao>
+     */
+    public function getProfissoes(): Collection
+    {
+        return $this->profissoes;
+    }
+
+    public function addProfissao(Profissao $profissao): self
+    {
+        if (!$this->profissoes->contains($profissao)) {
+            $this->profissoes->add($profissao);
+        }
+        return $this;
+    }
+
+    public function removeProfissao(Profissao $profissao): self
+    {
+        $this->profissoes->removeElement($profissao);
         return $this;
     }
 }
