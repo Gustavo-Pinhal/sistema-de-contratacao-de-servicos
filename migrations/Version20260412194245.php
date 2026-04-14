@@ -24,9 +24,9 @@ final class Version20260412194245 extends AbstractMigration
             id_servico      UUID            UNIQUE NOT NULL,
             id_prestador    UUID            NOT NULL,
             id_cliente      UUID            NOT NULL,
-            FOREIGN KEY (id_servico)    REFERENCES servicos.servicos    (id),
-            FOREIGN KEY (id_prestador)  REFERENCES servicos.prestadores (id),
-            FOREIGN KEY (id_cliente)    REFERENCES servicos.clientes    (id)
+            FOREIGN KEY (id_servico)    REFERENCES servico.servicos    (id),
+            FOREIGN KEY (id_prestador)  REFERENCES servico.prestadores (id),
+            FOREIGN KEY (id_cliente)    REFERENCES servico.clientes    (id)
         );
         SQL);
 
@@ -34,7 +34,7 @@ final class Version20260412194245 extends AbstractMigration
         CREATE TABLE chat.mensagens (
             id              UUID            PRIMARY KEY,
             id_sala         INTEGER         NOT NULL,
-            id_usuario      INTEGER         NOT NULL,
+            id_usuario      UUID            NOT NULL,
             conteudo        JSONB           NOT NULL,
             envio_em        TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             visualizado_em  TIMESTAMP WITH TIME ZONE,

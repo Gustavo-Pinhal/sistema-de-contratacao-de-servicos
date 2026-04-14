@@ -20,8 +20,10 @@ final class Version20260412154019 extends AbstractMigration
 
         $this->addSql(<<<'SQL'
         CREATE TABLE auth.usuarios (
-            id              SERIAL          PRIMARY KEY,
-            email           VARCHAR(255)    NOT NULL
+            id              UUID            PRIMARY KEY,
+            email           VARCHAR(255)    NOT NULL UNIQUE,
+            roles           JSONB           NOT NULL,
+            password        VARCHAR(255)    NOT NULL
         );
         SQL);
     }

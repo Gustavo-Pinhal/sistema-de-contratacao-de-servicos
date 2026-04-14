@@ -16,22 +16,21 @@ final class Version20260412154025 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA servicos;');
+        $this->addSql('CREATE SCHEMA servico;');
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servicos.prestadores (
+        CREATE TABLE servico.prestadores (
             id              UUID            PRIMARY KEY,
-            id_usuario      INTEGER         UNIQUE NOT NULL,
             nome            VARCHAR(255)    NOT NULL,
             ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
-            FOREIGN KEY (id_usuario) REFERENCES auth.usuarios (id)
+            FOREIGN KEY (id) REFERENCES auth.usuarios (id)
         );
         SQL);
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servicos.profissoes (
+        CREATE TABLE servico.profissoes (
             id              SERIAL          PRIMARY KEY,
             descricao       VARCHAR(60)     ,
             criado_em       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
@@ -40,7 +39,7 @@ final class Version20260412154025 extends AbstractMigration
         SQL);
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servicos.prestadores_profissoes (
+        CREATE TABLE servico.prestadores_profissoes (
             id_prestador    UUID            NOT NULL,
             id_profissao    INTEGER         NOT NULL,
             qtd_prestacoes  INTEGER         NOT NULL DEFAULT 0,
@@ -48,46 +47,47 @@ final class Version20260412154025 extends AbstractMigration
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
             PRIMARY KEY (id_prestador, id_profissao),
-            FOREIGN KEY (id_prestador) REFERENCES servicos.prestadores (id),
-            FOREIGN KEY (id_profissao) REFERENCES servicos.profissoes (id)
+            FOREIGN KEY (id_prestador) REFERENCES servico.prestadores (id),
+            FOREIGN KEY (id_profissao) REFERENCES servico.profissoes (id)
         );
         SQL);
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servicos.clientes (
+        CREATE TABLE servico.clientes (
             id              UUID            PRIMARY KEY, 
-            id_usuario      INTEGER         UNIQUE NOT NULL,
             nome            VARCHAR(255)    NOT NULL,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
-            FOREIGN KEY (id_usuario) REFERENCES auth.usuarios (id)
+            FOREIGN KEY (id) REFERENCES auth.usuarios (id)
         );
         SQL);
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servicos.servicos (
+        CREATE TABLE servico.servicos (
             id              UUID            PRIMARY KEY,
             id_cliente      UUID            NOT NULL,
             id_prestador    UUID            NOT NULL,
             inicio          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             encerramento    TIMESTAMP       ,
-            excluido_em     TIMESTAMP
+            excluido_em     TIMESTAMP       ,
+            FOREIGN KEY (id_cliente) REFERENCES servico.clientes (id),
+            FOREIGN KEY (id_prestador) REFERENCES servico.prestadores (id)
         );
         SQL);
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE servicos.servicos;');
+        $this->addSql('DROP TABLE servico.servicos;');
 
-        $this->addSql('DROP TABLE servicos.clientes;');
+        $this->addSql('DROP TABLE servico.clientes;');
 
-        $this->addSql('DROP TABLE servicos.prestadores_profissoes;');
+        $this->addSql('DROP TABLE servico.prestadores_profissoes;');
 
-        $this->addSql('DROP TABLE servicos.profissoes;');
+        $this->addSql('DROP TABLE servico.profissoes;');
 
-        $this->addSql('DROP TABLE servicos.prestadores;');
+        $this->addSql('DROP TABLE servico.prestadores;');
 
-        $this->addSql('DROP SCHEMA servicos;');
+        $this->addSql('DROP SCHEMA servico;');
     }
 }
