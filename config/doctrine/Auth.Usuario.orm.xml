@@ -9,11 +9,16 @@
             schema="auth" 
             repository-class="App\Repository\Auth\UsuarioRepository">
 
-        <id name="id" type="integer" column="id">
-            <generator strategy="IDENTITY"/>
+        <id name="id" type="uuid" column="id">
+            <generator strategy="CUSTOM"/>
+            <custom-id-generator class="Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator"/>
         </id>
 
-        <field name="email" type="string" length="255" nullable="false" column="email" />
+        <field name="email" type="string" length="255" nullable="false" column="email" unique="true" />
+        
+        <field name="roles" type="json" column="roles" />
+
+        <field name="password" type="string" length="255" nullable="false" column="password" />
 
     </entity>
 </doctrine-mapping>
