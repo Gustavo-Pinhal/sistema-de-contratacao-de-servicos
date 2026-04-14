@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Auth;
+namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
 use Symfony\Component\Uid\Uuid;

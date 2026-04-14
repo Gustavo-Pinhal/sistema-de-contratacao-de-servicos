@@ -4,10 +4,10 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Entity\Auth\Cliente" 
+    <entity name="App\Entity\Servico\Cliente" 
             table="clientes" 
             schema="auth" 
-            repository-class="App\Repository\Auth\ClienteRepository">
+            repository-class="App\Repository\Servico\ClienteRepository">
 
         <id name="id" type="uuid" column="id" />
 
