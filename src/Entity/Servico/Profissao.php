@@ -2,6 +2,7 @@
 
 namespace App\Entity\Servico;
 
+use App\Dto\Request\ProfissaoInputDto;
 use App\Entity\Servico\Prestador;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,7 +13,7 @@ class Profissao
     private ?string $descricao = null;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
-    
+
     /** @var Collection<int, Prestador> */
     private Collection $prestadores;
 
@@ -76,6 +77,19 @@ class Profissao
         if ($this->prestadores->removeElement($prestador)) {
             $prestador->removeProfissao($this);
         }
+        return $this;
+    }
+
+    public static function fromDto(ProfissaoInputDto $dto): self
+    {
+        $entity = new self();
+        $entity->setDescricao($dto->descricao);
+        return $entity;
+    }
+
+    public function atualizarDados(ProfissaoInputDto $dto): self
+    {
+        $this->setDescricao($dto->descricao);
         return $this;
     }
 }
