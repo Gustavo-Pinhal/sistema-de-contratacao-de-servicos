@@ -27,7 +27,6 @@ final class ChatController extends AbstractController
     #[Route('/sala/{id}', methods: ['GET'])]
     public function index(
         Sala $sala,
-        SerializerInterface $serializer,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -44,8 +43,8 @@ final class ChatController extends AbstractController
             'id_sala' => $sala->getId(),
             'topico' => $topico,
             'mercure_token' => $mercureToken,
-            'messages' => $serializer->serialize($mensagens, 'json', ['groups' => 'chat:read']),
-        ], Response::HTTP_OK);
+            'messages' => $mensagens,
+        ], Response::HTTP_OK, [], ['groups' => 'chat:read']);
     }
 
     #[Route('/sala/{id}', methods: ['POST'])]
