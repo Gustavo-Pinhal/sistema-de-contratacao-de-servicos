@@ -2,6 +2,7 @@
 
 namespace App\Entity\Chat;
 
+use App\Entity\Auth\Usuario;
 use App\Entity\Servico\Cliente;
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
@@ -57,6 +58,12 @@ class Sala
     {
         $this->cliente = $cliente;
         return $this;
+    }
+
+    public function eParticipante(Usuario $usuario): bool
+    {
+        return $this->cliente->getId()->equals($usuario->getId())
+            || $this->prestador->getId()->equals($usuario->getId());
     }
 
     /**
