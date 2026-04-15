@@ -4,15 +4,26 @@ namespace App\Entity\Chat;
 
 use App\Dto\Request\Chat\MensagemInputDto;
 use App\Entity\Auth\Usuario;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Mensagem
 {
+    #[Groups(['chat:read'])]
     private ?Uuid $id = null;
+
+    #[Groups(['chat:read'])]
     private ?Usuario $usuario = null;
+
     private ?Sala $sala = null;
+
+    #[Groups(['chat:read'])]
     private array $conteudo = [];
+
+    #[Groups(['chat:read'])]
     private \DateTimeImmutable $envioEm;
+
+    #[Groups(['chat:read'])]
     private ?\DateTimeImmutable $visualizadoEm = null;
 
     public function __construct()
