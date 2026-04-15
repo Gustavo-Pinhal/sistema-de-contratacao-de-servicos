@@ -4,11 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Entity\Chat\Mensagem" 
-            table="mensagens" 
-            schema="chat" 
-            repository-class="App\Repository\Chat\MensagemRepository">
-
+    <entity name="App\Entity\Chat\Mensagem" table="mensagens" schema="chat">
         <id name="id" type="uuid" column="id" />
 
         <many-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
@@ -20,14 +16,10 @@
         </many-to-one>
 
         <field name="conteudo" type="json" column="conteudo">
-            <options>
-                <option name="jsonb">true</option>
-            </options>
+            <options><option name="jsonb">true</option></options>
         </field>
         
         <field name="envioEm" type="datetimetz_immutable" column="envio_em" />
-
         <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
-
     </entity>
 </doctrine-mapping>

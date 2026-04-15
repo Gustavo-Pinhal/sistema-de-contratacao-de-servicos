@@ -2,9 +2,9 @@
 
 namespace App\Entity\Chat;
 
-use App\Entity\Auth\Cliente;
-use App\Entity\Servicos\Prestador;
-use App\Entity\Servicos\Servico;
+use App\Entity\Servico\Cliente;
+use App\Entity\Servico\Prestador;
+use App\Entity\Servico\Servico;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 

@@ -10,7 +10,7 @@ class Mensagem
     private ?Uuid $id = null;
     private ?Usuario $usuario = null;
     private ?Sala $sala = null;
-    private array $conteudo = []; // Mapped to JSONB
+    private array $conteudo = [];
     private \DateTimeImmutable $envioEm;
     private ?\DateTimeImmutable $visualizadoEm = null;
 
