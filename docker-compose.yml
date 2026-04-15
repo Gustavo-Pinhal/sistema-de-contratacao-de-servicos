@@ -14,6 +14,8 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - .:/var/www/html:z
     environment:
@@ -33,6 +35,7 @@ services:
     image: dunglas/mercure
     restart: unless-stopped
     environment:
+      SERVER_NAME: :80 #DEV: O prefixo :80 indica para o Caddy não forçar HTTPS
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_EXTRA_DIRECTIVES: |
