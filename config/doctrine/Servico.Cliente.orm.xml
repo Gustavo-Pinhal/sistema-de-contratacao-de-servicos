@@ -6,7 +6,7 @@
 
     <entity name="App\Entity\Servico\Cliente" 
             table="clientes" 
-            schema="auth" 
+            schema="servico" 
             repository-class="App\Repository\Servico\ClienteRepository">
 
         <id name="id" type="uuid" column="id" />

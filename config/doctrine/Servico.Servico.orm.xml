@@ -6,7 +6,7 @@
 
     <entity name="App\Entity\Servico\Servico" 
             table="servicos" 
-            schema="servicos" 
+            schema="servico" 
             repository-class="App\Repository\Servico\ServicoRepository">
 
         <id name="id" type="uuid" column="id" />
@@ -15,7 +15,7 @@
         <field name="encerramento" type="datetime_immutable" column="encerramento" nullable="true" />
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
-        <many-to-one field="cliente" target-entity="App\Entity\Auth\Cliente">
+        <many-to-one field="cliente" target-entity="App\Entity\Servico\Cliente">
             <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
