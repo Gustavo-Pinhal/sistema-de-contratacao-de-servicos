@@ -2,6 +2,7 @@
 
 namespace App\Entity\Chat;
 
+use App\Dto\Request\Chat\MensagemInputDto;
 use App\Entity\Auth\Usuario;
 use Symfony\Component\Uid\Uuid;
 
@@ -72,5 +73,12 @@ class Mensagem
     {
         $this->visualizadoEm = $visualizadoEm;
         return $this;
+    }
+
+    public static function fromDto(MensagemInputDto $dto): self
+    {
+        $e = new self();
+        $e->setConteudo($dto->conteudo);
+        return $e;
     }
 }
