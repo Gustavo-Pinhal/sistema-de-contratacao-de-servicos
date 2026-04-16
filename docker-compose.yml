@@ -1,4 +1,5 @@
 services:
+  ### Postgres
   database:
     image: postgres:16-alpine
     environment:
@@ -10,6 +11,7 @@ services:
     ports:
       - "5432:5432"
 
+  ### PHP
   php:
     build:
       context: .
@@ -21,6 +23,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://symfony_user:password@database:5432/marido_de_aluguel?serverVersion=16&charset=utf8"
 
+  ### Nginx
   nginx:
     image: nginx:alpine
     ports:
@@ -31,6 +34,7 @@ services:
     depends_on:
       - php
 
+  ### Mercure
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
@@ -51,8 +55,40 @@ services:
     volumes:
       - mercure_data:/data
       - mercure_config:/config
+    
+  ### Seaweed FS
+  seaweed_master:
+    image: chrislusf/seaweedfs
+    command: "master -ip=seaweed_master"
+    ports:
+      - "9333:9333"
+    volumes:
+      - seaweed_master_data:/data # Persiste metadados do cluster
+
+  seaweed_volume:
+    image: chrislusf/seaweedfs
+    command: "volume -mserver=seaweed_master:9333 -port=8080 -images.fix.orientation=true"
+    depends_on:
+      - seaweed_master
+    volumes:
+      - seaweed_volume_data:/data
+
+  seaweed_filer:
+    image: chrislusf/seaweedfs
+    command: 'filer -master=seaweed_master:9333 -s3'
+    ports:
+      - "8333:8333" # Porta que o PHP (S3Client) usa
+      - "8888:8888" # Dashboard Web para visualizar arquivos
+    depends_on:
+      - seaweed_master
+      - seaweed_volume
+    volumes:
+      - seaweed_filer_data:/data
 
 volumes:
   db-data:
   mercure_data:
   mercure_config:
+  seaweed_master_data:
+  seaweed_volume_data:
+  seaweed_filer_data:
