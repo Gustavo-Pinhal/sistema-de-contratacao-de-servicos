@@ -22,3 +22,18 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    Aws\S3\S3Client:
+        arguments:
+            - endpoint: '%env(STORAGE_ENDPOINT)%'
+              region: '%env(STORAGE_REGION)%'
+              version: 'latest'
+              use_path_style_endpoint: true # Crucial para SeaweedFS/Minio
+              credentials:
+                  key: '%env(STORAGE_KEY)%'
+                  secret: '%env(STORAGE_SECRET)%'
+
+    App\Command\StorageSetupCommand:
+        arguments:
+            $publicBucket: '%env(STORAGE_BUCKET_PUBLIC)%'
+            $privateBucket: '%env(STORAGE_BUCKET_PRIVATE)%'
