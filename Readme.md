@@ -28,6 +28,12 @@ Utilizar a **cli** do **symfony** para preparar o banco de dados:
 php bin/console doctrine:migrations:migrate
 ```
 
+Utilizar a **cli** para configurar os buckets
+
+```bash
+php bin/console app:storage:setup
+```
+
 Utilizar a **cli** para gerar as chaves de criptografia
 
 ```bash
