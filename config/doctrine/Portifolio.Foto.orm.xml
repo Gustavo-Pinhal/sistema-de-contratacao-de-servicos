@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Portifolio\Foto" table="fotos" schema="portifolio">
+        <id name="id" type="uuid" column="id" />
+
+        <field name="urlFoto" type="string" length="255" column="url_foto" />
+        <field name="ordem" type="integer" column="ordem" />
+
+        <many-to-one field="projeto" target-entity="App\Entity\Portifolio\Projeto" inversed-by="fotos">
+            <join-column name="id_projeto" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <unique-constraints>
+            <unique-constraint columns="id_projeto,ordem" name="uniq_projeto_ordem" />
+        </unique-constraints>
+    </entity>
+</doctrine-mapping>

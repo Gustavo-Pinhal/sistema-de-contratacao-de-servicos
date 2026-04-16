@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Portifolio\Portifolio" table="portifolios" schema="portifolio">
+        <id name="id" type="guid" column="id" /> <field name="biografia" type="text" nullable="true" />
+        <field name="servicosConcluidos" type="integer" column="servicos_concluidos" />
+
+        <one-to-many field="projetos" target-entity="App\Entity\Portifolio\Projeto" mapped-by="portifolio">
+            <order-by>
+                <order-by-field name="concluidoEm" direction="DESC" />
+            </order-by>
+        </one-to-many>
+    </entity>
+</doctrine-mapping>
