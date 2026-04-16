@@ -2,7 +2,7 @@
 
 namespace App\Entity\Servico;
 
-use App\Dto\Request\ProfissaoInputDto;
+use App\Dto\Request\Admin\ProfissaoInputDto;
 use App\Entity\Servico\Prestador;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

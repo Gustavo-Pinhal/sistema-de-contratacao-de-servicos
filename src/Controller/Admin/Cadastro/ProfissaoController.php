@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin\Cadastro;
 
-use App\Dto\Request\ProfissaoInputDto;
+use App\Dto\Request\Admin\ProfissaoInputDto;
 use App\Entity\Servico\Profissao;
 use App\Repository\Servico\ProfissaoRepository;
 use Doctrine\ORM\EntityManagerInterface;
