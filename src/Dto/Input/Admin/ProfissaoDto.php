@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto\Request\Admin;
+namespace App\Dto\Input\Admin;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class ProfissaoInputDto
+readonly class ProfissaoDto
 {
     public function __construct(
         #[Assert\NotBlank(message: "A descrição é obrigatória")]

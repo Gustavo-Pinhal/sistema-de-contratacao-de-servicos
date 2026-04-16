@@ -2,7 +2,7 @@
 
 namespace App\Entity\Servico;
 
-use App\Dto\Request\Admin\ProfissaoInputDto;
+use App\Dto\Input\Admin\ProfissaoDto;
 use App\Entity\Servico\Prestador;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -80,14 +80,14 @@ class Profissao
         return $this;
     }
 
-    public static function fromDto(ProfissaoInputDto $dto): self
+    public static function fromDto(ProfissaoDto $dto): self
     {
         $entity = new self();
         $entity->setDescricao($dto->descricao);
         return $entity;
     }
 
-    public function atualizarDados(ProfissaoInputDto $dto): self
+    public function atualizarDados(ProfissaoDto $dto): self
     {
         $this->setDescricao($dto->descricao);
         return $this;

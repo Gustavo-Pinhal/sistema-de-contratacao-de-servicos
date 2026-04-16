@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Dto\Request\Chat\MensagemInputDto;
+use App\Dto\Input\Chat\MensagemDto;
 use App\Entity\Auth\Usuario;
 use App\Entity\Chat\Mensagem;
 use App\Entity\Chat\Sala;
@@ -51,7 +51,7 @@ final class ChatController extends AbstractController
     public function enviar(
         Sala $sala,
         #[MapRequestPayload]
-        MensagemInputDto $dto,
+        MensagemDto $dto,
         HubInterface $hub,
         EntityManagerInterface $entityManager,
         SerializerInterface $serializer,

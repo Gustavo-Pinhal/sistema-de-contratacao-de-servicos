@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin\Cadastro;
 
-use App\Dto\Request\Admin\ProfissaoInputDto;
+use App\Dto\Input\Admin\ProfissaoDto;
 use App\Entity\Servico\Profissao;
 use App\Repository\Servico\ProfissaoRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,7 +42,7 @@ final class ProfissaoController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function criar(
         #[MapRequestPayload]
-        ProfissaoInputDto $dto
+        ProfissaoDto $dto
     ): JsonResponse {
         $profissao = Profissao::fromDto($dto);
 
@@ -56,7 +56,7 @@ final class ProfissaoController extends AbstractController
     public function atualizar(
         Profissao $profissao,
         #[MapRequestPayload]
-        ProfissaoInputDto $dto
+        ProfissaoDto $dto
     ): JsonResponse {
         $profissao->atualizarDados($dto);
 

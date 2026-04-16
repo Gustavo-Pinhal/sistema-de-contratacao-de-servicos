@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto\Request\Chat;
+namespace App\Dto\Input\Chat;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class MensagemInputDto
+readonly class MensagemDto
 {
     public function __construct(
         #[Assert\NotBlank(message: "O conteúdo da mensagem não pode estar vazio")]
