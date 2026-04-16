@@ -2,10 +2,11 @@
 
 namespace App\Dto\Output\Portifolio;
 
+use App\Entity\Portifolio\Foto;
 use App\Entity\Portifolio\Projeto;
 use Symfony\Component\Uid\Uuid;
 
-readonly class ProjetoResumidoDto
+readonly class ProjetoDto
 {
     private function __construct(
         readonly public Uuid $id,
@@ -14,7 +15,7 @@ readonly class ProjetoResumidoDto
         readonly public string $regiao,
         readonly public ?string $valor,
         readonly public ?string $concluido_em,
-        readonly public ?string $url_foto_capa,
+        readonly public array $urls_fotos,
     ) {}
 
     public static function fromEntity(Projeto $projeto): self
@@ -23,9 +24,14 @@ readonly class ProjetoResumidoDto
             ? $projeto->getValor()
             : null;
 
-        $concluidoEm = $projeto->getExibirConcluidoEm()
-            ? $projeto->getConcluidoEm()
+        $concluidoEm = $projeto->getExibirConcluidoEm() && $projeto->getConcluidoEm()
+            ? $projeto->getConcluidoEm()->format('Y-m-d')
             : null;
+
+        $urlFotos = array_map(
+            fn(Foto $foto) => $foto->getUrlFoto(),
+            $projeto->getFotos()->toArray()
+        );
 
         return new self(
             $projeto->getId(),
@@ -34,7 +40,7 @@ readonly class ProjetoResumidoDto
             $projeto->getRegiao(),
             $valor,
             $concluidoEm,
-            $projeto->getFotos()->first()->getUrlFoto(),
+            $urlFotos,
         );
     }
 }

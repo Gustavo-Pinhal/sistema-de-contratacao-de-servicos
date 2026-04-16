@@ -16,7 +16,7 @@ readonly class PortifolioDto
     public static function fromEntity(Portifolio $portifolio): self
     {
         $projetos = array_map(
-            fn(Projeto $projeto) => ProjetoResumidoDto::fromEntity($projeto),
+            fn(Projeto $projeto) => ProjetoDto::fromEntity($projeto),
             $portifolio->getProjetos()->toArray(),
         );
 
