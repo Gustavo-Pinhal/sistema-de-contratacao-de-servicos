@@ -83,6 +83,42 @@ final class ChatController extends AbstractController
         return $this->json($mensagem, Response::HTTP_CREATED, [], ['groups' => 'chat:read']);
     }
 
+    #[Route('/sala/{id}/upload', methods: ['POST'])]
+    public function upload(
+        Sala $sala,
+        Request $request,
+        ChatMediaService $mediaService,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $usuario = $this->getUser();
+
+        if (!$sala->eParticipante($usuario)) {
+            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
+        }
+
+        $file = $request->files->get('file');
+        if (!$file) {
+            return $this->json(['error' => 'Nenhum arquivo enviado'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $caminhoS3 = $mediaService->uploadChatFile($file, $sala);
+
+        $arquivo = new Arquivo();
+        $arquivo->setCaminho($caminhoS3);
+        $arquivo->setMimeType($file->getMimeType());
+        $arquivo->setTamanho($file->getSize());
+        $arquivo->setSala($sala);
+
+        $entityManager->persist($arquivo);
+        $entityManager->flush();
+
+        return $this->json([
+            'id' => $arquivo->getId(),
+            'url_temporaria' => $mediaService->generateSecureUrl($caminhoS3),
+            'mime_type' => $arquivo->getMimeType()
+        ], Response::HTTP_CREATED);
+    }
+
     private function createMercureCookie(
         Usuario $usuario,
         Sala $salaPermitida,
