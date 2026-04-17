@@ -2,34 +2,27 @@
 
 namespace App\Entity\Chat;
 
-use App\Dto\Input\Chat\MensagemDto;
 use App\Entity\Auth\Usuario;
-use Symfony\Component\Serializer\Attribute\Groups;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class Mensagem
 {
-    #[Groups(['chat:read'])]
     private ?Uuid $id = null;
-
-    #[Groups(['chat:read'])]
     private ?Usuario $usuario = null;
-
     private ?Sala $sala = null;
-
-    #[Groups(['chat:read'])]
     private array $conteudo = [];
-
-    #[Groups(['chat:read'])]
+    private ?Mensagem $respondeA = null;
+    private Collection $arquivos;
     private \DateTimeImmutable $envioEm;
-
-    #[Groups(['chat:read'])]
     private ?\DateTimeImmutable $visualizadoEm = null;
 
     public function __construct()
     {
         $this->id = Uuid::v7();
         $this->envioEm = new \DateTimeImmutable();
+        $this->arquivos = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -42,9 +35,9 @@ class Mensagem
         return $this->usuario;
     }
 
-    public function setUsuario(Usuario $usuario): self
+    public function setUsuario(Usuario $u): self
     {
-        $this->usuario = $usuario;
+        $this->usuario = $u;
         return $this;
     }
 
@@ -53,9 +46,9 @@ class Mensagem
         return $this->sala;
     }
 
-    public function setSala(Sala $sala): self
+    public function setSala(Sala $s): self
     {
-        $this->sala = $sala;
+        $this->sala = $s;
         return $this;
     }
 
@@ -64,10 +57,26 @@ class Mensagem
         return $this->conteudo;
     }
 
-    public function setConteudo(array $conteudo): self
+    public function setConteudo(array $c): self
     {
-        $this->conteudo = $conteudo;
+        $this->conteudo = $c;
         return $this;
+    }
+
+    public function getRespondeA(): ?Mensagem
+    {
+        return $this->respondeA;
+    }
+
+    public function setRespondeA(?Mensagem $r): self
+    {
+        $this->respondeA = $r;
+        return $this;
+    }
+
+    public function getArquivos(): Collection
+    {
+        return $this->arquivos;
     }
 
     public function getEnvioEm(): \DateTimeImmutable
@@ -80,16 +89,9 @@ class Mensagem
         return $this->visualizadoEm;
     }
 
-    public function setVisualizadoEm(?\DateTimeImmutable $visualizadoEm): self
+    public function setVisualizadoEm(?\DateTimeImmutable $v): self
     {
-        $this->visualizadoEm = $visualizadoEm;
+        $this->visualizadoEm = $v;
         return $this;
-    }
-
-    public static function fromDto(MensagemDto $dto): self
-    {
-        $e = new self();
-        $e->setConteudo($dto->conteudo);
-        return $e;
     }
 }

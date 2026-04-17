@@ -7,6 +7,12 @@
     <entity name="App\Entity\Chat\Mensagem" table="mensagens" schema="chat">
         <id name="id" type="uuid" column="id" />
 
+        <field name="conteudo" type="json" column="conteudo">
+            <options><option name="jsonb">true</option></options>
+        </field>
+        <field name="envioEm" type="datetimetz_immutable" column="envio_em" />
+        <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
+
         <many-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
             <join-column name="id_usuario" referenced-column-name="id" nullable="false" />
         </many-to-one>
@@ -15,11 +21,10 @@
             <join-column name="id_sala" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <field name="conteudo" type="json" column="conteudo">
-            <options><option name="jsonb">true</option></options>
-        </field>
-        
-        <field name="envioEm" type="datetimetz_immutable" column="envio_em" />
-        <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
+        <many-to-one field="respondeA" target-entity="App\Entity\Chat\Mensagem">
+            <join-column name="id_responde" referenced-column-name="id" nullable="true" />
+        </many-to-one>
+
+        <one-to-many field="arquivos" target-entity="App\Entity\Chat\Arquivo" mapped-by="mensagem" />
     </entity>
 </doctrine-mapping>

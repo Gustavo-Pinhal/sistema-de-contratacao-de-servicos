@@ -36,19 +36,34 @@ final class Version20260412194245 extends AbstractMigration
             id_sala         INTEGER         NOT NULL,
             id_usuario      UUID            NOT NULL,
             conteudo        JSONB           NOT NULL,
+            id_responde     UUID            ,
             envio_em        TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             visualizado_em  TIMESTAMP WITH TIME ZONE,
             FOREIGN KEY (id_sala)       REFERENCES chat.sala            (id),
-            FOREIGN KEY (id_usuario)    REFERENCES auth.usuarios        (id)
+            FOREIGN KEY (id_usuario)    REFERENCES auth.usuarios        (id),
+            FOREIGN KEY (id_responde)   REFERENCES chat.mensagem        (id)
         );
         SQL);
 
         $this->addSql('CREATE INDEX idx__mensagens__id_sala ON chat.mensagens (id_sala);');
+
+        $this->addSql(<<<'SQL'
+        CREATE TABLE chat.arquivos (
+            id              UUID            PRIMARY KEY,
+            id_mensagem     UUID            NOT NULL,
+            caminho         VARCHAR(512)    NOT NULL,
+            mime_type       VARCHAR(100)    NOT NULL,
+            excluido_em     TIMESTAMP       ,
+            FOREIGN KEY (id_mensagem)   REFERENCES chat.mensagens       (id)
+        );
+        SQL);
+
+        $this->addSql('CREATE INDEX idx__arquivos__id_mensagem ON chat.arquivos (id_mensagem');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP INDEX idx__mensagens__id_sala;');
+        $this->addSql('DROP TABLE chat.arquivos;');
 
         $this->addSql('DROP TABLE chat.mensagens;');
 
