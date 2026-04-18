@@ -31,7 +31,7 @@ Caso usuários não existam, utilize a cli `app:create-app-user`.
 Com a sala criada, abra o chat com
 
 ```bash
-curl -X GET http://localhost:8080/api/chat/1 \
+curl -k -X GET https://localhost/api/chat/1 \
      -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -87,9 +87,9 @@ Mensagens com arquivo não possuem `"referencia"`.
 Para abrir uma conexão com o mercury, utilize
 
 ```bash
-curl -i -N \
+curl -i -k -N \
      -H "Authorization: Bearer JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE" \
-     "http://localhost:3000/.well-known/mercure?topic=http://chat/com/sala/1"
+     "https://localhost/.well-known/mercure?topic=http://chat/com/sala/1"
 ```
 
 substitua JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE pela chave retornada no campo `"mercure_token"` da requisição anterior.
@@ -105,7 +105,7 @@ Note que o terminal ficou travado nesta requisição, isto pois está escutando 
 Abra um novo terminal
 
 ```bash
-curl -X POST http://localhost:8080/api/chat/1 \
+curl -k -X POST https://localhost/api/chat/1 \
      -H "Authorization: Bearer $TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"texto": "Olá, esta é uma mensagem de teste!", "responde": "060ab53d-0bb2-7482-8000-ab029e8fa2eb"}'
@@ -131,7 +131,7 @@ a requisição responde com um json no seguinte formato
 Envie um arquivo com
 
 ```bash
-curl -X POST "http://localhost:8080/api/chat/1/upload" \
+curl -k -X POST "https://localhost/api/chat/1/upload" \
      -H "Authorization: Bearer $TOKEN" \
      -F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
 ```
@@ -157,5 +157,5 @@ a requisição responde com um json no seguinte formato
 Recupere a imagem com
 
 ```bash
-curl -o foto_baixada.jpg "URL_ASSINADA"
+curl -o -k foto_baixada.jpg "URL_ASSINADA"
 ```

@@ -58,7 +58,7 @@ final class ChatController extends AbstractController
                     'id' => $sala->getPrestador()->getId(),
                 ],
             ],
-        ], Response::HTTP_OK);
+        ], Response::HTTP_OK, [], ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
     #[Route('/{id}', methods: ['POST'])]

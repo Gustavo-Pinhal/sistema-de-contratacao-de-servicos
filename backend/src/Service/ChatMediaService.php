@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Chat\Arquivo;
 use Aws\S3\S3Client;
+use GuzzleHttp\Psr7\Uri;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ChatMediaService
@@ -36,24 +37,26 @@ class ChatMediaService
 
     public function generateSecureUrl(string $filePath, string $expiration = '+20 minutes'): string
     {
+        $publicHost = $_ENV['STORAGE_PUBLIC_HOST'] ?? null;
+
         $cmd = $this->s3Client->getCommand('GetObject', [
             'Bucket' => $this->privateBucket,
             'Key'    => $filePath,
         ]);
 
-        $request = $this->s3Client->createPresignedRequest($cmd, $expiration);
-        $url = (string) $request->getUri();
+        $publicUri = new Uri($publicHost);
 
-        $publicHost = $_ENV['STORAGE_PUBLIC_HOST'] ?? null;
-        if ($publicHost) {
-            $parseInternal = parse_url($_ENV['STORAGE_ENDPOINT']);
-            $url = str_replace(
-                $parseInternal['host'] . ':' . $parseInternal['port'],
-                parse_url($publicHost, PHP_URL_HOST) . ':' . parse_url($publicHost, PHP_URL_PORT),
-                $url
-            );
+        $request = $this->s3Client->createPresignedRequest($cmd, $expiration);
+
+        $newUri = $request->getUri()
+            ->withScheme($publicUri->getScheme())
+            ->withHost($publicUri->getHost())
+            ->withPort($publicUri->getPort());
+
+        if ($publicUri->getPath() !== '') {
+            $newUri = $newUri->withPath(rtrim($publicUri->getPath(), '/') . '/' . ltrim($newUri->getPath(), '/'));
         }
 
-        return $url;
+        return (string) $newUri;
     }
 }
