@@ -8,8 +8,10 @@ class Arquivo
 {
     private ?Uuid $id = null;
     private ?Mensagem $mensagem = null;
+    private ?Sala $sala = null;
     private ?string $caminho = null;
     private ?string $mimeType = null;
+    private ?int $tamanho = null;
     private ?\DateTimeImmutable $excluidoEm = null;
 
     public function __construct()
@@ -33,6 +35,17 @@ class Arquivo
         return $this;
     }
 
+    public function getSala(): ?Sala
+    {
+        return $this->sala;
+    }
+
+    public function setSala(?Sala $sala): self
+    {
+        $this->sala = $sala;
+        return $this;
+    }
+
     public function getCaminho(): ?string
     {
         return $this->caminho;
@@ -52,6 +65,17 @@ class Arquivo
     public function setMimeType(string $mimeType): self
     {
         $this->mimeType = $mimeType;
+        return $this;
+    }
+
+    public function getTamanho(): ?int
+    {
+        return $this->tamanho;
+    }
+
+    public function setTamanho(?int $tamanho): self
+    {
+        $this->tamanho = $tamanho;
         return $this;
     }
 

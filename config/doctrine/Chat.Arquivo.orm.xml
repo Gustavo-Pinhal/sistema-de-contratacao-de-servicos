@@ -6,12 +6,18 @@
 
     <entity name="App\Entity\Chat\Arquivo" table="arquivos" schema="chat">
         <id name="id" type="uuid" column="id" />
+        
         <field name="caminho" type="string" length="512" />
         <field name="mimeType" type="string" length="100" column="mime_type" />
+        <field name="tamanho" type="integer" />
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
         <many-to-one field="mensagem" target-entity="App\Entity\Chat\Mensagem" inversed-by="arquivos">
-            <join-column name="id_mensagem" referenced-column-name="id" nullable="false" />
+            <join-column name="id_mensagem" referenced-column-name="id" nullable="true" />
+        </many-to-one>
+
+        <many-to-one field="sala" target-entity="App\Entity\Chat\Sala">
+            <join-column name="id_sala" referenced-column-name="id" nullable="false" />
         </many-to-one>
     </entity>
 </doctrine-mapping>
