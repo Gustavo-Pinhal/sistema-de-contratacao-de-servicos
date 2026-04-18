@@ -4,14 +4,20 @@ namespace App\Controller;
 
 use App\Dto\Input\Chat\MensagemDto;
 use App\Entity\Auth\Usuario;
+use App\Entity\Chat\Arquivo;
 use App\Entity\Chat\Mensagem;
 use App\Entity\Chat\Sala;
+use App\Factory\Chat\MensagemArquivoFactory;
+use App\Mapper\Chat\MensagemInputMapper;
+use App\Mapper\Chat\MensagemOutputMapper;
+use App\Service\ChatMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Mercure\HubInterface;
@@ -24,9 +30,10 @@ final class ChatController extends AbstractController
 {
     private const TOPICO = 'http://chat/com/sala/';
 
-    #[Route('/sala/{id}', methods: ['GET'])]
+    #[Route('/{id}', methods: ['GET'])]
     public function index(
         Sala $sala,
+        MensagemOutputMapper $mapper,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -34,26 +41,23 @@ final class ChatController extends AbstractController
             return $this->json(['error' => 'Acesso negado'], 403);
         }
 
-        $mensagens = $sala->getMensagens();
-        $topico = self::TOPICO . $sala->getId();
-
-        $mercureToken = $this->createMercureCookie($usuario, $sala);
-
         return $this->json([
             'id_sala' => $sala->getId(),
-            'topico' => $topico,
-            'mercure_token' => $mercureToken,
-            'messages' => $mensagens,
-        ], Response::HTTP_OK, [], ['groups' => 'chat:read']);
+            'topico' => self::TOPICO . $sala->getId(),
+            'mercure_token' => $this->createMercureCookie($usuario, $sala),
+            'messages' => $mapper->toCollection($sala->getMensagens()),
+        ], Response::HTTP_OK);
     }
 
-    #[Route('/sala/{id}', methods: ['POST'])]
+    #[Route('/{id}', methods: ['POST'])]
     public function enviar(
         Sala $sala,
         #[MapRequestPayload]
         MensagemDto $dto,
         HubInterface $hub,
         EntityManagerInterface $entityManager,
+        MensagemInputMapper $inputMapper,
+        MensagemOutputMapper $outputMapper,
         SerializerInterface $serializer,
     ): JsonResponse {
         $usuario = $this->getUser();
@@ -62,33 +66,30 @@ final class ChatController extends AbstractController
             return $this->json(['error' => 'Você não tem permissão para enviar mensagens nesta sala.'], 403);
         }
 
-        $mensagem = Mensagem::fromDto($dto);
-        $mensagem->setSala($sala);
-        $mensagem->setUsuario($usuario);
+        $mensagem = $inputMapper->toEntity($dto, $sala, $usuario);
 
         $entityManager->persist($mensagem);
         $entityManager->flush();
 
-        $topico = self::TOPICO . $sala->getId();
-        $updateData = $serializer->serialize($mensagem, 'json', ['groups' => 'chat:read']);
-
         $update = new Update(
-            $topico,
-            $updateData,
+            self::TOPICO . $sala->getId(),
+            $serializer->serialize($outputMapper->toDto($mensagem), 'json'),
             true,
         );
 
         $hub->publish($update);
 
-        return $this->json($mensagem, Response::HTTP_CREATED, [], ['groups' => 'chat:read']);
+        return $this->json($dto, Response::HTTP_CREATED);
     }
 
-    #[Route('/sala/{id}/upload', methods: ['POST'])]
+    #[Route('/{id}/upload', methods: ['POST'])]
     public function upload(
         Sala $sala,
         Request $request,
         ChatMediaService $mediaService,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MensagemOutputMapper $mapper,
+        MensagemArquivoFactory $factory,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -101,22 +102,15 @@ final class ChatController extends AbstractController
             return $this->json(['error' => 'Nenhum arquivo enviado'], Response::HTTP_BAD_REQUEST);
         }
 
-        $caminhoS3 = $mediaService->uploadChatFile($file, $sala);
+        $mensagem = $factory->create($file, $sala, $usuario);
 
-        $arquivo = new Arquivo();
-        $arquivo->setCaminho($caminhoS3);
-        $arquivo->setMimeType($file->getMimeType());
-        $arquivo->setTamanho($file->getSize());
-        $arquivo->setSala($sala);
+        $caminhoS3 = $mediaService->uploadChatFile($file, $mensagem->getArquivo());
+        $mensagem->getArquivo()->setCaminho($caminhoS3);
 
-        $entityManager->persist($arquivo);
+        $entityManager->persist($mensagem);
         $entityManager->flush();
 
-        return $this->json([
-            'id' => $arquivo->getId(),
-            'url_temporaria' => $mediaService->generateSecureUrl($caminhoS3),
-            'mime_type' => $arquivo->getMimeType()
-        ], Response::HTTP_CREATED);
+        return $this->json($mapper->toDto($mensagem), Response::HTTP_CREATED);
     }
 
     private function createMercureCookie(
