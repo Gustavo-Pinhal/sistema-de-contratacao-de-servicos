@@ -25,6 +25,11 @@
             <join-column name="id_responde" referenced-column-name="id" nullable="true" />
         </many-to-one>
 
-        <one-to-many field="arquivos" target-entity="App\Entity\Chat\Arquivo" mapped-by="mensagem" />
+        <one-to-one field="arquivo" target-entity="App\Entity\Chat\Arquivo" mapped-by="mensagem">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
     </entity>
 </doctrine-mapping>

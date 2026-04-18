@@ -50,18 +50,13 @@ final class Version20260412194245 extends AbstractMigration
         $this->addSql(<<<'SQL'
         CREATE TABLE chat.arquivos (
             id              UUID            PRIMARY KEY,
-            id_mensagem     UUID            ,
-            id_sala         INTEGER         NOT NULL,
             caminho         VARCHAR(512)    NOT NULL,
             mime_type       VARCHAR(100)    NOT NULL,
             tamanho         INTEGER         NOT NULL,
             excluido_em     TIMESTAMP       ,
-            FOREIGN KEY (id_mensagem)   REFERENCES chat.mensagens       (id),
-            FOREIGN KEY (id_sala)       REFERENCES chat.sala            (id)
+            FOREIGN KEY (id)            REFERENCES chat.mensagens       (id)
         );
         SQL);
-
-        $this->addSql('CREATE INDEX idx__arquivos__id_mensagem ON chat.arquivos (id_mensagem');
     }
 
     public function down(Schema $schema): void

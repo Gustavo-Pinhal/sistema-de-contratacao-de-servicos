@@ -3,8 +3,6 @@
 namespace App\Entity\Chat;
 
 use App\Entity\Auth\Usuario;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class Mensagem
@@ -14,7 +12,7 @@ class Mensagem
     private ?Sala $sala = null;
     private array $conteudo = [];
     private ?Mensagem $respondeA = null;
-    private Collection $arquivos;
+    private ?Arquivo $arquivo;
     private \DateTimeImmutable $envioEm;
     private ?\DateTimeImmutable $visualizadoEm = null;
 
@@ -22,7 +20,6 @@ class Mensagem
     {
         $this->id = Uuid::v7();
         $this->envioEm = new \DateTimeImmutable();
-        $this->arquivos = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -74,9 +71,15 @@ class Mensagem
         return $this;
     }
 
-    public function getArquivos(): Collection
+    public function getArquivo(): ?Arquivo
     {
-        return $this->arquivos;
+        return $this->arquivo;
+    }
+
+    public function setArquivo(?Arquivo $arquivo): self
+    {
+        $this->arquivo = $arquivo;
+        return $this;
     }
 
     public function getEnvioEm(): \DateTimeImmutable

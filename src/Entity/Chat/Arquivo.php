@@ -6,22 +6,15 @@ use Symfony\Component\Uid\Uuid;
 
 class Arquivo
 {
-    private ?Uuid $id = null;
     private ?Mensagem $mensagem = null;
-    private ?Sala $sala = null;
     private ?string $caminho = null;
     private ?string $mimeType = null;
     private ?int $tamanho = null;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct()
-    {
-        $this->id = Uuid::v7();
-    }
-
     public function getId(): ?Uuid
     {
-        return $this->id;
+        return $this->mensagem?->getId();
     }
 
     public function getMensagem(): ?Mensagem
@@ -32,17 +25,6 @@ class Arquivo
     public function setMensagem(?Mensagem $mensagem): self
     {
         $this->mensagem = $mensagem;
-        return $this;
-    }
-
-    public function getSala(): ?Sala
-    {
-        return $this->sala;
-    }
-
-    public function setSala(?Sala $sala): self
-    {
-        $this->sala = $sala;
         return $this;
     }
 
