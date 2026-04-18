@@ -20,7 +20,7 @@ class MensagemOutputMapper
         $arquivo = null;
         if ($mensagem->getArquivo()) {
             $arquivo = [
-                'id' => $mensagem->getArquivo(),
+                'id' => $mensagem->getArquivo()->getId(),
                 'url' => $this->mediaService->generateSecureUrl($mensagem->getArquivo()->getCaminho()),
                 'mime_type' => $mensagem->getArquivo()->getMimeType(),
             ];

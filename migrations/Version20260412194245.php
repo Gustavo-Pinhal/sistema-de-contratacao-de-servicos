@@ -41,7 +41,7 @@ final class Version20260412194245 extends AbstractMigration
             visualizado_em  TIMESTAMP WITH TIME ZONE,
             FOREIGN KEY (id_sala)       REFERENCES chat.sala            (id),
             FOREIGN KEY (id_usuario)    REFERENCES auth.usuarios        (id),
-            FOREIGN KEY (id_responde)   REFERENCES chat.mensagem        (id)
+            FOREIGN KEY (id_responde)   REFERENCES chat.mensagens       (id)
         );
         SQL);
 

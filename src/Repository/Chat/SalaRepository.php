@@ -16,28 +16,19 @@ class SalaRepository extends ServiceEntityRepository
         parent::__construct($registry, Sala::class);
     }
 
-    //    /**
-    //     * @return Sala[] Returns an array of Sala objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Sala
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Retorna um array com os nomes do cliente e do prestador da sala.
+     * * @return array{cliente: string, prestador: string}|null
+     */
+    public function findParticipantesNomes(Sala $sala): ?array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('c.nome as cliente', 'p.nome as prestador')
+            ->join('s.cliente', 'c')
+            ->join('s.prestador', 'p')
+            ->where('s.id = :id')
+            ->setParameter('id', $sala->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

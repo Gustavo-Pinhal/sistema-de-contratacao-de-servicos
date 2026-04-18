@@ -12,7 +12,7 @@ class Mensagem
     private ?Sala $sala = null;
     private array $conteudo = [];
     private ?Mensagem $respondeA = null;
-    private ?Arquivo $arquivo;
+    private ?Arquivo $arquivo = null;
     private \DateTimeImmutable $envioEm;
     private ?\DateTimeImmutable $visualizadoEm = null;
 

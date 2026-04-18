@@ -29,7 +29,6 @@ class ChatMediaService
             'Key'                  => $nomeArquivo,
             'Body'                 => fopen($file->getPathname(), 'r'),
             'ContentType'          => $mimeType,
-            'ServerSideEncryption' => 'AES256',
         ]);
 
         return $nomeArquivo;
@@ -43,7 +42,18 @@ class ChatMediaService
         ]);
 
         $request = $this->s3Client->createPresignedRequest($cmd, $expiration);
+        $url = (string) $request->getUri();
 
-        return (string) $request->getUri();
+        $publicHost = $_ENV['STORAGE_PUBLIC_HOST'] ?? null;
+        if ($publicHost) {
+            $parseInternal = parse_url($_ENV['STORAGE_ENDPOINT']);
+            $url = str_replace(
+                $parseInternal['host'] . ':' . $parseInternal['port'],
+                parse_url($publicHost, PHP_URL_HOST) . ':' . parse_url($publicHost, PHP_URL_PORT),
+                $url
+            );
+        }
+
+        return $url;
     }
 }

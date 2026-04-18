@@ -4,12 +4,11 @@ namespace App\Controller;
 
 use App\Dto\Input\Chat\MensagemDto;
 use App\Entity\Auth\Usuario;
-use App\Entity\Chat\Arquivo;
-use App\Entity\Chat\Mensagem;
 use App\Entity\Chat\Sala;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Mapper\Chat\MensagemInputMapper;
 use App\Mapper\Chat\MensagemOutputMapper;
+use App\Repository\Chat\SalaRepository;
 use App\Service\ChatMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lcobucci\JWT\Configuration;
@@ -34,6 +33,7 @@ final class ChatController extends AbstractController
     public function index(
         Sala $sala,
         MensagemOutputMapper $mapper,
+        SalaRepository $repositorio,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -41,11 +41,23 @@ final class ChatController extends AbstractController
             return $this->json(['error' => 'Acesso negado'], 403);
         }
 
+        ['cliente' => $nomeCliente, 'prestador' => $nomePrestador] = $repositorio->findParticipantesNomes($sala);
+
         return $this->json([
             'id_sala' => $sala->getId(),
             'topico' => self::TOPICO . $sala->getId(),
             'mercure_token' => $this->createMercureCookie($usuario, $sala),
             'messages' => $mapper->toCollection($sala->getMensagens()),
+            'participantes' => [
+                [
+                    'nome' => $nomeCliente,
+                    'id' => $sala->getCliente()->getId(),
+                ],
+                [
+                    'nome' => $nomePrestador,
+                    'id' => $sala->getPrestador()->getId(),
+                ],
+            ],
         ], Response::HTTP_OK);
     }
 
@@ -71,15 +83,16 @@ final class ChatController extends AbstractController
         $entityManager->persist($mensagem);
         $entityManager->flush();
 
+        $outputDto = $outputMapper->toDto($mensagem);
         $update = new Update(
             self::TOPICO . $sala->getId(),
-            $serializer->serialize($outputMapper->toDto($mensagem), 'json'),
+            $serializer->serialize($outputDto, 'json'),
             true,
         );
 
         $hub->publish($update);
 
-        return $this->json($dto, Response::HTTP_CREATED);
+        return $this->json($outputDto, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}/upload', methods: ['POST'])]
@@ -90,6 +103,8 @@ final class ChatController extends AbstractController
         EntityManagerInterface $entityManager,
         MensagemOutputMapper $mapper,
         MensagemArquivoFactory $factory,
+        HubInterface $hub,
+        SerializerInterface $serializer,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -110,7 +125,16 @@ final class ChatController extends AbstractController
         $entityManager->persist($mensagem);
         $entityManager->flush();
 
-        return $this->json($mapper->toDto($mensagem), Response::HTTP_CREATED);
+        $dto = $mapper->toDto($mensagem);
+        $update = new Update(
+            self::TOPICO . $sala->getId(),
+            $serializer->serialize($dto, 'json'),
+            true,
+        );
+
+        $hub->publish($update);
+
+        return $this->json($dto, Response::HTTP_CREATED, [], ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
     private function createMercureCookie(

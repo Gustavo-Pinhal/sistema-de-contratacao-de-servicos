@@ -10,7 +10,7 @@ readonly class MensagemDto
         public string $tipo,
         public ?string $texto,
         public ?string $referencia,
-        public array $arquivo, // Array de objetos com ID e URL
+        public ?array $arquivo, // Array de objetos com ID e URL
         public string $enviado_em,
     ) {}
 }

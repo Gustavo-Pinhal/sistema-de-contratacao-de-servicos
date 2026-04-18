@@ -22,7 +22,10 @@ class MensagemInputMapper
         $mensagem->setSala($sala);
         $mensagem->setUsuario($usuario);
         
-        $mensagem->setConteudo(['tipo' => 'texto']);
+        $mensagem->setConteudo([
+            'tipo' => 'texto',
+            'texto' => $dto->texto
+        ]);
 
         if ($dto->responde) {
             $referencia = $this->em->getReference(Mensagem::class, $dto->responde);
