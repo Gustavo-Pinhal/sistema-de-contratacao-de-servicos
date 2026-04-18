@@ -31,9 +31,56 @@ Caso usuários não existam, utilize a cli `app:create-app-user`.
 Com a sala criada, abra o chat com
 
 ```bash
-curl -X GET http://localhost:8080/api/chat/sala/1 \
+curl -X GET http://localhost:8080/api/chat/1 \
      -H "Authorization: Bearer $TOKEN"
 ```
+
+Troque o id da sala pelo id correto.
+
+A resposta desta requisição será um json no formato
+
+```json
+{
+     "id_sala": 1,
+     "topico": "http://chat/com/sala/1",
+     "mercure_token": JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE,
+     "participantes": [
+          {
+               "nome": "fulano",
+               "id":  "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+          }, 
+          {
+               "nome": "beltrano",
+               "id":  "9be4df61-73ca-11e4-aa0d-00e098032baa",
+          }
+     ],
+     "messages": [
+          {
+               "id": "060ab53c-0bb2-7482-8000-ab029e8fa2ea",
+               "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+               "tipo": "texto",
+               "texto": "olá",
+               "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
+               "enviado_em": "04/11/2025 22:14"
+          },
+          {
+               "id": "060ab53c-0bb2-7482-8000-ab029e8fa2bb",
+               "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+               "tipo": "audio",
+               "arquivo": {
+                    "id": "060ab53e-0bb2-7482-8000-ab029e8fa2ea",
+                    "url": "url-assinada-pelo-service",
+                    "mime_type": "xxx"
+               },
+               "enviado_em": "04/11/2025 22:14"
+          }
+     ]
+}
+```
+
+onde `"tipo"` pode ser *texto*, *audio*, *foto* ou *vídeo*.
+
+Mensagens com arquivo não possuem `"referencia"`.
 
 ### Conexão Mercure
 
@@ -47,19 +94,68 @@ curl -i -N \
 
 substitua JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE pela chave retornada no campo `"mercure_token"` da requisição anterior.
 
+substitua o tópico pelo tópico retornado na requisição anterior.
+
 substitua também o id da sala
 
 Note que o terminal ficou travado nesta requisição, isto pois está escutando continuamente o servidor de eventos.
 
-### Enviar mensagem
+### Enviar mensagem de texto
 
 Abra um novo terminal
 
 ```bash
-curl -X POST http://localhost:8080/api/chat/sala/1 \
+curl -X POST http://localhost:8080/api/chat/1 \
      -H "Authorization: Bearer $TOKEN" \
      -H "Content-Type: application/json" \
-     -d '{"conteudo": {"texto": "Olá, esta é uma mensagem de teste!"}}'
+     -d '{"texto": "Olá, esta é uma mensagem de teste!", "responde": "060ab53d-0bb2-7482-8000-ab029e8fa2eb"}'
 ```
 
 substitua o id da sala
+
+a requisição responde com um json no seguinte formato
+
+```json
+{
+     "id": "060ab53c-0bb2-7482-8000-ab029e8fa2ea",
+     "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+     "tipo": "texto",
+     "texto": "olá",
+     "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
+     "enviado_em": "04/11/2025 22:14"
+}
+```
+
+### Enviar mensagem com arquivo
+
+Envie um arquivo com
+
+```bash
+curl -X POST "http://localhost:8080/api/chat/1/upload" \
+     -H "Authorization: Bearer $TOKEN" \
+     -F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
+```
+
+a requisição responde com um json no seguinte formato
+
+```json
+{
+     "id": "060ab53c-0bb2-7482-8000-ab029e8fa2bb",
+     "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
+     "tipo": "audio",
+     "arquivo": {
+          "id": "060ab53e-0bb2-7482-8000-ab029e8fa2ea",
+          "url": "URL_ASSINADA",
+     },
+     "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
+     "enviado_em": "04/11/2025 22:14"
+}
+```
+
+### Recuperar a mensagem
+
+Recupere a imagem com
+
+```bash
+curl -o foto_baixada.jpg "URL_ASSINADA"
+```
