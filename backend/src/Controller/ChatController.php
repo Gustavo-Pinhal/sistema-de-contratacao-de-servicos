@@ -3,17 +3,14 @@
 namespace App\Controller;
 
 use App\Dto\Input\Chat\MensagemDto;
-use App\Entity\Auth\Usuario;
 use App\Entity\Chat\Sala;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Mapper\Chat\MensagemInputMapper;
 use App\Mapper\Chat\MensagemOutputMapper;
 use App\Repository\Chat\SalaRepository;
+use App\Service\ChatMercureTokenService;
 use App\Service\ChatMediaService;
 use Doctrine\ORM\EntityManagerInterface;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key\InMemory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +31,7 @@ final class ChatController extends AbstractController
         Sala $sala,
         MensagemOutputMapper $mapper,
         SalaRepository $repositorio,
+        ChatMercureTokenService $mercureToken,
     ): JsonResponse {
         $usuario = $this->getUser();
 
@@ -46,7 +44,7 @@ final class ChatController extends AbstractController
         return $this->json([
             'id_sala' => $sala->getId(),
             'topico' => self::TOPICO . $sala->getId(),
-            'mercure_token' => $this->createMercureCookie($usuario, $sala),
+            'mercure_token' => $mercureToken->generateToken($usuario, $sala),
             'messages' => $mapper->toCollection($sala->getMensagens()),
             'participantes' => [
                 [
@@ -135,28 +133,5 @@ final class ChatController extends AbstractController
         $hub->publish($update);
 
         return $this->json($dto, Response::HTTP_CREATED, [], ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
-    }
-
-    private function createMercureCookie(
-        Usuario $usuario,
-        Sala $salaPermitida,
-    ): string {
-        $config = Configuration::forSymmetricSigner(
-            new Sha256(),
-            InMemory::plainText($this->getParameter('MERCURE_JWT_SECRET')),
-        );
-
-        $topico = self::TOPICO . $salaPermitida->getId();
-        $hora = new \DateTimeImmutable();
-
-        $token = $config->builder()
-            ->issuedBy('http://maridodealuguel.com')
-            ->relatedTo((string) $usuario->getId())
-            ->issuedAt($hora)
-            ->expiresAt($hora->modify('+1 day'))
-            ->withClaim('mercure', ['subscribe' => [$topico]])
-            ->getToken($config->signer(), $config->signingKey());
-
-        return $token->toString();
     }
 }

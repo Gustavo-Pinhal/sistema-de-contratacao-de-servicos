@@ -16,6 +16,9 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $privateBucket: '%env(STORAGE_BUCKET_PRIVATE)%'
+            $mercureSecret: '%env(MERCURE_JWT_SECRET)%'
+        
+    App\Service\ChatMercureTokenService: ~
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
