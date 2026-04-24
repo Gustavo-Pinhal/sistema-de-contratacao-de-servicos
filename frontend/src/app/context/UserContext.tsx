@@ -39,7 +39,52 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const [simulatedUsers, setSimulatedUsers] = useState<UserProfile[]>(() => {
     const saved = localStorage.getItem('sim_allUsers');
-    return saved ? JSON.parse(saved) : [];
+    const defaultUsers: UserProfile[] = [
+      {
+        id: "u_mock_ana",
+        name: "Ana Costa",
+        email: "ana@email.com",
+        phone: "(11) 98888-7777",
+        role: "client",
+        memberSince: "2026-01-15",
+        city: "São Paulo",
+        state: "SP",
+        address: "Rua das Flores, 123"
+      },
+      {
+        id: "1",
+        name: "João Silva",
+        email: "joao@eletrica.com",
+        role: "provider",
+        memberSince: "2025-05-10",
+        plan: "premium"
+      },
+      {
+        id: "7",
+        name: "Conserta Tudo Ltda",
+        email: "contato@consertatudo.com",
+        role: "business",
+        memberSince: "2024-11-20",
+        plan: "business"
+      }
+    ];
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Garantir que os usuários default estejam sempre na lista
+        const merged = [...defaultUsers];
+        parsed.forEach((u: UserProfile) => {
+          if (!merged.find(m => m.email === u.email)) {
+            merged.push(u);
+          }
+        });
+        return merged;
+      } catch (e) {
+        return defaultUsers;
+      }
+    }
+    return defaultUsers;
   });
 
   const [userRole, setUserRole] = useState<UserRole>(user?.role || null);
@@ -68,7 +113,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const register = (data: Omit<UserProfile, "id" | "memberSince">) => {
     const existingUser = simulatedUsers.find(
-      (u) => u.email.toLowerCase() === data.email.toLowerCase() && u.role === data.role
+      (u) => u?.email?.toLowerCase() === data?.email?.toLowerCase() && u?.role === data?.role
     );
     const newUser: UserProfile = {
       ...data,
@@ -79,7 +124,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
     setSimulatedUsers(prev => [
       ...prev.filter(
-        (u) => !(u.email.toLowerCase() === newUser.email.toLowerCase() && u.role === newUser.role)
+        (u) => !(u?.email?.toLowerCase() === newUser?.email?.toLowerCase() && u?.role === newUser?.role)
       ),
       newUser
     ]);
@@ -88,7 +133,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const login = (email: string, expectedRole?: Exclude<UserRole, null>) => {
     const foundUser = [...simulatedUsers].reverse().find(u =>
-      u.email.toLowerCase() === email.toLowerCase() && (!expectedRole || u.role === expectedRole)
+      u?.email?.toLowerCase() === email?.toLowerCase() && (!expectedRole || u?.role === expectedRole)
     );
     if (foundUser) {
       setUser(foundUser);

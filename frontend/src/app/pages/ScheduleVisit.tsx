@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router";
 import { ChevronLeft, Calendar, Clock, MapPin, User, AlertCircle, CheckCircle } from "lucide-react";
-import { mockServiceRequests } from "../data/mockData";
+import { useSimulation } from "../context/SimulationContext";
 
 export function ScheduleVisit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const request = mockServiceRequests.find((req) => req.id === id);
+  const { serviceRequests, scheduleVisit, updateVisitStatus } = useSimulation();
+  const request = serviceRequests.find((req) => req.id === id);
 
   const [formData, setFormData] = useState({
     date: "",
@@ -22,8 +23,8 @@ export function ScheduleVisit() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Serviço não encontrado</h1>
-          <Link to="/search" className="text-green-600 hover:underline">
-            Voltar para busca
+          <Link to="/dashboard" className="text-green-600 hover:underline">
+            Voltar para o Painel
           </Link>
         </div>
       </div>
@@ -36,7 +37,7 @@ export function ScheduleVisit() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
-            to={`/service/${id}`}
+            to={`/manage-service/${id}`}
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -101,7 +102,7 @@ export function ScheduleVisit() {
 
             <div className="mt-6 flex gap-3">
               <Link
-                to={`/service/${id}`}
+                to={`/manage-service/${id}`}
                 className="flex-1 text-center px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Voltar
@@ -110,8 +111,9 @@ export function ScheduleVisit() {
                 className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
                 onClick={() => {
                   if (confirm("Tem certeza que deseja cancelar esta visita?")) {
+                    if (id) updateVisitStatus(id, 'cancelled');
                     alert("Visita cancelada!");
-                    navigate(`/service/${id}`);
+                    navigate(`/manage-service/${id}`);
                   }
                 }}
               >
@@ -157,9 +159,17 @@ export function ScheduleVisit() {
       return;
     }
 
-    // In real app, would send to backend
-    alert("Visita agendada com sucesso! O prestador será notificado.");
-    navigate(`/service/${id}`);
+    if (id) {
+      scheduleVisit(id, {
+        date: formData.date,
+        time: formData.time,
+        address: formData.address,
+        notes: formData.notes
+      });
+    }
+
+    alert("Visita agendada com sucesso! O cliente será notificado para aprovação.");
+    navigate(`/manage-service/${id}`);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -188,7 +198,7 @@ export function ScheduleVisit() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <Link
-          to={`/service/${id}`}
+          to={`/manage-service/${id}`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -199,7 +209,7 @@ export function ScheduleVisit() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Agendar Visita</h1>
           <p className="text-gray-600">
-            Agende uma visita para o prestador avaliar o serviço presencialmente
+            Agende uma visita para avaliar o serviço presencialmente
           </p>
         </div>
 
@@ -210,8 +220,8 @@ export function ScheduleVisit() {
             <div className="flex items-center gap-3">
               <User className="w-5 h-5 text-gray-600" />
               <div>
-                <p className="text-sm text-gray-600">Prestador</p>
-                <p className="font-semibold text-gray-900">{request.providerName}</p>
+                <p className="text-sm text-gray-600">Cliente</p>
+                <p className="font-semibold text-gray-900">{request.clientName}</p>
               </div>
             </div>
             <div>
@@ -324,7 +334,7 @@ export function ScheduleVisit() {
               <div className="text-sm text-green-900">
                 <p className="font-semibold mb-1">Importante:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>O prestador receberá uma notificação com os detalhes da visita</li>
+                  <li>O cliente receberá uma notificação com os detalhes da visita</li>
                   <li>Certifique-se de estar disponível no horário agendado</li>
                   <li>Você pode cancelar ou reagendar até 24h antes da visita</li>
                 </ul>
@@ -335,7 +345,7 @@ export function ScheduleVisit() {
           {/* Buttons */}
           <div className="flex gap-4 pt-6">
             <Link
-              to={`/service/${id}`}
+              to={`/manage-service/${id}`}
               className="flex-1 text-center px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancelar

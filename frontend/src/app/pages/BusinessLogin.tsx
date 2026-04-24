@@ -8,7 +8,7 @@ import { Button } from "../components/ui/button";
 
 export function BusinessLogin() {
   const navigate = useNavigate();
-  const { setUserRole, setIsLoggedIn, setUserPlan } = useUser();
+  const { login, register } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(searchParams.get("mode") !== "register");
@@ -30,17 +30,26 @@ export function BusinessLogin() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isLogin) {
-      setUserRole('business');
-      setIsLoggedIn(true);
-      navigate('/business/dashboard');
+      const success = login(formData.email, 'business');
+      if (success) {
+        navigate('/business/dashboard');
+      } else {
+        alert("Email não encontrado na simulação Business.");
+      }
     } else {
       if (step < 3) {
         setStep(step + 1);
       } else {
         // Salvar cadastro e plano
-        setUserRole('business');
-        setIsLoggedIn(true);
-        setUserPlan(selectedPlan);
+        register({
+          name: formData.companyName,
+          email: formData.email,
+          role: 'business',
+          plan: selectedPlan || 'free',
+          phone: formData.phone,
+          city: "Cáceres",
+          state: "MT"
+        });
         navigate('/business/dashboard');
       }
     }
