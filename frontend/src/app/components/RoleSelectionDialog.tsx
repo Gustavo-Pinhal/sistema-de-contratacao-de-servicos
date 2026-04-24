@@ -25,7 +25,7 @@ export function RoleSelectionDialog({ isOpen, onClose, type }: RoleSelectionDial
         
         <div className="space-y-3">
           <Link 
-            to="/client/login" 
+            to={type === "register" ? "/client/login?mode=register" : "/client/login"} 
             onClick={onClose}
             className="block"
           >
@@ -41,7 +41,7 @@ export function RoleSelectionDialog({ isOpen, onClose, type }: RoleSelectionDial
           </Link>
           
           <Link 
-            to="/provider/login" 
+            to={type === "register" ? "/provider/login?mode=register" : "/provider/login"} 
             onClick={onClose}
             className="block"
           >
@@ -62,7 +62,7 @@ export function RoleSelectionDialog({ isOpen, onClose, type }: RoleSelectionDial
           </Link>
           
           <Link 
-            to="/business/login" 
+            to={type === "register" ? "/business/login?mode=register" : "/business/login"} 
             onClick={onClose}
             className="block"
           >

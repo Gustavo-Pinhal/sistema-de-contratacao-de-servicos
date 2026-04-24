@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
-import { ChevronLeft, Send, User, DollarSign, Star, CheckCircle, Check, CheckCheck } from "lucide-react";
+import { ChevronLeft, Send, User, DollarSign, Star, CheckCircle, Check, CheckCheck, Calendar } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useSimulation } from "../context/SimulationContext";
 
@@ -136,6 +136,19 @@ export function ManageService() {
             <div className="md:col-span-4 p-5 bg-white border-2 border-gray-100 rounded-xl">
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Descrição da Solicitação</p>
               <p className="text-gray-700 font-medium leading-relaxed">{service.description}</p>
+              
+              {service.photos && service.photos.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Fotos Anexadas</p>
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {service.photos.map((photo, index) => (
+                      <div key={index} className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
+                        <img src={photo} alt={`Foto anexa ${index + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -189,7 +202,7 @@ export function ManageService() {
                             ) : (
                               <>
                                 <Check className="w-3 h-3" />
-                                Enviada
+                                Mensagem Recebida
                               </>
                             )}
                           </p>
@@ -296,6 +309,57 @@ export function ManageService() {
 
               {/* Status Specific Buttons */}
               <div className="space-y-3">
+                {/* Schedule Visit Button (Provider Only) */}
+                {userRole === 'provider' && !service.visitScheduled && service.status !== 'completed' && service.status !== 'active' && (
+                  <Link
+                    to={`/manage-service/${service.id}/schedule-visit`}
+                    className={`w-full py-4 bg-${themeColor}-100 text-${themeColor}-700 rounded-xl hover:bg-${themeColor}-200 transition-all font-black text-xs uppercase tracking-widest shadow-sm flex items-center justify-center gap-2`}
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Agendar Visita com Cliente
+                  </Link>
+                )}
+
+                {/* Visit Scheduled Info */}
+                {service.visitScheduled && (
+                  <div className={`p-6 border-2 rounded-2xl ${
+                    service.visitScheduled.status === 'confirmed' ? 'bg-green-50 border-green-100' :
+                    service.visitScheduled.status === 'cancelled' ? 'bg-red-50 border-red-100' :
+                    `bg-${themeColor}-50 border-${themeColor}-100`
+                  }`}>
+                    <div className={`flex items-center gap-2 mb-2 ${
+                      service.visitScheduled.status === 'confirmed' ? 'text-green-600' :
+                      service.visitScheduled.status === 'cancelled' ? 'text-red-600' :
+                      `text-${themeColor}-600`
+                    }`}>
+                      <Calendar className="w-5 h-5" />
+                      <p className="font-black uppercase text-xs">
+                        {service.visitScheduled.status === 'confirmed' ? 'Visita Confirmada' :
+                         service.visitScheduled.status === 'cancelled' ? 'Visita Cancelada' :
+                         'Aguardando Confirmação'}
+                      </p>
+                    </div>
+                    <p className={`text-sm font-medium mb-3 ${
+                      service.visitScheduled.status === 'confirmed' ? 'text-green-800' :
+                      service.visitScheduled.status === 'cancelled' ? 'text-red-800' :
+                      `text-${themeColor}-800`
+                    }`}>
+                      {new Date(service.visitScheduled.date).toLocaleDateString('pt-BR')} às {service.visitScheduled.time}
+                    </p>
+                    {userRole === 'provider' && service.status !== 'completed' && service.visitScheduled.status !== 'cancelled' && (
+                      <Link
+                        to={`/manage-service/${service.id}/schedule-visit`}
+                        className={`text-xs font-black uppercase tracking-widest ${
+                          service.visitScheduled.status === 'confirmed' ? 'text-green-600 hover:bg-green-100' :
+                          `text-${themeColor}-600 hover:bg-${themeColor}-100`
+                        } px-3 py-1.5 rounded-lg transition-colors inline-block`}
+                      >
+                        Gerenciar Visita
+                      </Link>
+                    )}
+                  </div>
+                )}
+
                 {service.status === 'active' && userRole === 'provider' && (
                   <button
                     onClick={handleCompleteService}
@@ -336,7 +400,7 @@ export function ManageService() {
                 <div className="relative z-10">
                   <h4 className="text-lg font-black uppercase tracking-tight mb-4">Dicas de Segurança</h4>
                   <ul className="space-y-4 text-xs font-medium text-gray-300 leading-relaxed list-disc pl-4">
-                    <li>Nunca realize pagamentos antecipados fora da plataforma.</li>
+                    <li>Recomendamos não realizar pagamentos antecipados. O pagamento deve ser feito diretamente ao prestador após a conclusão do serviço.</li>
                     <li>Sempre verifique o perfil e as avaliações do prestador.</li>
                     <li>Em caso de irregularidades, denuncie imediatamente.</li>
                   </ul>

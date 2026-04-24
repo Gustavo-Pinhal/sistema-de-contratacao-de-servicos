@@ -269,7 +269,7 @@ export function ProviderLogin() {
               <ShieldCheck className="w-6 h-6 text-green-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-green-900">Checkout Seguro</p>
-                <p className="text-xs text-green-700 mt-0.5">Seus dados de pagamento estão 100% protegidos.</p>
+                <p className="text-xs text-green-700 mt-0.5">Seus dados estão 100% protegidos.</p>
               </div>
             </div>
 

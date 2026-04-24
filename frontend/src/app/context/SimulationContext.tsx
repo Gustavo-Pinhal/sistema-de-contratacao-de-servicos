@@ -3,11 +3,13 @@ import { ServiceRequest, ChatMessage, mockServiceRequests } from "../data/mockDa
 
 interface SimulationContextType {
   serviceRequests: ServiceRequest[];
-  addServiceRequest: (request: Omit<ServiceRequest, "id" | "createdAt" | "status" | "messages"> & { clientId: string }) => string;
+  addServiceRequest: (request: Omit<ServiceRequest, "id" | "createdAt" | "status" | "messages"> & { clientId: string, photos?: string[] }) => string;
   updateRequestStatus: (id: string, status: ServiceRequest["status"]) => void;
   addChatMessage: (requestId: string, sender: "client" | "provider", message: string) => void;
   markMessagesAsRead: (requestId: string, viewer: "client" | "provider") => void;
   updateProposedValue: (requestId: string, value: string) => void;
+  scheduleVisit: (requestId: string, visitData: Omit<VisitSchedule, "id" | "status">) => void;
+  updateVisitStatus: (requestId: string, status: VisitSchedule["status"]) => void;
   resetSimulation: () => void;
 }
 
@@ -37,8 +39,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    console.log('DEBUG - SimulationContext - Nenhum serviço encontrado, iniciando vazio');
-    return [];
+    console.log('DEBUG - SimulationContext - Nenhum serviço encontrado, carregando do mockData');
+    return mockServiceRequests;
   });
 
   // Persist to localStorage (usar chave consistente com ReviewService)
@@ -57,7 +59,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
   }, [serviceRequests]);
 
-  const addServiceRequest = (request: Omit<ServiceRequest, "id" | "createdAt" | "status" | "messages"> & { clientId: string }) => {
+  const addServiceRequest = (request: Omit<ServiceRequest, "id" | "createdAt" | "status" | "messages"> & { clientId: string, photos?: string[] }) => {
     const newId = `req_${Math.random().toString(36).substr(2, 9)}`;
     const newRequest: ServiceRequest = {
       ...request,
@@ -73,7 +75,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           readByClient: true,
           readByProvider: false
         }
-      ]
+      ],
+      photos: request.photos || []
     };
     setServiceRequests(prev => [newRequest, ...prev]);
     return newId;
@@ -150,6 +153,37 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const scheduleVisit = (requestId: string, visitData: Omit<VisitSchedule, "id" | "status">) => {
+    setServiceRequests(prev => prev.map(req => {
+      if (req.id === requestId) {
+        return {
+          ...req,
+          visitScheduled: {
+            ...visitData,
+            id: `v_${Date.now()}`,
+            status: 'pending'
+          }
+        };
+      }
+      return req;
+    }));
+  };
+
+  const updateVisitStatus = (requestId: string, status: VisitSchedule["status"]) => {
+    setServiceRequests(prev => prev.map(req => {
+      if (req.id === requestId && req.visitScheduled) {
+        return {
+          ...req,
+          visitScheduled: {
+            ...req.visitScheduled,
+            status
+          }
+        };
+      }
+      return req;
+    }));
+  };
+
   const resetSimulation = () => {
     setServiceRequests([]);
     localStorage.removeItem("serviceRequests");
@@ -164,6 +198,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       addChatMessage,
       markMessagesAsRead,
       updateProposedValue,
+      scheduleVisit,
+      updateVisitStatus,
       resetSimulation
     }}>
       {children}

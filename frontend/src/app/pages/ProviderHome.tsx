@@ -16,8 +16,8 @@ export function ProviderHome() {
     },
     {
       icon: Shield,
-      title: "Pagamentos Seguros",
-      description: "Sistema de pagamento protegido e suporte dedicado para prestadores."
+      title: "Segurança e Suporte",
+      description: "Suporte dedicado para prestadores e orientações de segurança para os serviços."
     }
   ];
 
@@ -40,37 +40,36 @@ export function ProviderHome() {
     {
       step: "4",
       title: "Execute e Receba",
-      description: "Cliente aceita, você realiza o serviço e recebe o pagamento de forma segura."
+      description: "Cliente aceita, você realiza o serviço e recebe o pagamento diretamente dele."
     }
   ];
 
   const plans = [
     {
-      name: "Plano Básico",
-      price: "Grátis",
-      period: "",
+      name: "Plano Grátis",
+      price: "R$ 0,00",
+      period: "/mês",
       features: [
-        "Perfil na plataforma",
-        "Receba até 5 solicitações/mês",
+        "Perfil básico",
+        "1 categoria de serviço",
+        "Receber solicitações",
         "Chat com clientes",
-        "Sistema de avaliações",
-        "Suporte por email"
+        "Atendimento padrão"
       ],
       cta: "Começar Grátis",
       highlighted: false
     },
     {
       name: "Plano Premium",
-      price: "R$ 49",
+      price: "R$ 29,90",
       period: "/mês",
       features: [
-        "Tudo do plano básico",
-        "Solicitações ilimitadas",
-        "Selo Premium no perfil",
-        "Destaque nas buscas",
-        "Portfólio de serviços",
-        "Estatísticas detalhadas",
-        "Suporte prioritário"
+        "Destaque nos resultados",
+        "Múltiplas categorias (até 5)",
+        "Selo de Profissional Premium",
+        "Suporte prioritário",
+        "Estatísticas de visitas",
+        "Taxa de serviço reduzida"
       ],
       cta: "Começar Premium",
       highlighted: true

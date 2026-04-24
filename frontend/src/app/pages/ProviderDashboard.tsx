@@ -221,6 +221,11 @@ function ServiceCard({ service }: { service: any }) {
             <div className="flex items-center gap-3 mb-2">
               <h3 className="font-semibold text-gray-900">{service.clientName}</h3>
               {getStatusBadge(service.status)}
+              {service.messages?.some((msg: any) => msg.sender === 'client' && !msg.readByProvider) && (
+                <span className="px-2 py-1 bg-red-100 text-red-700 rounded-md text-[10px] font-black uppercase tracking-widest animate-pulse border border-red-200">
+                  Mensagem Recebida
+                </span>
+              )}
             </div>
             <p className="text-green-600 font-black uppercase tracking-widest text-[10px] mb-1">{service.serviceType}</p>
             <p className="text-gray-600 text-sm">{service.description}</p>

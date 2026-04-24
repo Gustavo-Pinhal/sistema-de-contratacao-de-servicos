@@ -6,7 +6,7 @@ import { useUser } from "../context/UserContext";
 
 export function ServiceTracking() {
   const { id } = useParams();
-  const { serviceRequests, addChatMessage, markMessagesAsRead, updateRequestStatus } = useSimulation();
+  const { serviceRequests, addChatMessage, markMessagesAsRead, updateRequestStatus, updateVisitStatus } = useSimulation();
   const { user } = useUser();
   const service = serviceRequests.find(s => s.id === id);
   const [message, setMessage] = useState("");
@@ -264,7 +264,7 @@ export function ServiceTracking() {
                             ) : (
                               <>
                                 <Check className="w-3 h-3" />
-                                Enviada
+                                Mensagem Recebida
                               </>
                             )}
                           </span>
@@ -330,33 +330,42 @@ export function ServiceTracking() {
                 </div>
               )}
 
-              {/* Schedule Visit Button */}
-              {!service.visitScheduled && service.status !== 'completed' && (
-                <Link
-                  to={`/service/${service.id}/schedule-visit`}
-                  className="block w-full mb-3 text-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold flex items-center justify-center gap-2"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Agendar Visita
-                </Link>
-              )}
-
               {/* Visit Scheduled Info */}
-              {service.visitScheduled && (
+              {service.visitScheduled && service.visitScheduled.status === 'pending' && (
                 <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="w-5 h-5 text-purple-600" />
-                    <p className="font-semibold text-purple-900">Visita Agendada</p>
+                    <p className="font-semibold text-purple-900">Visita Sugerida</p>
                   </div>
-                  <p className="text-sm text-purple-800">
-                    {new Date(service.visitScheduled.date).toLocaleDateString('pt-BR')} às {service.visitScheduled.time}
+                  <p className="text-sm text-purple-800 mb-4">
+                    O prestador sugeriu uma visita para {new Date(service.visitScheduled.date).toLocaleDateString('pt-BR')} às {service.visitScheduled.time}.
                   </p>
-                  <Link
-                    to={`/service/${service.id}/schedule-visit`}
-                    className="text-sm text-purple-600 hover:text-purple-800 font-semibold mt-2 inline-block"
-                  >
-                    Ver detalhes →
-                  </Link>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => updateVisitStatus(service.id, 'confirmed')}
+                      className="flex-1 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                    >
+                      Aceitar
+                    </button>
+                    <button
+                      onClick={() => updateVisitStatus(service.id, 'cancelled')}
+                      className="flex-1 py-2 bg-white text-purple-600 border border-purple-200 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+                    >
+                      Recusar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {service.visitScheduled && service.visitScheduled.status === 'confirmed' && (
+                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <p className="font-semibold text-green-900">Visita Confirmada</p>
+                  </div>
+                  <p className="text-sm text-green-800">
+                    Sua visita está agendada para {new Date(service.visitScheduled.date).toLocaleDateString('pt-BR')} às {service.visitScheduled.time}.
+                  </p>
                 </div>
               )}
 

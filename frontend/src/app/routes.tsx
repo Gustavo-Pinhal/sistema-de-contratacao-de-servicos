@@ -50,7 +50,6 @@ export const router = createBrowserRouter([
           { path: "quotes", Component: ViewQuotes },
           { path: "quote/:id", Component: QuoteDetails },
           { path: "service/:id", Component: ServiceTracking },
-          { path: "service/:id/schedule-visit", Component: ScheduleVisit },
           { path: "review/:id", Component: ReviewService },
           { path: "chat", Component: Chat },
         ]
@@ -65,6 +64,7 @@ export const router = createBrowserRouter([
           { path: "provider/subscription", Component: ProviderSubscription },
           { path: "dashboard", Component: ProviderDashboard },
           { path: "manage-service/:id", Component: ManageService },
+          { path: "manage-service/:id/schedule-visit", Component: ScheduleVisit },
         ]
       },
 

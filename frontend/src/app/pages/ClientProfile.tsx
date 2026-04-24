@@ -8,24 +8,6 @@ export function ClientProfile() {
   const { user, isLoggedIn } = useUser();
   const navigate = useNavigate();
   
-  if (!isLoggedIn || !user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-black text-gray-900 uppercase mb-2">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-6">Você precisa estar logado para ver seu perfil.</p>
-          <button 
-            onClick={() => navigate('/client/login')}
-            className="px-8 py-3 bg-green-600 text-white rounded-xl font-black text-xs uppercase tracking-widest"
-          >
-            Fazer Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Buscar serviços diretamente do localStorage para garantir dados atualizados
   const [serviceRequests, setServiceRequests] = useState<any[]>([]);
   
@@ -49,6 +31,26 @@ export function ClientProfile() {
     
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
+
+  if (!isLoggedIn || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-black text-gray-900 uppercase mb-2">Acesso Restrito</h2>
+          <p className="text-gray-600 mb-6">Você precisa estar logado para ver seu perfil.</p>
+          <button 
+            onClick={() => navigate('/client/login')}
+            className="px-8 py-3 bg-green-600 text-white rounded-xl font-black text-xs uppercase tracking-widest"
+          >
+            Fazer Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+
 
   // Filter for the current client ID
   const clientServices = serviceRequests.filter((s: any) => s.clientId === user.id);
@@ -98,7 +100,6 @@ export function ClientProfile() {
                   <img src={clientData.avatar} alt={clientData.name} className="w-full h-full object-cover" />
                 </div>
                 <h2 className="text-xl font-black text-gray-900 tracking-tight">{clientData.name}</h2>
-                <p className="text-green-600 text-xs font-black uppercase tracking-widest mt-1">Cliente VIP</p>
               </div>
 
               {/* Stats */}
@@ -168,41 +169,7 @@ export function ClientProfile() {
               </Link>
             </div>
 
-            {/* Badges */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Conquistas</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Cliente Verificado</p>
-                    <p className="text-xs text-gray-600">Perfil completo e verificado</p>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <Star className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Avaliador Premium</p>
-                    <p className="text-xs text-gray-600">10+ avaliações feitas</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Cliente Pontual</p>
-                    <p className="text-xs text-gray-600">Sempre presente nos agendamentos</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Services Section */}
@@ -228,9 +195,16 @@ export function ClientProfile() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg mb-1">
-                            {service.description}
-                          </h3>
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="font-semibold text-gray-900 text-lg">
+                              {service.description}
+                            </h3>
+                            {service.messages?.some((msg: any) => msg.sender === 'provider' && !msg.readByClient) && (
+                              <span className="px-2 py-1 bg-red-100 text-red-700 rounded-md text-[10px] font-black uppercase tracking-widest animate-pulse border border-red-200">
+                                Mensagem Recebida
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-gray-600 mb-2">
                             {service.providerName} • {service.serviceType}
                           </p>
@@ -282,9 +256,16 @@ export function ClientProfile() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg mb-1">
-                            {service.description}
-                          </h3>
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="font-semibold text-gray-900 text-lg">
+                              {service.description}
+                            </h3>
+                            {service.messages?.some((msg: any) => msg.sender === 'provider' && !msg.readByClient) && (
+                              <span className="px-2 py-1 bg-red-100 text-red-700 rounded-md text-[10px] font-black uppercase tracking-widest animate-pulse border border-red-200">
+                                Mensagem Recebida
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-gray-600 mb-2">
                             {service.providerName} • {service.serviceType}
                           </p>

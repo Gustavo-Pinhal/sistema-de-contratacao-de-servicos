@@ -12,15 +12,15 @@ export function ProviderSubscription() {
 
   const plans = [
     {
-      name: "Plano Básico",
-      price: "Grátis",
-      period: "",
+      name: "Plano Grátis",
+      price: "R$ 0,00",
+      period: "/mês",
       features: [
-        "Perfil na plataforma",
-        "Receba até 5 solicitações/mês",
+        "Perfil básico",
+        "1 categoria de serviço",
+        "Receber solicitações",
         "Chat com clientes",
-        "Sistema de avaliações",
-        "Suporte por email"
+        "Atendimento padrão"
       ],
       cta: "Plano Atual",
       highlighted: false,
@@ -28,16 +28,15 @@ export function ProviderSubscription() {
     },
     {
       name: "Plano Premium",
-      price: "R$ 49",
+      price: "R$ 29,90",
       period: "/mês",
       features: [
-        "Tudo do plano básico",
-        "Solicitações ilimitadas",
-        "Selo Premium no perfil",
-        "Destaque nas buscas",
-        "Portfólio de serviços",
-        "Estatísticas detalhadas",
-        "Suporte prioritário"
+        "Destaque nos resultados",
+        "Múltiplas categorias (até 5)",
+        "Selo de Profissional Premium",
+        "Suporte prioritário",
+        "Estatísticas de visitas",
+        "Taxa de serviço reduzida"
       ],
       cta: isPremium ? "Plano Atual" : "Fazer Upgrade",
       highlighted: true,
@@ -63,7 +62,7 @@ export function ProviderSubscription() {
         {/* Header */}
         <div className="mb-12">
           <Link 
-            to="/provider/dashboard" 
+            to="/dashboard" 
             className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 mb-8 font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -95,7 +94,7 @@ export function ProviderSubscription() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Plano Atual: {isPremium ? 'Premium' : 'Básico'}
+                  Plano Atual: {isPremium ? 'Premium' : 'Grátis'}
                 </h2>
                 <p className="text-gray-600">
                   {isPremium 
