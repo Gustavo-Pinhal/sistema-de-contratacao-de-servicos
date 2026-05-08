@@ -1,4 +1,20 @@
 services:
+  ###> Frontend ###
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    networks:
+      - app-network
+  ###< Frontend ###
+
   ###> Nginx ###
   nginx:
     image: nginx:alpine
@@ -53,7 +69,7 @@ services:
     image: dunglas/mercure
     restart: unless-stopped
     environment:
-      SERVER_NAME: :80    
+      SERVER_NAME: :80
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_KEY}
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_KEY}
       MERCURE_EXTRA_DIRECTIVES: |
@@ -65,7 +81,7 @@ services:
     networks:
       - app-network
   ###< Mercure ###
-    
+
   ###> SeaweedFS ###
   seaweed_master:
     image: chrislusf/seaweedfs
@@ -87,7 +103,7 @@ services:
 
   seaweed_filer:
     image: chrislusf/seaweedfs
-    command: 'filer -master=seaweed_master:9333 -s3'
+    command: "filer -master=seaweed_master:9333 -s3"
     depends_on:
       - seaweed_master
       - seaweed_volume
