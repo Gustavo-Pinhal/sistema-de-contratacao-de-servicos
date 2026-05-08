@@ -29,6 +29,7 @@ services:
       - php
       - mercure
       - seaweed_filer
+      - frontend
     networks:
       - app-network
   ###< Nginx ###

@@ -3,7 +3,6 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
-
 function figmaAssetResolver() {
   return {
     name: 'figma-asset-resolver',
@@ -19,18 +18,24 @@ function figmaAssetResolver() {
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
-    // The React and Tailwind plugins are both required for Make, even if
-    // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
   ],
   resolve: {
     alias: {
-      // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
     },
   },
-
-  // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
+  server: {
+    host: '0.0.0.0', // Permite acesso externo ao container
+    port: 5173,
+    strictPort: true, // Força o erro se a porta estiver ocupada, em vez de mudar para 5174
+    hmr: {
+      clientPort: 443, // Importante: informa ao browser para conectar o HMR via porta HTTPS do Nginx
+    },
+    watch: {
+      usePolling: true, // Necessário para detectar mudanças de arquivos em volumes Docker
+    },
+  },
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })
