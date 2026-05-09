@@ -29,6 +29,7 @@ class CreateUserCommand extends Command
     {
         $this
             ->addArgument('email', InputArgument::OPTIONAL, 'O e-mail do usuário')
+            ->addArgument('nome', InputArgument::OPTIONAL, 'O nome do usuário')
             ->addArgument('password', InputArgument::OPTIONAL, 'A senha do usuário (será criptografada)')
         ;
     }
@@ -47,10 +48,17 @@ class CreateUserCommand extends Command
             });
         }
 
+        $nome = $input->getArgument('nome');
+        if (!$nome) {
+            $nome = $io->ask('Qual o nome do novo usuário?', null, function ($answer) {
+                return $answer;
+            });
+        }
+
         $plainPassword = $input->getArgument('password');
         if (!$plainPassword) {
             $plainPassword = $io->askHidden('Digite a senha do usuário');
-            
+
             if (strlen($plainPassword) < 6) {
                 $io->error('A senha deve ter pelo menos 6 caracteres.');
                 return Command::FAILURE;
@@ -61,6 +69,7 @@ class CreateUserCommand extends Command
             $user = new Usuario();
             $user->setEmail($email);
             $user->setRoles(['ROLE_USER']);
+            $user->setNome($nome);
 
             $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
             $user->setPassword($hashedPassword);
@@ -69,7 +78,7 @@ class CreateUserCommand extends Command
             $this->entityManager->flush();
 
             $io->success(sprintf('Usuário %s criado com sucesso! ID: %s', $email, $user->getId()));
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error('Erro ao criar usuário: ' . $e->getMessage());
