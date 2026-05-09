@@ -23,15 +23,16 @@ final class Version20260412154019 extends AbstractMigration
             id              UUID            PRIMARY KEY,
             email           VARCHAR(255)    NOT NULL UNIQUE,
             roles           JSONB           NOT NULL,
-            password        VARCHAR(255)    NOT NULL
+            password        VARCHAR(255)    NOT NULL,
+            nome            VARCHAR(255)    NOT NULL
         );
         SQL);
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE auth.usuarios');
+        $this->addSql('DROP TABLE auth.usuarios;');
 
-        $this->addSql('DROP SCHEMA auth');
+        $this->addSql('DROP SCHEMA auth;');
     }
 }

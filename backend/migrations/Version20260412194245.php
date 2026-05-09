@@ -21,12 +21,12 @@ final class Version20260412194245 extends AbstractMigration
         $this->addSql(<<<'SQL'
         CREATE TABLE chat.sala (
             id              SERIAL          PRIMARY KEY,
-            id_servico      UUID            UNIQUE NOT NULL,
+            id_servico      UUID            NOT NULL UNIQUE,
             id_prestador    UUID            NOT NULL,
             id_cliente      UUID            NOT NULL,
-            FOREIGN KEY (id_servico)    REFERENCES servico.servicos    (id),
-            FOREIGN KEY (id_prestador)  REFERENCES servico.prestadores (id),
-            FOREIGN KEY (id_cliente)    REFERENCES servico.clientes    (id)
+            FOREIGN KEY (id_servico)    REFERENCES servico.servicos     (id),
+            FOREIGN KEY (id_prestador)  REFERENCES auth.usuarios        (id),
+            FOREIGN KEY (id_cliente)    REFERENCES auth.usuarios        (id)
         );
         SQL);
 

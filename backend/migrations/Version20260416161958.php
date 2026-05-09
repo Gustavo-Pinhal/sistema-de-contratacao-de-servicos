@@ -31,6 +31,7 @@ final class Version20260416161958 extends AbstractMigration
         CREATE TABLE portifolio.projetos (
             id              UUID            PRIMARY KEY,
             id_portifolio   UUID            NOT NULL,
+            id_servico      UUID            NOT NULL,
             titulo          VARCHAR(255)    NOT NULL,
             descricao       TEXT            ,
             regiao          VARCHAR(150)    ,
@@ -38,7 +39,10 @@ final class Version20260416161958 extends AbstractMigration
             exibir_valor    BOOLEAN         NOT NULL DEFAULT TRUE,
             concluido_em    DATE            NOT NULL,
             exibir_concluido_em BOOLEAN     NOT NULL DEFAULT TRUE,
-            FOREIGN KEY (id_portifolio) REFERENCES portifolio.portifolios (id)
+            posicao         INTEGER         NOT NULL,
+            UNIQUE (id_portifolio, posicao) ,
+            FOREIGN KEY (id_servico)    REFERENCES servico.servicos         (id),
+            FOREIGN KEY (id_portifolio) REFERENCES portifolio.portifolios   (id)
         );
         SQL);
 
@@ -47,11 +51,13 @@ final class Version20260416161958 extends AbstractMigration
             id              UUID            PRIMARY KEY,
             id_projeto      UUID            NOT NULL,
             url_foto        VARCHAR(255)    NOT NULL,
-            ordem           INTEGER         NOT NULL,
-            UNIQUE (id_projeto, ordem)      ,
+            posicao         INTEGER         NOT NULL,
+            UNIQUE (id_projeto, posicao)    ,
             FOREIGN KEY (id_projeto) REFERENCES portifolio.projetos (id)
         );
         SQL);
+
+        $this->addSql('CREATE INDEX idx__fotos__id_projeto ON portifolio.fotos (id_projeto);');
     }
 
     public function down(Schema $schema): void
