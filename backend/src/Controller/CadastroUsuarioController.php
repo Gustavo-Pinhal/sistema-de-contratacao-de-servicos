@@ -4,12 +4,12 @@ namespace App\Controller;
 
 use App\Dto\Request\CadastroUsuario\CadastrarClienteInputDto;
 use App\Dto\Request\CadastroUsuario\CadastrarPrestadorInputDto;
+use App\Entity\Servico\Cliente;
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Profissao;
 use App\Exception\UsuarioJaExisteException;
 use App\Factory\Auth\UsuarioFactory;
 use App\Repository\Auth\UsuarioRepository;
-use App\Service\Auth\CadastrarUsuarioService;
 use App\Service\Localizacao\CepService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,13 +20,36 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/cadastro-usuario')]
 final class CadastroUsuarioController extends AbstractController
 {
+    public function __construct(
+        private UsuarioRepository $usuarioRepository,
+        private UsuarioFactory $usuarioFactory,
+        private EntityManagerInterface $manager,
+    ) {}
+
     #[Route('/cliente', methods: ['POST'], name: 'app_cadastro_usuario_cliente')]
     public function cadastroCliente(
         #[MapRequestPayload]
         CadastrarClienteInputDto $dto,
-        CadastrarUsuarioService $service,
     ): JsonResponse {
-        $service->registrarCliente($dto);
+        $usuarioExistente = $this->usuarioRepository->findOneBy(['email' => $dto->email]);
+        if ($usuarioExistente) {
+            throw new UsuarioJaExisteException($dto->email);
+        }
+
+        $usuario = $this->usuarioFactory->criar(
+            $dto->email,
+            $dto->nome,
+            $dto->senha,
+            ['CLIENTE'],
+        );
+
+        $cliente = new Cliente();
+        $cliente->setUsuario($usuario);
+
+        $this->manager->persist($usuario);
+        $this->manager->persist($cliente);
+        $this->manager->flush();
+
         return $this->json(['success' => true]);
     }
 
@@ -34,17 +57,14 @@ final class CadastroUsuarioController extends AbstractController
     public function cadastroPrestador(
         #[MapRequestPayload]
         CadastrarPrestadorInputDto $dto,
-        UsuarioRepository $usuarioRepository,
-        UsuarioFactory $usuarioFactory,
         CepService $cepService,
-        EntityManagerInterface $manager,
     ): JsonResponse {
-        $usuarioExistente = $usuarioRepository->findOneBy(['email' => $dto->email]);
+        $usuarioExistente = $this->usuarioRepository->findOneBy(['email' => $dto->email]);
         if ($usuarioExistente) {
             throw new UsuarioJaExisteException($dto->email);
         }
 
-        $usuario = $usuarioFactory->criar(
+        $usuario = $this->usuarioFactory->criar(
             $dto->email,
             $dto->nome,
             $dto->senha,
@@ -53,7 +73,7 @@ final class CadastroUsuarioController extends AbstractController
 
         $cep = $cepService->buscarOuCadastrar($dto->cep);
 
-        $profissao = $manager->getRepository(Profissao::class)->find($dto->profissao);
+        $profissao = $this->manager->getRepository(Profissao::class)->find($dto->profissao);
 
         if (!$profissao) {
             return $this->json([
@@ -68,9 +88,9 @@ final class CadastroUsuarioController extends AbstractController
             ->setCep($cep)
             ->addProfissao($profissao);
 
-        $manager->persist($usuario);
-        $manager->persist($prestador);
-        $manager->flush();
+        $this->manager->persist($usuario);
+        $this->manager->persist($prestador);
+        $this->manager->flush();
 
         return $this->json(['success' => true]);
     }
