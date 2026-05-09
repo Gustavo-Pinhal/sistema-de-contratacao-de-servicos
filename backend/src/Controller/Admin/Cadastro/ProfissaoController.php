@@ -2,9 +2,10 @@
 
 namespace App\Controller\Admin\Cadastro;
 
-use App\Dto\Input\Admin\ProfissaoDto;
+use App\Dto\Request\Admin\Cadastro\ProfissaoInputDto;
 use App\Entity\Servico\Profissao;
 use App\Repository\Servico\ProfissaoRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,74 +19,79 @@ final class ProfissaoController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private ProfissaoRepository $repository,
     ) {}
 
-    #[Route('', methods: ['GET'])]
-    public function index(Request $request): JsonResponse
-    {
+    #[Route('', methods: ['GET'], name: 'app_admin_cadastro_profissao')]
+    public function index(
+        Request $request,
+        ProfissaoRepository $repository,
+    ): JsonResponse {
         $excluidos = $request->query->getBoolean('excluidos');
 
-        $profissoes = $excluidos
-            ? $this->repository->obterExcluidos()
-            : $this->repository->obterAtivos();
+        $profissoes = $repository->obterTodos($excluidos);
 
-        return $this->json($profissoes);
+        return $this->json($profissoes, context: ['groups' => 'profissao:read']);
     }
 
-    #[Route('/{id}', methods: ['GET'])]
-    public function mostrar(Profissao $profissao): JsonResponse
-    {
-        return $this->json($profissao, context: ['groups' => 'profissao:read']);
-    }
-
-    #[Route('', methods: ['POST'])]
+    #[Route('', methods: ['POST'], name: 'app_admin_cadastro_profissao_criar')]
     public function criar(
         #[MapRequestPayload]
-        ProfissaoDto $dto
+        ProfissaoInputDto $dto,
     ): JsonResponse {
-        $profissao = Profissao::fromDto($dto);
+        try {
+            $profissao = new Profissao();
+            $profissao->setDescricao($dto->descricao);
 
-        $this->entityManager->persist($profissao);
-        $this->entityManager->flush();
+            $this->entityManager->persist($profissao);
+            $this->entityManager->flush();
 
-        return $this->json($profissao, Response::HTTP_CREATED);
+            return $this->json($profissao, Response::HTTP_CREATED);
+        } catch (UniqueConstraintViolationException $e) {
+            return $this->json([
+                'message' => 'Erro de validação',
+                'errors' => [
+                    'descricao' => 'Já existe uma profissão cadastrada com esta descrição.'
+                ]
+            ], Response::HTTP_CONFLICT);
+        }
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT', 'PATCH'], name: 'app_admin_cadastro_profissao_atualizar')]
     public function atualizar(
         Profissao $profissao,
         #[MapRequestPayload]
-        ProfissaoDto $dto
+        ProfissaoInputDto $dto
     ): JsonResponse {
-        $profissao->atualizarDados($dto);
+        try {
+            $profissao->setDescricao($dto->descricao);
+            $this->entityManager->flush();
 
-        $this->entityManager->flush();
-
-        return $this->json($profissao, Response::HTTP_OK);
+            return $this->json($profissao, Response::HTTP_OK);
+        } catch (UniqueConstraintViolationException $e) {
+            return $this->json([
+                'message' => 'Erro de validação',
+                'errors' => [
+                    'descricao' => 'Já existe uma profissão cadastrada com esta descrição.'
+                ]
+            ], Response::HTTP_CONFLICT);
+        }
     }
 
-    #[Route('/{id}/restaurar', methods: ['POST'])]
+    #[Route('/{id}/restaurar', methods: ['POST'], name: 'app_admin_cadastro_profissao_restaurar')]
     public function restaurar(Profissao $profissao): JsonResponse
     {
-        if ($profissao->getExcluidoEm() === null) {
-            return $this->json(['message' => 'Esta profissão não está excluída'], Response::HTTP_BAD_REQUEST);
-        }
-
         $profissao->setExcluidoEm(null);
+
         $this->entityManager->flush();
 
         return $this->json($profissao, Response::HTTP_OK);
     }
 
-    #[Route('/{id}', methods: ['DELETE'])]
+    #[Route('/{id}', methods: ['DELETE'], name: 'app_admin_cadastro_profissao_excluir')]
     public function excluir(Profissao $profissao): JsonResponse
     {
-        if ($profissao->getExcluidoEm() !== null) {
-            return $this->json(['message' => 'Profissão já excluída'], Response::HTTP_NOT_FOUND);
-        }
-
         $profissao->setExcluidoEm(new \DateTimeImmutable());
+
         $this->entityManager->flush();
 
         return $this->json(null, Response::HTTP_NO_CONTENT);

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Dto\Input\Admin;
+namespace App\Dto\Request\Admin\Cadastro;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class ProfissaoDto
+readonly class ProfissaoInputDto
 {
     public function __construct(
         #[Assert\NotBlank(message: "A descrição é obrigatória")]
         #[Assert\Length(max: 60, maxMessage: "A descrição não pode ter mais de 60 caracteres")]
-        public ?string $descricao = null
+        public ?string $descricao = null,
     ) {}
 }

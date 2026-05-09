@@ -13,21 +13,18 @@ class ProfissaoRepository extends ServiceEntityRepository
         parent::__construct($registry, Profissao::class);
     }
 
-    public function obterAtivos(): array
+    public function obterTodos(bool $excluidos = false): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.excluidoEm IS NULL')
-            ->orderBy('p.descricao', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+        $qb = $this->createQueryBuilder('p');
 
-    public function obterExcluidos(): array
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.excluidoEm IS NOT NULL')
-            ->orderBy('p.excluidoEm', 'DESC')
-            ->getQuery()
-            ->getResult();
+        if (!$excluidos) {
+            $qb->andWhere('p.excluidoEm IS NULL')
+                ->orderBy('p.descricao', 'ASC');
+        } else {
+            $qb->andWhere('p.excluidoEm IS NOT NULL')
+                ->orderBy('p.excluidoEm', 'DESC');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

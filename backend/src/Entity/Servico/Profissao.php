@@ -2,16 +2,23 @@
 
 namespace App\Entity\Servico;
 
-use App\Dto\Input\Admin\ProfissaoDto;
 use App\Entity\Servico\Prestador;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class Profissao
 {
+    #[Groups(['profissao:read'])]
     private ?int $id = null;
+
+    #[Groups(['profissao:read'])]
     private ?string $descricao = null;
+
+    #[Groups(['profissao:read'])]
     private \DateTimeImmutable $criadoEm;
+
+    #[Groups(['profissao:read'])]
     private ?\DateTimeImmutable $excluidoEm = null;
 
     /** @var Collection<int, Prestador> */
@@ -77,19 +84,6 @@ class Profissao
         if ($this->prestadores->removeElement($prestador)) {
             $prestador->removeProfissao($this);
         }
-        return $this;
-    }
-
-    public static function fromDto(ProfissaoDto $dto): self
-    {
-        $entity = new self();
-        $entity->setDescricao($dto->descricao);
-        return $entity;
-    }
-
-    public function atualizarDados(ProfissaoDto $dto): self
-    {
-        $this->setDescricao($dto->descricao);
         return $this;
     }
 }
