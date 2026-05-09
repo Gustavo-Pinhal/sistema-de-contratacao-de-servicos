@@ -16,6 +16,7 @@ class Cep
 
     public function setNumero(string $numero): self
     {
+        $numero = preg_replace('/[^0-9]/', '', $numero);
         $this->numero = $numero;
         return $this;
     }
