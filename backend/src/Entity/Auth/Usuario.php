@@ -12,6 +12,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
     private array $roles = [];
     private ?string $password = null;
+    private ?string $nome = null;
 
     public function __construct()
     {
@@ -64,4 +65,15 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function eraseCredentials(): void {}
+
+    public function getNome(): ?string
+    {
+        return $this->nome;
+    }
+
+    public function setUp(?string $nome): self
+    {
+        $this->nome = $nome;
+        return $this;
+    }
 }

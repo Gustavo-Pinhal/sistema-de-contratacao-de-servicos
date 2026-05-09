@@ -11,7 +11,7 @@ class Mensagem
     private ?Usuario $usuario = null;
     private ?Sala $sala = null;
     private array $conteudo = [];
-    private ?Mensagem $respondeA = null;
+    private ?Mensagem $responde = null;
     private ?Arquivo $arquivo = null;
     private \DateTimeImmutable $envioEm;
     private ?\DateTimeImmutable $visualizadoEm = null;
@@ -60,14 +60,14 @@ class Mensagem
         return $this;
     }
 
-    public function getRespondeA(): ?Mensagem
+    public function getResponde(): ?Mensagem
     {
-        return $this->respondeA;
+        return $this->responde;
     }
 
-    public function setRespondeA(?Mensagem $r): self
+    public function setResponde(?Mensagem $r): self
     {
-        $this->respondeA = $r;
+        $this->responde = $r;
         return $this;
     }
 

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
     <entity name="App\Entity\Chat\Mensagem" table="mensagens" schema="chat">
         <id name="id" type="uuid" column="id" />
 
         <field name="conteudo" type="json" column="conteudo">
-            <options><option name="jsonb">true</option></options>
+            <options>
+                <option name="jsonb">true</option>
+            </options>
         </field>
+
         <field name="envioEm" type="datetimetz_immutable" column="envio_em" />
+
         <field name="visualizadoEm" type="datetimetz_immutable" column="visualizado_em" nullable="true" />
 
         <many-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
@@ -21,7 +24,7 @@
             <join-column name="id_sala" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <many-to-one field="respondeA" target-entity="App\Entity\Chat\Mensagem">
+        <many-to-one field="responde" target-entity="App\Entity\Chat\Mensagem">
             <join-column name="id_responde" referenced-column-name="id" nullable="true" />
         </many-to-one>
 
