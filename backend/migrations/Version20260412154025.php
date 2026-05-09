@@ -32,7 +32,7 @@ final class Version20260412154025 extends AbstractMigration
         $this->addSql(<<<'SQL'
         CREATE TABLE servico.profissoes (
             id              SERIAL          PRIMARY KEY,
-            descricao       VARCHAR(60)     ,
+            descricao       VARCHAR(60)     NOT NULL UNIQUE,
             criado_em       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP
         );

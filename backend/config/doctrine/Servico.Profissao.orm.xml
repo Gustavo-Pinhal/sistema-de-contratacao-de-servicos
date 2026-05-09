@@ -9,7 +9,7 @@
             <generator strategy="IDENTITY"/>
         </id>
 
-        <field name="descricao" type="string" length="60" nullable="true" column="descricao" />
+        <field name="descricao" type="string" length="60" nullable="false" column="descricao" unique="true" />
 
         <field name="criadoEm" type="datetime_immutable" column="criado_em" />
 
