@@ -7,6 +7,8 @@
 /backend/vendor/
 /backend/config/jwt/*.pem
 /docker/nginx/certs/*.pem
+/backend/phpunit.xml
+/backend/.phpunit.cache/
 
 # Dependencies
 # Never commit node_modules; it can be rebuilt with 'npm install'
