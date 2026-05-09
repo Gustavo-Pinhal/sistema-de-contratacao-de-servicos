@@ -1,6 +1,6 @@
 security:
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
 
     providers:
         app_user_provider:
@@ -32,7 +32,6 @@ security:
             jwt: ~
 
     access_control:
-        # Permite que o login_check seja acessado sem token
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
-        # Todo o resto da API exige autenticação
-        - { path: ^/api,             roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/cadastro-usuario, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
