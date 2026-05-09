@@ -36,18 +36,15 @@ final class ProfissaoControllerTest extends WebTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $token));
     }
 
-    public function testDeveListarProfissoesComSucesso(): void
+    public function testDeveListarProfissoes(): void
     {
-        $this->criarProfissao('Marceneiro');
-
         $this->client->request('GET', '/api/admin/cadastro/profissoes');
 
         self::assertResponseIsSuccessful();
         $conteudo = json_decode($this->client->getResponse()->getContent(), true);
 
-        // Se sua fixture estiver vazia de profissoes, o count será 1
-        self::assertCount(1, $conteudo);
-        self::assertEquals('Marceneiro', $conteudo[0]['descricao']);
+        self::assertCount(9, $conteudo);
+        self::assertEquals('Chaveiro', $conteudo[0]['descricao']);
     }
 
     public function testDeveCriarProfissaoComSucesso(): void
@@ -58,66 +55,17 @@ final class ProfissaoControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['descricao' => 'Encanador'])
+            json_encode(['descricao' => 'Profissão Teste'])
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $conteudo = json_decode($this->client->getResponse()->getContent(), true);
-        self::assertEquals('Encanador', $conteudo['descricao']);
-    }
-
-    public function testDeveAtualizarProfissaoComSucesso(): void
-    {
-        $profissao = $this->criarProfissao('Pedreiro');
-
-        $this->client->request(
-            'PUT',
-            '/api/admin/cadastro/profissoes/' . $profissao->getId(),
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['descricao' => 'Mestre de Obras'])
-        );
-
-        self::assertResponseIsSuccessful();
-        $this->entityManager->refresh($profissao);
-        self::assertEquals('Mestre de Obras', $profissao->getDescricao());
-    }
-
-    public function testDeveExcluirProfissaoComSucesso(): void
-    {
-        $profissao = $this->criarProfissao('Pintor');
-
-        $this->client->request('DELETE', '/api/admin/cadastro/profissoes/' . $profissao->getId());
-
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-        $this->entityManager->refresh($profissao);
-        self::assertNotNull($profissao->getExcluidoEm());
-    }
-
-    public function testDeveRestaurarProfissaoComSucesso(): void
-    {
-        $profissao = $this->criarProfissao('Eletricista');
-        $profissao->setExcluidoEm(new \DateTimeImmutable());
-        $this->entityManager->flush();
-
-        $this->client->request('POST', "/api/admin/cadastro/profissoes/{$profissao->getId()}/restaurar");
-
-        self::assertResponseIsSuccessful();
-        $this->entityManager->refresh($profissao);
-        self::assertNull($profissao->getExcluidoEm());
-    }
-
-    public function testRetorna404AoBuscarIdInexistente(): void
-    {
-        $this->client->request('DELETE', '/api/admin/cadastro/profissoes/99999');
-
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        self::assertEquals('Profissão Teste', $conteudo['descricao']);
     }
 
     public function testRetorna409AoCriarDescricaoDuplicada(): void
     {
-        $this->criarProfissao('Carpinteiro');
+        $this->criarProfissao('T Criar duplicado');
 
         $this->client->request(
             'POST',
@@ -125,7 +73,7 @@ final class ProfissaoControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['descricao' => 'Carpinteiro'])
+            json_encode(['descricao' => 'T Criar duplicado'])
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
@@ -133,7 +81,7 @@ final class ProfissaoControllerTest extends WebTestCase
         self::assertStringContainsString('Já existe uma profissão', $conteudo['errors']['descricao']);
     }
 
-    public function testRetorna422ParaDadosInvalidos(): void
+    public function testRetorna422ParaCriarComDadosInvalidos(): void
     {
         $this->client->request(
             'POST',
@@ -147,10 +95,28 @@ final class ProfissaoControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    public function testDeveAtualizarProfissaoComSucesso(): void
+    {
+        $profissao = $this->criarProfissao('T criar profissão');
+
+        $this->client->request(
+            'PUT',
+            '/api/admin/cadastro/profissoes/' . $profissao->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['descricao' => 'T criar profissão editado'])
+        );
+
+        self::assertResponseIsSuccessful();
+        $this->entityManager->refresh($profissao);
+        self::assertEquals('T criar profissão editado', $profissao->getDescricao());
+    }
+
     public function testRetorna409AoAtualizarParaDescricaoJaExistente(): void
     {
-        $this->criarProfissao('Programador');
-        $profissaoB = $this->criarProfissao('Designer');
+        $this->criarProfissao('T Atualizar repet');
+        $profissaoB = $this->criarProfissao('T Atualizar repet B');
 
         $this->client->request(
             'PUT',
@@ -158,10 +124,41 @@ final class ProfissaoControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['descricao' => 'Programador'])
+            json_encode(['descricao' => 'T Atualizar repet'])
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+    }
+
+    public function testDeveRestaurarProfissaoComSucesso(): void
+    {
+        $profissao = $this->criarProfissao('T restaurar profissão');
+        $profissao->setExcluidoEm(new \DateTimeImmutable());
+        $this->entityManager->flush();
+
+        $this->client->request('POST', "/api/admin/cadastro/profissoes/{$profissao->getId()}/restaurar");
+
+        self::assertResponseIsSuccessful();
+        $this->entityManager->refresh($profissao);
+        self::assertNull($profissao->getExcluidoEm());
+    }
+
+    public function testDeveExcluirProfissao(): void
+    {
+        $profissao = $this->criarProfissao('T excluir profissão');
+
+        $this->client->request('DELETE', '/api/admin/cadastro/profissoes/' . $profissao->getId());
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        $this->entityManager->refresh($profissao);
+        self::assertNotNull($profissao->getExcluidoEm());
+    }
+
+    public function testRetorna404AoTentarExcluirIdInexistente(): void
+    {
+        $this->client->request('DELETE', '/api/admin/cadastro/profissoes/99999');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
     private function criarProfissao(string $descricao): Profissao
