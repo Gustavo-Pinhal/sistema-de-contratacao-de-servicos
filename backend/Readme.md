@@ -20,10 +20,9 @@ Para funcionamento do **https**, executar na raíz do projeto
 
 mkdir -p docker/nginx/certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout docker/nginx/certs/key.pem \
-  -out docker/nginx/certs/cert.pem \
-  -subj "/C=BR/ST=SP/L=Local/O=Dev/OU=App/CN=localhost"
-
+ -keyout docker/nginx/certs/key.pem \
+ -out docker/nginx/certs/cert.pem \
+ -subj "/C=BR/ST=SP/L=Local/O=Dev/OU=App/CN=localhost"
 
 Utilizar o **composer** já instalado no contêiner para baixar as dependências:
 
@@ -53,4 +52,18 @@ Utilizar a **cli** para criar um usuário:
 
 ```bash
 php bin/console app:create-user
+```
+
+# Testes
+
+```bash
+docker compose exec php php bin/console doctrine:database:create --env=test
+```
+
+```bash
+docker compose exec php php bin/console doctrine:migrations:migrate --env=test --no-interaction
+```
+
+```bash
+php bin/phpunit
 ```
