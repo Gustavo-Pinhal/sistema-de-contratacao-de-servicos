@@ -44,10 +44,6 @@ services:
     env_file: .env
     environment:
       MERCURE_JWT_SECRET: ${MERCURE_JWT_KEY}
-    command: >
-      sh -c "until nc -z database 5432; do echo 'Aguardando Postgres...'; sleep 1; done && 
-             composer setup-app && 
-             php-fpm"
     depends_on:
       - database
     networks:

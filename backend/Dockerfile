@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    netcat-openbsd \
     && docker-php-ext-install pdo pdo_pgsql intl sodium
 
 # --- INSTALAÇÃO E CONFIGURAÇÃO DO XDEBUG ---
