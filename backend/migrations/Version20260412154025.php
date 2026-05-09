@@ -22,6 +22,7 @@ final class Version20260412154025 extends AbstractMigration
         CREATE TABLE servico.prestadores (
             id              UUID            PRIMARY KEY,
             nome            VARCHAR(255)    NOT NULL,
+            cep             CHAR(8)         NOT NULL,
             ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,

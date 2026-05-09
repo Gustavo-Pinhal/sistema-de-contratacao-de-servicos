@@ -5,9 +5,13 @@
 
     <entity name="App\Entity\Servico\Prestador" table="prestadores" schema="servico" repository-class="App\Repository\Servico\PrestadorRepository">
 
-        <id name="id" type="uuid" column="id" />
+        <id name="usuario" association-key="true" />
 
         <field name="nome" type="string" length="255" nullable="false" />
+
+        <many-to-one field="cep" target-entity="App\Entity\Localizacao\Cep">
+            <join-column name="cep" referenced-column-name="numero" nullable="false" />
+        </many-to-one>
 
         <field name="ativo" type="boolean" nullable="false" />
 
@@ -16,7 +20,10 @@
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
         <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
-            <join-column name="id" referenced-column-name="id" unique="true" nullable="false" />
+            <join-column name="id" referenced-column-name="id" />
+            <cascade>
+                <cascade-persist/>
+            </cascade>
         </one-to-one>
 
         <many-to-many field="profissoes" target-entity="App\Entity\Servico\Profissao" inversed-by="prestadores">

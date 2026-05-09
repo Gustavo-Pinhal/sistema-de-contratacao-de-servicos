@@ -3,15 +3,16 @@
 namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
+use App\Entity\Localizacao\Cep;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class Prestador
 {
-    private ?Uuid $id = null;
     private ?Usuario $usuario = null;
     private ?string $nome = null;
+    private ?Cep $cep = null;
     private bool $ativo = true;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
@@ -21,7 +22,6 @@ class Prestador
 
     public function __construct()
     {
-        $this->id = Uuid::v7();
         $this->criadoEm = new \DateTimeImmutable();
         $this->ativo = true;
         $this->profissoes = new ArrayCollection();
@@ -29,7 +29,7 @@ class Prestador
 
     public function getId(): ?Uuid
     {
-        return $this->id;
+        return $this->usuario->getId();
     }
 
     public function getUsuario(): ?Usuario
@@ -51,6 +51,17 @@ class Prestador
     public function setNome(string $nome): self
     {
         $this->nome = $nome;
+        return $this;
+    }
+
+    public function getCep(): ?Cep
+    {
+        return $this->cep;
+    }
+
+    public function setCep(?Cep $cep): self
+    {
+        $this->cep = $cep;
         return $this;
     }
 
