@@ -5,16 +5,17 @@
 
     <entity name="App\Entity\Servico\Cliente" table="clientes" schema="servico" repository-class="App\Repository\Servico\ClienteRepository">
 
-        <id name="id" type="uuid" column="id" />
-
-        <field name="nome" type="string" length="255" nullable="false" />
+        <id name="usuario" association-key="true" />
 
         <field name="criadoEm" type="datetime_immutable" column="criado_em" />
 
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
         <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
-            <join-column name="id" referenced-column-name="id" unique="true" nullable="false" />
+            <join-column name="id" referenced-column-name="id" />
+            <cascade>
+                <cascade-persist/>
+            </cascade>
         </one-to-one>
 
     </entity>

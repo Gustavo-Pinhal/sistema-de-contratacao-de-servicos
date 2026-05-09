@@ -7,21 +7,18 @@ use Symfony\Component\Uid\Uuid;
 
 class Cliente
 {
-    private ?Uuid $id = null;
     private ?Usuario $usuario = null;
-    private ?string $nome = null;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
     public function __construct()
     {
-        $this->id = Uuid::v7();
         $this->criadoEm = new \DateTimeImmutable();
     }
 
     public function getId(): ?Uuid
     {
-        return $this->id;
+        return $this->usuario?->getId();
     }
 
     public function getUsuario(): ?Usuario
@@ -32,17 +29,6 @@ class Cliente
     public function setUsuario(Usuario $usuario): self
     {
         $this->usuario = $usuario;
-        return $this;
-    }
-
-    public function getNome(): ?string
-    {
-        return $this->nome;
-    }
-
-    public function setNome(string $nome): self
-    {
-        $this->nome = $nome;
         return $this;
     }
 
