@@ -61,14 +61,14 @@ composer install
 # Executar as migrações do banco de dados
 php bin/console doctrine:migrations:migrate --no-interaction
 
+# Popular o banco de dados com as seeds
+php bin/console doctrine:fixtures:load --no-interaction
+
 # Configurar buckets no SeaweedFS
 php bin/console app:storage:setup
 
 # Gerar chaves para autenticação JWT
 php bin/console lexik:jwt:generate-keypair
-
-# Criar um usuário inicial para testes
-php bin/console app:create-user
 ```
 
 ---
@@ -99,3 +99,7 @@ O roteamento é centralizado pelo Nginx, que distribui as requisições conforme
 - `/storage`: Acesso direto aos arquivos armazenados no **SeaweedFS**.
 
 ---
+
+### 📝 Documentação da API
+
+Toda a documentação técnica e detalhada dos endpoints se encontram dentro de `backend/docs/`.
