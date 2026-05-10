@@ -105,6 +105,9 @@ services:
   seaweed_filer:
     image: chrislusf/seaweedfs
     command: "filer -master=seaweed_master:9333 -s3"
+    ports:
+      - "8888:8888" # Dev
+      - "8333:8333" # Dev
     depends_on:
       - seaweed_master
       - seaweed_volume
