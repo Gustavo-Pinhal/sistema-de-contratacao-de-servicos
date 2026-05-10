@@ -99,3 +99,7 @@ O roteamento é centralizado pelo Nginx, que distribui as requisições conforme
 - `/storage`: Acesso direto aos arquivos armazenados no **SeaweedFS**.
 
 ---
+
+### 📝 Documentação da API
+
+Toda a documentação técnica e detalhada dos endpoints se encontram dentro de `backend/docs/`.
