@@ -2,8 +2,10 @@
 
 namespace App\Entity\Servico;
 
+use App\Entity\Localizacao\Endereco;
 use App\Entity\Servico\Cliente;
 use App\Entity\Servico\Prestador;
+use App\Enum\StatusServico;
 use Symfony\Component\Uid\Uuid;
 
 class Servico
@@ -11,6 +13,8 @@ class Servico
     private ?Uuid $id = null;
     private ?Cliente $cliente = null;
     private ?Prestador $prestador = null;
+    private ?StatusServico $status = null;
+    private ?Endereco $endereco = null;
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
     private ?\DateTimeImmutable $excluidoEm = null;
@@ -56,6 +60,28 @@ class Servico
     public function setInicio(\DateTimeImmutable $inicio): self
     {
         $this->inicio = $inicio;
+        return $this;
+    }
+
+    public function getStatus(): ?StatusServico
+    {
+        return $this->status;
+    }
+
+    public function setStatus(StatusServico $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getEndereco(): ?Endereco
+    {
+        return $this->endereco;
+    }
+
+    public function setEndereco(Endereco $endereco): self
+    {
+        $this->endereco = $endereco;
         return $this;
     }
 

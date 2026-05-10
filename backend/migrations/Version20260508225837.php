@@ -50,10 +50,18 @@ final class Version20260508225837 extends AbstractMigration
             FOREIGN KEY (cep)           REFERENCES localizacao.cep  (numero)
         );
         SQL);
+
+        $this->addSql(<<<'SQL'
+        ALTER TABLE servico.servicos
+        ADD CONSTRAINT fk__id_endereco__localizacao_enderecos
+        FOREIGN KEY (id_endereco) REFERENCES localizacao.enderecos (id);
+        SQL);
     }
 
     public function down(Schema $schema): void
     {
+        $this->addSql('ALTER TABLE servico.servicos DROP CONSTRAINT fk__id_endereco__localizacao_enderecos;');
+
         $this->addSql('DROP TABLE localizacao.enderecos;');
 
         $this->addSql('DROP TABLE localizacao.cep;');

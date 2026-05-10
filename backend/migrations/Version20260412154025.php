@@ -63,50 +63,18 @@ final class Version20260412154025 extends AbstractMigration
         SQL);
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE servico.status_servico (
-            id              INTEGER         PRIMARY KEY,
-            descricao       VARCHAR(30)     NOT NULL UNIQUE
-        );
-        SQL);
-
-        $this->addSql(<<<'SQL'
-        INSERT INTO servico.status_servico (id, descricao) VALUES
-        (1, 'Solicitação de orçamento'),
-        (2, 'Orçamento'),
-        (3, 'Ativo'),
-        (4, 'Cancelado pelo cliente'),
-        (5, 'Cancelado pelo prestador'),
-        (6, 'Concluído'),
-        (7, 'Expirado');
-        SQL);
-
-        $this->addSql(<<<'SQL'
         CREATE TABLE servico.servicos (
             id              UUID            PRIMARY KEY,
             id_cliente      UUID            NOT NULL,
             id_prestador    UUID            NOT NULL,
             id_status       INTEGER         NOT NULL DEFAULT 1,
+            id_endereco     UUID            NOT NULL,
             inicio          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             encerramento    TIMESTAMP       ,
             excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_cliente)    REFERENCES servico.clientes         (id),
-            FOREIGN KEY (id_prestador)  REFERENCES servico.prestadores      (id),
-            FOREIGN KEY (id_status)     REFERENCES servico.status_servico   (id)
+            FOREIGN KEY (id_prestador)  REFERENCES servico.prestadores      (id)
         );
-        SQL);
-
-        $this->addSql(<<<'SQL'
-        CREATE TABLE servico.status_agendamento (
-            id              INTEGER         PRIMARY KEY,
-            descricao       VARCHAR(30)     NOT NULL UNIQUE
-        );
-        SQL);
-
-        $this->addSql(<<<'SQL'
-        INSERT INTO servico.status_agendamento (id, descricao) VALUES
-        (1, 'Proposto'),
-        (2, 'Confirmado'),
-        (3, 'Declinado');
         SQL);
 
         $this->addSql(<<<'SQL'
@@ -118,8 +86,7 @@ final class Version20260412154025 extends AbstractMigration
             id_status       INTEGER         NOT NULL DEFAULT 1,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
-            FOREIGN KEY (id_servico)    REFERENCES servico.servicos             (id),
-            FOREIGN KEY (id_status)     REFERENCES servico.status_agendamento   (id)
+            FOREIGN KEY (id_servico)    REFERENCES servico.servicos             (id)
         );
         SQL);
 
@@ -142,11 +109,7 @@ final class Version20260412154025 extends AbstractMigration
 
         $this->addSql('DROP TABLE servico.agendamentos;');
 
-        $this->addSql('DROP TABLE servico.status_agendamento;');
-
         $this->addSql('DROP TABLE servico.servicos;');
-
-        $this->addSql('DROP TABLE servico.status_servico;');
 
         $this->addSql('DROP TABLE servico.clientes;');
 
