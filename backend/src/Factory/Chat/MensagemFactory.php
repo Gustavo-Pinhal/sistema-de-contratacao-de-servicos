@@ -13,6 +13,7 @@ class MensagemFactory
     public function __construct(
         private EntityManagerInterface $em
     ) {}
+
     public function criar(
         MensagemInputDto $dto,
         Sala $sala,
@@ -27,7 +28,7 @@ class MensagemFactory
         ]);
 
         if ($dto->responde) {
-            $referencia = $this->em->getReference(Mensagem::class, $dto->responde);
+            $referencia = $this->em->getRepository(Mensagem::class)->find($dto->responde);
             $mensagem->setResponde($referencia);
         }
 
