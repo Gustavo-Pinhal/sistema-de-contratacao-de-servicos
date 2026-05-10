@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Localizacao\Endereco" table="enderecos" schema="localizacao">
+
+        <id name="id" type="uuid" column="id" />
+
+        <field name="rua" type="string" length="255" column="rua" nullable="true" />
+
+        <field name="numero" type="string" length="20" column="numero" nullable="true" />
+
+        <field name="bairro" type="string" length="255" column="bairro" nullable="true" />
+
+        <field name="complemento" type="string" length="255" column="complemento" nullable="true" />
+
+        <many-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
+            <join-column name="id_usuario" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="cep" target-entity="App\Entity\Localizacao\Cep">
+            <join-column name="cep" referenced-column-name="numero" nullable="false" />
+        </many-to-one>
+
+    </entity>
+</doctrine-mapping>
