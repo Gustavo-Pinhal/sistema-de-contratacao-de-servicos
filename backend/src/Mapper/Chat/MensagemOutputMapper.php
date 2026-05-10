@@ -2,17 +2,17 @@
 
 namespace App\Mapper\Chat;
 
-use App\Dto\Output\Chat\MensagemDto;
+use App\Dto\Response\Chat\MensagemOutputDto;
 use App\Entity\Chat\Mensagem;
 use App\Service\ChatMediaService;
 
 class MensagemOutputMapper
 {
     public function __construct(
-        private ChatMediaService $mediaService
+        private ChatMediaService $midiaService
     ) {}
 
-    public function toDto(Mensagem $mensagem): MensagemDto
+    public function paraDto(Mensagem $mensagem): MensagemOutputDto
     {
         $conteudo = $mensagem->getConteudo();
         $tipo = $conteudo['tipo'] ?? 'texto';
@@ -21,14 +21,14 @@ class MensagemOutputMapper
         if ($mensagem->getArquivo()) {
             $arquivo = [
                 'id' => $mensagem->getArquivo()->getId(),
-                'url' => $this->mediaService->generateSecureUrl($mensagem->getArquivo()->getCaminho()),
+                'url' => $this->midiaService->generateSecureUrl($mensagem->getArquivo()->getCaminho()),
                 'mime_type' => $mensagem->getArquivo()->getMimeType(),
             ];
         }
-        
-        $referencia = (string) $mensagem->getRespondeA()?->getId();
 
-        return new MensagemDto(
+        $referencia = (string) $mensagem->getResponde()?->getId();
+
+        return new MensagemOutputDto(
             id: $mensagem->getId()->toString(),
             enviado_por: $mensagem->getUsuario()->getId(),
             tipo: $tipo,
@@ -39,12 +39,15 @@ class MensagemOutputMapper
         );
     }
 
-    /** @param Mensagem[] $mensagens */
-    public function toCollection(iterable $mensagens): array
+    /**
+     *  @param Mensagem[] $mensagens 
+     *  @return MensagemOutputDto[]
+     */
+    public function paraCollection(iterable $mensagens): array
     {
         $dtos = [];
-        foreach ($mensagens as $m) {
-            $dtos[] = $this->toDto($m);
+        foreach ($mensagens as $mensagem) {
+            $dtos[] = $this->paraDto($mensagem);
         }
         return $dtos;
     }

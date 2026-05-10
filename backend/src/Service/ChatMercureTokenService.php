@@ -17,14 +17,14 @@ class ChatMercureTokenService
         private readonly string $mercureSecret
     ) {}
 
-    public function generateToken(Usuario $usuario, Sala $sala): string
+    public function generateToken(Usuario $usuario, string $topico): string
     {
         $config = Configuration::forSymmetricSigner(
             new Sha256(),
             InMemory::plainText($this->mercureSecret),
         );
 
-        $topico = self::TOPICO_BASE . $sala->getId();
+        $topico = $topico;
         $agora = new \DateTimeImmutable();
 
         $token = $config->builder()
