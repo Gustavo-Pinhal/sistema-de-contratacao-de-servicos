@@ -1,133 +1,141 @@
-## Ler mensagens
+## Abrir Chat
+
+Retorna as informações básicas da sala de chat, a lista de participantes, o histórico de mensagens e as credenciais necessárias para conectar ao tópico em tempo real via Mercure.
 
 ```bash
-curl -k https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat \
+curl -k -X GET https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat \
 -H "Authorization: Bearer $TOKEN"
 ```
 
-onde o uuid pertence ao serviço.
-
-resposta:
+A requisição responde com um objeto contendo o histórico e os metadados de conexão:
 
 ```json
 {
     "idServico": "019e134d-e21c-78a0-a004-a772f82b114a",
-    "mercureToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL21hcmlkb2RlYWx1Z3VlbC5jb20iLCJzdWIiOiIwMTllMTI4YS0wOWM1LTdjMTctYTE1Yy0xYmZiNDUzODIwODMiLCJpYXQiOjE3Nzg0NDU0NjkuNzE3MjQsImV4cCI6MTc3ODUzMTg2OS43MTcyNCwibWVyY3VyZSI6eyJzdWJzY3JpYmUiOlsiaHR0cHM6Ly9tYXJpZG9kZWFsdWd1ZWwuY29tL2NoYXQvc2FsYS80Il19fQ.UnzM715X5rcd-PU7aekzg2KB0QM2B3U3YLY6Nuh8R4k",
+    "mercureToken": "eyJ0eXAi...",
     "topico": "http://chat/com/servico/019e134d-e21c-78a0-a004-a772f82b114a",
     "participantes": {
         "cliente": {
             "id": "019e128a-09c5-7c17-a15c-1bfb45382083",
-            "nome": "Usu\u00e1rio Cliente"
+            "nome": "João Silva"
         },
         "prestador": {
             "id": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
-            "nome": "Prestador Comum"
+            "nome": "Carlos Eletricista"
         }
     },
     "messagens": [
         {
-            "id": "019e136c-afa9-7aaa-9a4f-4aaddf5ae418",
+            "id": "019e13eb-450c-7bb6-9060-9abf55d0c276",
             "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
-            "tipo": "foto",
-            "texto": null,
-            "referencia": "",
-            "arquivo": {
-                "id": "019e136c-afa9-7aaa-9a4f-4aaddf5ae418",
-                "url": "https://localhost/storage/app-private/chats/019e136c-afa9-7aaa-9a4f-4aaddf5ae418.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=any%2F20260510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260510T203749Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Signature=414cd03a878b1057bb17948f6cdeff32222b5677a2287df2de49086222d12cd6",
-                "mime_type": "image/jpeg"
-            },
-            "enviado_em": "10/05/2026 \u00e050 19:45"
-        },
-        {
-            "id": "019e134d-e21c-7934-a004-a772f878f09c",
-            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
-            "tipo": "text",
-            "texto": null,
+            "tipo": "texto",
+            "texto": "Olá, tudo bem?",
             "referencia": "",
             "arquivo": null,
-            "enviado_em": "10/05/2026 \u00e011 19:12"
+            "enviado_em": "10/05/2026 às 22:04"
         }
     ]
 }
 ```
 
-## Conexão com o mercure
+#### Respostas possíveis:
 
-Para abrir uma conexão com o mercury, utilize
+- **Sucesso (200 OK):** Dados carregados com sucesso.
 
-```bash
-curl -i -k -N \
-     -H "Authorization: Bearer JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE" \
-     "https://localhost/.well-known/mercure?topic=TOPICO_DO_MERCURE"
-```
+- **Acesso Negado (403 Forbidden):** Se o usuário logado não for o cliente nem o prestador deste serviço.
 
-substitua JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE pela chave retornada no campo `"mercure_token"` da requisição anterior.
+## Enviar Mensagem de Texto
 
-substitua o tópico pelo tópico retornado na resposta anterior.
-
-substitua TOPICO_DO_MERCURE pelo topico da resposta anterior.
-
-## Enviar mensagem
+Envia uma nova mensagem de texto para a sala de chat.
 
 ```bash
 curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat \
 -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
--d '{"texto":"Olá","referencia":"019e134d-e21c-7934-a004-a772f878f09c"}'
+-d '{
+    "texto": "Olá, qual o valor do orçamento?",
+    "responde": "019e13eb-450c-7bb6-9060-9abf55d0c276"
+}'
 ```
 
-Responde com status 201
+#### Respostas possíveis:
 
-```json
-{ "status": "success" }
-```
+- **Sucesso (201 Created):** `{"status":"success"}`.
 
-O usuário que estiver com a conexão aberta no mercure receberá o seguinte json
+- **Erro de Validação (422 Unprocessable Content):** Quando o texto está vazio, excede 512 caracteres ou o UUID de referência é inválido.
 
-```json
-{
-    "id": "019e13d1-f209-7a0e-90b1-2c7b279cece2",
-    "enviado_por": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
-    "tipo": "texto",
-    "texto": "Ol\u00e1",
-    "referencia": "",
-    "arquivo": null,
-    "enviado_em": "10\/05\/2026 \u00e026 21:36"
-}
-```
+- **Acesso Negado (403 Forbidden):** Usuário não pertence ao chat.
 
-## Upload de imagens:
+## Enviar Arquivo ou Imagem
 
-Upload de imagem gera uma mensagem nova.
-
-A requisição segue o seguinte formato:
+Realiza o upload de um arquivo para o chat. O arquivo é armazenado de forma segura e uma mensagem do tipo "arquivo" é disparada no chat.
 
 ```bash
 curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat/upload \
 -H "Authorization: Bearer $TOKEN" \
--F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
+-F "file=@/caminho/da/sua/imagem.jpg"
 ```
 
-Responde com status 201
+#### Respostas possíveis:
 
-```json
-{ "status": "success" }
+- **Sucesso (201 Created):** Retorna o objeto da mensagem de arquivo criada, incluindo a URL temporária.
+
+- **Arquivo Inválido (400 Bad Request):** Se o campo file estiver vazio ou o upload falhar no cliente.
+
+- **Erro de Armazenamento (502 Bad Gateway):** Falha na comunicação com o servidor de mídias (SeaweedFS/S3).
+
+- **Erro Interno (500 Internal Server Error):** Falha inesperada ao processar o arquivo.
+
+## Conexão Real-time (Mercure)
+
+Para receber mensagens instantaneamente sem atualizar a página, o frontend deve estabelecer uma conexão **EventSource** com o Hub Mercure utilizando os dados obtidos no endpoint de Detalhes do Chat.
+
+#### Passos para conexão:
+
+1. Recupere o `mercureToken` e o `topico` através do GET do chat.
+
+2. Inscreva-se no Hub utilizando o token como cabeçalho de autorização (ou via Cookie).
+
+#### Exemplo de escuta via terminal:
+
+```bash
+curl -i -k -N \
+-H "Authorization: Bearer $MERCURE_TOKEN" \
+"https://localhost/.well-known/mercure?topic=http://chat/com/servico/019e134d-e21c-78a0-a004-a772f82b114a"
 ```
 
-O usuário que estiver conectado ao mercure receberá o seguinte json
+O Hub enviará eventos `data` no formato JSON sempre que uma nova mensagem (texto ou arquivo) for postada:
 
 ```json
 {
-    "id": "019e13d6-6c83-73f1-ae76-023b31753b8a",
-    "enviado_por": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
-    "tipo": "foto",
-    "texto": null,
+    "id": "019e13eb-82b4-7d79-a96e-940f704e469d",
+    "enviado_por": "019e128a-09c5",
+    "tipo": "texto",
+    "texto": "Mensagem recebida em tempo real!",
     "referencia": "",
-    "arquivo": {
-        "id": "019e13d6-6c83-73f1-ae76-023b31753b8a",
-        "url": "https://localhost/storage/app-private/chats/019e13d6-6c83-73f1-ae76-023b31753b8a.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=any%2F20260510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260510T214120Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Signature=0ac80a62d6ea784ade035fd7d3e3a34707b20d58f66f5dbd14eb43cfc800f331",
-        "mime_type": "image/jpeg"
-    },
-    "enviado_em": "10/05/2026 \u00e020 21:41"
+    "arquivo": null,
+    "enviado_em": "10/05/2026 às 22:04"
 }
 ```
+
+## Recuperação de Imagens e Arquivos
+
+As imagens e arquivos enviados não são públicos. Para acessá-los, a API gera **URLs Assinadas (Presigned URLs)**.
+
+Ao consultar o histórico ou receber uma mensagem de arquivo, o campo `arquivo` conterá a estrutura:
+
+```json
+"arquivo": {
+    "id": "019e135e-6e18-7a2a-a8fe-b2c265bd4b66",
+    "url": "https://localhost/app-private/chats/id-arquivo.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=1200...",
+    "mime_type": "image/jpeg"
+}
+```
+
+#### Regras de acesso:
+
+- **Expiração:** As URLs geradas expiram em **20 minutos**. Após esse período, o frontend deve solicitar os dados do chat novamente para obter novas URLs válidas.
+
+---
+
+**Nota sobre Segurança:** Todos os endpoints exigem o cabeçalho `Authorization: Bearer {token}`. O acesso às salas é restrito aos IDs de usuário vinculados ao serviço (Cliente e Prestador). Qualquer tentativa de acesso de terceiros retornará `403 Forbidden`.

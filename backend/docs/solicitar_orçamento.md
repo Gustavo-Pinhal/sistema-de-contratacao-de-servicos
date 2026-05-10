@@ -44,3 +44,5 @@ curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b11
 ```
 
 Onde o uuid da url é o id do serviço.
+
+Ver mais em [Enviar Arquivo ou Imagem](./chat.md#enviar-arquivo-ou-imagem)
