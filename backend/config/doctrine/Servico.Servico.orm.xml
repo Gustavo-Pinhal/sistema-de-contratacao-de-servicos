@@ -7,7 +7,7 @@
 
         <id name="id" type="uuid" column="id" />
 
-        <field name="status" type="integer" column="status" enum-type="App\Enum\StatusServico" />
+        <field name="status" type="integer" column="id_status" enum-type="App\Enum\StatusServico" />
 
         <field name="inicio" type="datetime_immutable" column="inicio" />
 
@@ -25,6 +25,9 @@
 
         <many-to-one field="endereco" target-entity="App\Entity\Localizacao\Endereco">
             <join-column name="id_endereco" referenced-column-name="id" nullable="false" />
+            <cascade>
+                <cascade-persist/>
+            </cascade>
         </many-to-one>
 
     </entity>

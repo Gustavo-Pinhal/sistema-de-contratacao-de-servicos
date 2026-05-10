@@ -10,6 +10,9 @@ readonly class SolicitarOrcamentoInputDto
         #[Assert\NotBlank]
         public ?string $descricao,
 
+        #[Assert\Uuid]
+        public ?string $idEndereco,
+
         #[Assert\NotBlank]
         #[Assert\Length(min: 8, max: 8)]
         #[Assert\Regex(pattern: "/^\d+$/")]
