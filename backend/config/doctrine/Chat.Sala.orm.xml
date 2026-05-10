@@ -12,11 +12,11 @@
             <join-column name="id_servico" referenced-column-name="id" unique="true" nullable="false" />
         </one-to-one>
 
-        <many-to-one field="prestador" target-entity="App\Entity\Servico\Prestador">
+        <many-to-one field="prestador" target-entity="App\Entity\Auth\Usuario">
             <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <many-to-one field="cliente" target-entity="App\Entity\Servico\Cliente">
+        <many-to-one field="cliente" target-entity="App\Entity\Auth\Usuario">
             <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
