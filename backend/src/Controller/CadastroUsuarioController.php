@@ -4,11 +4,11 @@ namespace App\Controller;
 
 use App\Dto\Request\CadastroUsuario\CadastrarClienteInputDto;
 use App\Dto\Request\CadastroUsuario\CadastrarPrestadorInputDto;
-use App\Entity\Servico\Cliente;
-use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Profissao;
 use App\Exception\UsuarioJaExisteException;
 use App\Factory\Auth\UsuarioFactory;
+use App\Factory\Servico\ClienteFactory;
+use App\Factory\Servico\PrestadorFactory;
 use App\Repository\Auth\UsuarioRepository;
 use App\Service\Localizacao\CepService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,23 +30,16 @@ final class CadastroUsuarioController extends AbstractController
     public function cadastroCliente(
         #[MapRequestPayload]
         CadastrarClienteInputDto $dto,
+        ClienteFactory $factory,
     ): JsonResponse {
         $usuarioExistente = $this->usuarioRepository->findOneBy(['email' => $dto->email]);
         if ($usuarioExistente) {
             throw new UsuarioJaExisteException($dto->email);
         }
 
-        $usuario = $this->usuarioFactory->criar(
-            $dto->email,
-            $dto->nome,
-            $dto->senha,
-            ['CLIENTE'],
-        );
+        $cliente = $factory->criar($dto);
 
-        $cliente = new Cliente();
-        $cliente->setUsuario($usuario);
-
-        $this->manager->persist($usuario);
+        $this->manager->persist($cliente->getUsuario());
         $this->manager->persist($cliente);
         $this->manager->flush();
 
@@ -58,37 +51,29 @@ final class CadastroUsuarioController extends AbstractController
         #[MapRequestPayload]
         CadastrarPrestadorInputDto $dto,
         CepService $cepService,
+        PrestadorFactory $factory,
     ): JsonResponse {
         $usuarioExistente = $this->usuarioRepository->findOneBy(['email' => $dto->email]);
         if ($usuarioExistente) {
             throw new UsuarioJaExisteException($dto->email);
         }
 
-        $usuario = $this->usuarioFactory->criar(
-            $dto->email,
-            $dto->nome,
-            $dto->senha,
-            ['PRESTADOR'],
-        );
-
-        $cep = $cepService->buscarOuCadastrar($dto->cep);
-
         $profissao = $this->manager->getRepository(Profissao::class)->find($dto->profissao);
-
         if (!$profissao) {
             return $this->json([
                 'message' => 'Erro de validação',
-                'errors' => ['profissao' => 'A profissão informada não existe.']
+                'errors' => ['profissao' => 'Profissão inexistente.']
             ], 400);
         }
 
-        $prestador = new Prestador();
-        $prestador->setUsuario($usuario)
-            ->setNome($usuario->getNome())
-            ->setCep($cep)
-            ->addProfissao($profissao);
+        $cep = $cepService->buscarOuCadastrar($dto->cep);
+        if (!$cep) {
+            return $this->json(['message' => 'Erro de validação', 'errors' => ['cep' => 'CEP inválido.']], 400);
+        }
 
-        $this->manager->persist($usuario);
+        $prestador = $factory->criar($dto, $profissao, $cep);
+
+        $this->manager->persist($prestador->getUsuario());
         $this->manager->persist($prestador);
         $this->manager->flush();
 

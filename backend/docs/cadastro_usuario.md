@@ -90,6 +90,17 @@ curl -k -X POST https://localhost/api/cadastro-usuario/prestador \
 }
 ```
 
+- **Cep Inválido (400 Bad Request):** Quando o valor enviado no campo cep não existe.
+
+```json
+{
+    "message": "Erro de validação",
+    "errors": {
+        "cep": "CEP inválido."
+    }
+}
+```
+
 - **Erro de Validação (422 Unprocessable Content):** Quando campos obrigatórios estão ausentes ou o formato do CEP é inválido (deve ter 8 dígitos numéricos).
 
 ```json
