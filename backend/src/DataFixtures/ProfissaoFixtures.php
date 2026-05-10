@@ -26,6 +26,7 @@ class ProfissaoFixtures extends Fixture
             $e = new Profissao();
             $e->setDescricao($profissao);
             $manager->persist($e);
+            $this->addReference('profissão ' . $profissao, $e);
         }
 
         $manager->flush();
