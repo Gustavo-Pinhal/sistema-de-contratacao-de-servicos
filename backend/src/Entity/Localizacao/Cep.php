@@ -2,11 +2,20 @@
 
 namespace App\Entity\Localizacao;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 class Cep
 {
+    #[Groups('busca_endereco:read')]
     private ?string $numero = null;
+
+    #[Groups('busca_endereco:read')]
     private ?string $rua = null;
+
+    #[Groups('busca_endereco:read')]
     private ?string $bairro = null;
+
+    #[Groups('busca_endereco:read')]
     private ?Municipio $municipio = null;
 
     public function getNumero(): ?string
