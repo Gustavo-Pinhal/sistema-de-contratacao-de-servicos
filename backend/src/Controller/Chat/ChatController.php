@@ -110,29 +110,40 @@ final class ChatController extends AbstractController
         $sala = $servico->getSala();
 
         if (!$sala->eParticipante($usuario)) {
-            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
+            return $this->json(['error' => 'Você não tem permissão para postar neste chat.'], Response::HTTP_FORBIDDEN);
         }
 
         $arquivo = $request->files->get('file');
-        if (!$arquivo) {
-            return $this->json(['error' => 'Nenhum arquivo enviado'], Response::HTTP_BAD_REQUEST);
+        if (!$arquivo || !$arquivo->isValid()) {
+            return $this->json(['error' => 'Arquivo inválido ou não enviado.'], Response::HTTP_BAD_REQUEST);
         }
 
-        $mensagem = $factory->create($arquivo, $sala, $usuario);
-        $caminho = $mediaService->uploadChatFile($arquivo, $mensagem->getArquivo());
-        $mensagem->getArquivo()->setCaminho($caminho);
+        try {
+            $mensagem = $factory->create($arquivo, $sala, $usuario);
 
-        $manager->persist($mensagem);
-        $manager->flush();
+            $caminho = $mediaService->uploadChatFile($arquivo, $mensagem->getArquivo());
+            $mensagem->getArquivo()->setCaminho($caminho);
 
-        $dto = $mapper->paraDto($mensagem);
-        $update = new Update(
-            self::TOPICO . $servico->getId(),
-            $serializer->serialize($dto, 'json', ['json_encode_options' => JSON_UNESCAPED_SLASHES]),
-            true,
-        );
-        $hub->publish($update);
+            $manager->persist($mensagem);
+            $manager->flush();
 
-        return $this->json(['status' => 'success'], Response::HTTP_CREATED);
+            $dto = $mapper->paraDto($mensagem);
+
+            try {
+                $update = new Update(
+                    self::TOPICO . $servico->getId(),
+                    $serializer->serialize($dto, 'json', ['json_encode_options' => JSON_UNESCAPED_SLASHES]),
+                    true
+                );
+                $hub->publish($update);
+            } catch (\Exception $e) {
+            }
+
+            return $this->json($dto, Response::HTTP_CREATED);
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            return $this->json(['error' => 'Erro de armazenamento. Verifique sua conexão.'], 502);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Ocorreu um erro inesperado ao processar sua mensagem.'], 500);
+        }
     }
 }
