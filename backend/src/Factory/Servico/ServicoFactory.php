@@ -5,7 +5,6 @@ namespace App\Factory\Servico;
 use App\Dto\Request\Prestador\SolicitarOrcamentoInputDto;
 use App\Entity\Auth\Usuario;
 use App\Entity\Localizacao\Endereco;
-use App\Entity\Servico\Cliente;
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
 use App\Enum\StatusServico;
@@ -21,9 +20,8 @@ class ServicoFactory
 
     public function aPartirDeSolicitacaoOrcamento(
         SolicitarOrcamentoInputDto $dto,
-        Prestador $prestador,
-        Cliente $cliente,
-        Usuario $usuarioCliente,
+        Usuario $prestador,
+        Usuario $cliente,
     ): Servico {
         $endereco = null;
         if ($dto->idEndereco) {
@@ -39,7 +37,7 @@ class ServicoFactory
             $endereco->setBairro($dto->bairro);
             $endereco->setNumero($dto->numero);
             $endereco->setComplemento($dto->complemento);
-            $endereco->setUsuario($usuarioCliente);
+            $endereco->setUsuario($cliente);
         }
 
         $servico = new Servico();

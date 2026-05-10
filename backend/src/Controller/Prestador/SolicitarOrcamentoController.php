@@ -25,12 +25,9 @@ final class SolicitarOrcamentoController extends AbstractController
         ServicoFactory $factory,
         EntityManagerInterface $manager,
     ): JsonResponse {
-        $cliente = $manager->getRepository(Cliente::class)->find($this->getUser());
-
         $servico = $factory->aPartirDeSolicitacaoOrcamento(
             $dto,
-            $prestador,
-            $cliente,
+            $prestador->getUsuario(),
             $this->getUser(),
         );
 
