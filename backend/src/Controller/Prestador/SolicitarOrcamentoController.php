@@ -3,7 +3,8 @@
 namespace App\Controller\Prestador;
 
 use App\Dto\Request\Prestador\SolicitarOrcamentoInputDto;
-use App\Entity\Servico\Cliente;
+use App\Entity\Chat\Mensagem;
+use App\Entity\Chat\Sala;
 use App\Entity\Servico\Prestador;
 use App\Factory\Servico\ServicoFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,13 +26,30 @@ final class SolicitarOrcamentoController extends AbstractController
         ServicoFactory $factory,
         EntityManagerInterface $manager,
     ): JsonResponse {
+        $uCliente = $this->getUser();
+        $uPrestador = $prestador->getUsuario();
+
         $servico = $factory->aPartirDeSolicitacaoOrcamento(
             $dto,
-            $prestador->getUsuario(),
-            $this->getUser(),
+            $uPrestador,
+            $uCliente,
         );
 
+        $mensagem = new Mensagem()
+            ->setUsuario($uCliente)
+            ->setConteudo([
+                'tipo' => 'text',
+                'text' => $dto->descricao,
+            ]);
+
+        $sala = new Sala();
+        $sala->setServico($servico)
+            ->setCliente($uCliente)
+            ->setPrestador($uPrestador)
+            ->addMensagem($mensagem);
+
         $manager->persist($servico);
+        $manager->persist($sala);
         $manager->flush();
 
         return $this->json([

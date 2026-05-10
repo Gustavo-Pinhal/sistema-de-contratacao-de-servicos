@@ -71,4 +71,14 @@ class Sala
     {
         return $this->mensagens;
     }
+
+    public function addMensagem(Mensagem $mensagem): self
+    {
+        if (!$this->mensagens->contains($mensagem)) {
+            $this->mensagens->add($mensagem);
+            $mensagem->setSala($this);
+        }
+
+        return $this;
+    }
 }
