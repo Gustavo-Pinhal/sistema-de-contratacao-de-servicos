@@ -3,6 +3,7 @@
 namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
+use App\Entity\Chat\Sala;
 use App\Entity\Localizacao\Endereco;
 use App\Enum\StatusServico;
 use Symfony\Component\Uid\Uuid;
@@ -14,6 +15,7 @@ class Servico
     private ?Usuario $prestador = null;
     private ?StatusServico $status = null;
     private ?Endereco $endereco = null;
+    private ?Sala $sala = null;
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
     private ?\DateTimeImmutable $excluidoEm = null;
@@ -81,6 +83,17 @@ class Servico
     public function setEndereco(Endereco $endereco): self
     {
         $this->endereco = $endereco;
+        return $this;
+    }
+
+    public function getSala(): ?Sala
+    {
+        return $this->sala;
+    }
+
+    public function setSala(Sala $sala): self
+    {
+        $this->sala = $sala;
         return $this;
     }
 

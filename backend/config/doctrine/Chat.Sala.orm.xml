@@ -8,7 +8,7 @@
             <generator strategy="IDENTITY"/>
         </id>
 
-        <one-to-one field="servico" target-entity="App\Entity\Servico\Servico">
+        <one-to-one field="servico" target-entity="App\Entity\Servico\Servico" inversed-by="sala">
             <join-column name="id_servico" referenced-column-name="id" unique="true" nullable="false" />
         </one-to-one>
 

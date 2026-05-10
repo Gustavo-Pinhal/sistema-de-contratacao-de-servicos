@@ -48,8 +48,9 @@ final class SolicitarOrcamentoController extends AbstractController
             ->setPrestador($uPrestador)
             ->addMensagem($mensagem);
 
+        $servico->setSala($sala);
+
         $manager->persist($servico);
-        $manager->persist($sala);
         $manager->flush();
 
         return $this->json([

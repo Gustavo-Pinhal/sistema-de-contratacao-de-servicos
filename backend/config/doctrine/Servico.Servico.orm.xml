@@ -30,5 +30,11 @@
             </cascade>
         </many-to-one>
 
+        <one-to-one field="sala" target-entity="App\Entity\Chat\Sala" mapped-by="servico">
+            <cascade>
+                <cascade-persist/>
+            </cascade>
+        </one-to-one>
+
     </entity>
 </doctrine-mapping>
