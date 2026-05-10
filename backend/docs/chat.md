@@ -1,161 +1,133 @@
-### Pré requisitos
-
-Para abrir um chat, é necessário ter primeiro uma **Sala** no banco.
-
-```SQL
-insert into servico.clientes (id, nome) values
-((select id from auth.usuarios where email = 'teste@exemplo.com'), 'Jõao Cliente');
-
-insert into servico.prestadores (id, nome) values
-((select id from auth.usuarios where email = 'beto.carreiro@example.com'), 'Beto Carreiro');
-
-insert into servico.servicos (id, id_cliente, id_prestador) values
-(
-	gen_random_uuid(),
-	(select id from servico.clientes where nome = 'Jõao Cliente'),
-	(select id from servico.prestadores where nome = 'Beto Carreiro')
-);
-
-insert into chat.sala (id_servico, id_cliente, id_prestador) values
-(
-	(select id from servico.servicos order by inicio desc limit 1),
-	(select id from servico.clientes where nome = 'Jõao Cliente'),
-	(select id from servico.prestadores where nome = 'Beto Carreiro')
-);
-```
-
-Caso usuários não existam, utilize a cli `app:create-app-user`.
-
-### Abrir chat
-
-Com a sala criada, abra o chat com
+## Ler mensagens
 
 ```bash
-curl -k -X GET https://localhost/api/chat/1 \
-     -H "Authorization: Bearer $TOKEN"
+curl -k https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat \
+-H "Authorization: Bearer $TOKEN"
 ```
 
-Troque o id da sala pelo id correto.
+onde o uuid pertence ao serviço.
 
-A resposta desta requisição será um json no formato
+resposta:
 
 ```json
 {
-     "id_sala": 1,
-     "topico": "http://chat/com/sala/1",
-     "mercure_token": JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE,
-     "participantes": [
-          {
-               "nome": "fulano",
-               "id":  "8be4df61-93ca-11d2-aa0d-00e098032b8c",
-          }, 
-          {
-               "nome": "beltrano",
-               "id":  "9be4df61-73ca-11e4-aa0d-00e098032baa",
-          }
-     ],
-     "messages": [
-          {
-               "id": "060ab53c-0bb2-7482-8000-ab029e8fa2ea",
-               "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
-               "tipo": "texto",
-               "texto": "olá",
-               "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
-               "enviado_em": "04/11/2025 22:14"
-          },
-          {
-               "id": "060ab53c-0bb2-7482-8000-ab029e8fa2bb",
-               "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
-               "tipo": "audio",
-               "arquivo": {
-                    "id": "060ab53e-0bb2-7482-8000-ab029e8fa2ea",
-                    "url": "url-assinada-pelo-service",
-                    "mime_type": "xxx"
-               },
-               "enviado_em": "04/11/2025 22:14"
-          }
-     ]
+    "idServico": "019e134d-e21c-78a0-a004-a772f82b114a",
+    "mercureToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL21hcmlkb2RlYWx1Z3VlbC5jb20iLCJzdWIiOiIwMTllMTI4YS0wOWM1LTdjMTctYTE1Yy0xYmZiNDUzODIwODMiLCJpYXQiOjE3Nzg0NDU0NjkuNzE3MjQsImV4cCI6MTc3ODUzMTg2OS43MTcyNCwibWVyY3VyZSI6eyJzdWJzY3JpYmUiOlsiaHR0cHM6Ly9tYXJpZG9kZWFsdWd1ZWwuY29tL2NoYXQvc2FsYS80Il19fQ.UnzM715X5rcd-PU7aekzg2KB0QM2B3U3YLY6Nuh8R4k",
+    "topico": "http://chat/com/servico/019e134d-e21c-78a0-a004-a772f82b114a",
+    "participantes": {
+        "cliente": {
+            "id": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "nome": "Usu\u00e1rio Cliente"
+        },
+        "prestador": {
+            "id": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
+            "nome": "Prestador Comum"
+        }
+    },
+    "messagens": [
+        {
+            "id": "019e136c-afa9-7aaa-9a4f-4aaddf5ae418",
+            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "tipo": "foto",
+            "texto": null,
+            "referencia": "",
+            "arquivo": {
+                "id": "019e136c-afa9-7aaa-9a4f-4aaddf5ae418",
+                "url": "https://localhost/storage/app-private/chats/019e136c-afa9-7aaa-9a4f-4aaddf5ae418.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=any%2F20260510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260510T203749Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Signature=414cd03a878b1057bb17948f6cdeff32222b5677a2287df2de49086222d12cd6",
+                "mime_type": "image/jpeg"
+            },
+            "enviado_em": "10/05/2026 \u00e050 19:45"
+        },
+        {
+            "id": "019e134d-e21c-7934-a004-a772f878f09c",
+            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "tipo": "text",
+            "texto": null,
+            "referencia": "",
+            "arquivo": null,
+            "enviado_em": "10/05/2026 \u00e011 19:12"
+        }
+    ]
 }
 ```
 
-onde `"tipo"` pode ser *texto*, *audio*, *foto* ou *vídeo*.
-
-Mensagens com arquivo não possuem `"referencia"`.
-
-### Conexão Mercure
+## Conexão com o mercure
 
 Para abrir uma conexão com o mercury, utilize
 
 ```bash
 curl -i -k -N \
      -H "Authorization: Bearer JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE" \
-     "https://localhost/.well-known/mercure?topic=http://chat/com/sala/1"
+     "https://localhost/.well-known/mercure?topic=TOPICO_DO_MERCURE"
 ```
 
 substitua JWT_GERADO_PELO_SYMFONY_PARA_O_MERCURE pela chave retornada no campo `"mercure_token"` da requisição anterior.
 
-substitua o tópico pelo tópico retornado na requisição anterior.
+substitua o tópico pelo tópico retornado na resposta anterior.
 
-substitua também o id da sala
+substitua TOPICO_DO_MERCURE pelo topico da resposta anterior.
 
-Note que o terminal ficou travado nesta requisição, isto pois está escutando continuamente o servidor de eventos.
-
-### Enviar mensagem de texto
-
-Abra um novo terminal
+## Enviar mensagem
 
 ```bash
-curl -k -X POST https://localhost/api/chat/1 \
-     -H "Authorization: Bearer $TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"texto": "Olá, esta é uma mensagem de teste!", "responde": "060ab53d-0bb2-7482-8000-ab029e8fa2eb"}'
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat \
+-H "Authorization: Bearer $TOKEN" \
+-H "Content-Type: application/json" \
+-d '{"texto":"Olá","referencia":"019e134d-e21c-7934-a004-a772f878f09c"}'
 ```
 
-substitua o id da sala
+Responde com status 201
 
-a requisição responde com um json no seguinte formato
+```json
+{ "status": "success" }
+```
+
+O usuário que estiver com a conexão aberta no mercure receberá o seguinte json
 
 ```json
 {
-     "id": "060ab53c-0bb2-7482-8000-ab029e8fa2ea",
-     "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
-     "tipo": "texto",
-     "texto": "olá",
-     "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
-     "enviado_em": "04/11/2025 22:14"
+    "id": "019e13d1-f209-7a0e-90b1-2c7b279cece2",
+    "enviado_por": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
+    "tipo": "texto",
+    "texto": "Ol\u00e1",
+    "referencia": "",
+    "arquivo": null,
+    "enviado_em": "10\/05\/2026 \u00e026 21:36"
 }
 ```
 
-### Enviar mensagem com arquivo
+## Upload de imagens:
 
-Envie um arquivo com
+Upload de imagem gera uma mensagem nova.
+
+A requisição segue o seguinte formato:
 
 ```bash
-curl -k -X POST "https://localhost/api/chat/1/upload" \
-     -H "Authorization: Bearer $TOKEN" \
-     -F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat/upload \
+-H "Authorization: Bearer $TOKEN" \
+-F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
 ```
 
-a requisição responde com um json no seguinte formato
+Responde com status 201
+
+```json
+{ "status": "success" }
+```
+
+O usuário que estiver conectado ao mercure receberá o seguinte json
 
 ```json
 {
-     "id": "060ab53c-0bb2-7482-8000-ab029e8fa2bb",
-     "enviado_por": "8be4df61-93ca-11d2-aa0d-00e098032b8c",
-     "tipo": "audio",
-     "arquivo": {
-          "id": "060ab53e-0bb2-7482-8000-ab029e8fa2ea",
-          "url": "URL_ASSINADA",
-     },
-     "referencia": "060ab53d-0bb2-7482-8000-ab029e8fa2eb",
-     "enviado_em": "04/11/2025 22:14"
+    "id": "019e13d6-6c83-73f1-ae76-023b31753b8a",
+    "enviado_por": "019e128a-0756-7c01-9a7e-f15f2be59ed7",
+    "tipo": "foto",
+    "texto": null,
+    "referencia": "",
+    "arquivo": {
+        "id": "019e13d6-6c83-73f1-ae76-023b31753b8a",
+        "url": "https://localhost/storage/app-private/chats/019e13d6-6c83-73f1-ae76-023b31753b8a.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=any%2F20260510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260510T214120Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Signature=0ac80a62d6ea784ade035fd7d3e3a34707b20d58f66f5dbd14eb43cfc800f331",
+        "mime_type": "image/jpeg"
+    },
+    "enviado_em": "10/05/2026 \u00e020 21:41"
 }
-```
-
-### Recuperar a mensagem
-
-Recupere a imagem com
-
-```bash
-curl -o -k foto_baixada.jpg "URL_ASSINADA"
 ```

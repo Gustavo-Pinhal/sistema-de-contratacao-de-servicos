@@ -30,3 +30,17 @@ A requisição responde com um json no seguinte formato:
     "idServico": "019e12c9-3d0d-703a-93b9-46914afcb219"
 }
 ```
+
+## Upload de imagens:
+
+Imagens devem ter o upload feito apenas após a requisição anterior for concluída com sucesso.
+
+A requisição segue o seguinte formato:
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/chat/upload \
+-H "Authorization: Bearer $TOKEN" \
+-F "file=@/home/gustavo/Documentos/DSW/teste.jpeg"
+```
+
+Onde o uuid da url é o id do serviço.
