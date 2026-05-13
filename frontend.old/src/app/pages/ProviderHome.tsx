@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router";
 import { TrendingUp, Clock, Shield, Users, CheckCircle, Star, ArrowRight, Briefcase } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
@@ -96,7 +96,7 @@ export function ProviderHome() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-                  href="/provider/login?mode=register" 
+                  to="/provider/login?mode=register" 
                   className="inline-flex items-center justify-center gap-2 bg-white text-green-600 px-8 py-4 rounded-lg font-black text-xs uppercase tracking-widest hover:bg-green-50 transition-all shadow-xl shadow-green-100 hover:-translate-y-0.5"
                 >
                   <Star className="w-5 h-5" />

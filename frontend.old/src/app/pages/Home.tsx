@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "react-router";
 import { Search, Star, Shield, Users, ArrowRight, MessageSquare, PlayCircle, CheckCircle } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { ProviderHome } from "./ProviderHome";
@@ -86,19 +86,19 @@ export function Home() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link 
-                  href="/client/login?mode=register"
+                  to="/client/login?mode=register"
                   className="flex items-center justify-center px-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold text-base hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:-translate-y-1"
                 >
                   Contratar Serviço
                 </Link>
                 <Link 
-                  href="/provider/login?mode=register"
+                  to="/provider/login?mode=register"
                   className="flex items-center justify-center px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold text-base hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:-translate-y-1"
                 >
                   Sou Profissional
                 </Link>
                 <Link 
-                  href="/business/login?mode=register"
+                  to="/business/login?mode=register"
                   className="flex items-center justify-center px-8 py-4 bg-slate-900 text-white rounded-xl font-semibold text-base hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-1"
                 >
                   Para Empresas
@@ -114,7 +114,7 @@ export function Home() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Link 
-                  href="/search"
+                  to="/search"
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white hover:bg-green-700 transition-colors shadow-lg"
                 >
                   <Search className="w-6 h-6" />
@@ -125,7 +125,7 @@ export function Home() {
               <div className="mt-12 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 p-6 max-w-xs mx-auto lg:mx-0 hidden md:block">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Links Populares</h3>
                 <div className="space-y-4">
-                  <Link href="/search" className="flex items-center justify-between group">
+                  <Link to="/search" className="flex items-center justify-between group">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 group-hover:scale-110 transition-transform">
                         <MessageSquare className="w-4 h-4" />
@@ -134,7 +134,7 @@ export function Home() {
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
                   </Link>
-                  <Link href="/search" className="flex items-center justify-between group">
+                  <Link to="/search" className="flex items-center justify-between group">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 group-hover:scale-110 transition-transform">
                         <PlayCircle className="w-4 h-4" />

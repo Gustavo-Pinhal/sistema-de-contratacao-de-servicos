@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "react-router";
 import { Calendar, DollarSign, MapPin, User, Crown, Star, XCircle, CheckCircle2 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useSimulation } from "../context/SimulationContext";

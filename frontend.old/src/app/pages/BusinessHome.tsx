@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router";
 import { Building2, Users, TrendingUp, Shield, Star, CheckCircle, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 

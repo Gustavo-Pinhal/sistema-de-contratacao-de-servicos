@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "react-router";
 import { Star, Calendar, User, ChevronLeft, MessageSquare } from "lucide-react";
 import { useUser } from "../context/UserContext";
 

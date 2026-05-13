@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router";
 import { ChevronLeft, Calendar, Clock, MapPin, FileText, CheckCircle, XCircle, Eye } from "lucide-react";
 import { useSimulation } from "../context/SimulationContext";
 import { useUser } from "../context/UserContext";

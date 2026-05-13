@@ -321,7 +321,7 @@ export function BusinessLogin() {
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className={`mx-auto w-full ${step === 2 ? 'max-w-2xl' : 'max-w-sm lg:w-96'}`}>
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8">
+            <Link to="/" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8">
               <ArrowLeft className="w-4 h-4" />
               Voltar
             </Link>

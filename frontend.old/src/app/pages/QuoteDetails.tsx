@@ -31,7 +31,7 @@ export function QuoteDetails() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">Orçamento não encontrado</h1>
-          <Link href="/client/profile" className="text-green-600 font-bold hover:underline">
+          <Link to="/client/profile" className="text-green-600 font-bold hover:underline">
             Voltar para o perfil
           </Link>
         </div>

@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { ShoppingBag, Briefcase, Building2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router";
 
 interface RoleSelectionDialogProps {
   isOpen: boolean;
