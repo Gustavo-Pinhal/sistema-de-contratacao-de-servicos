@@ -76,7 +76,7 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
       headers: { Authorization: `Bearer ${chat.mercureToken}` },
     });
 
-    eventSource.onmessage = (e) => {
+    eventSource.onmessage = (e: any) => {
       const newMessage = JSON.parse(e.data);
       setChat((prev) => {
         if (!prev || prev.messagens.some((m) => m.id === newMessage.id))
