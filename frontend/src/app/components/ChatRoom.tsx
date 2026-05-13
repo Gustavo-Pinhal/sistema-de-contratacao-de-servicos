@@ -10,6 +10,7 @@ import {
   Send,
 } from "lucide-react";
 import { useUser } from "@/app/context/UserContext";
+import { EventSourcePolyfill } from "event-source-polyfill"; // Importe a biblioteca aqui
 
 interface Message {
   id: string;
@@ -25,6 +26,8 @@ interface Message {
 
 interface ChatData {
   idServico: string;
+  mercureToken: string;
+  topico: string;
   participantes: {
     cliente: { id: string; nome: string };
     prestador: { id: string; nome: string };
@@ -32,11 +35,7 @@ interface ChatData {
   messagens: Message[];
 }
 
-interface ChatRoomProps {
-  serviceId: string;
-}
-
-export default function ChatRoom({ serviceId }: ChatRoomProps) {
+export default function ChatRoom({ serviceId }: { serviceId: string }) {
   const { user } = useUser();
   const [chat, setChat] = useState<ChatData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +43,7 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // 1. Carregamento Inicial
   useEffect(() => {
     async function loadChat() {
       if (!user?.token) return;
@@ -59,7 +59,7 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
         const data = await response.json();
         setChat(data);
       } catch (error) {
-        console.error(error);
+        console.error("Erro ao carregar chat:", error);
       } finally {
         setLoading(false);
       }
@@ -67,6 +67,42 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
     loadChat();
   }, [serviceId, user?.token]);
 
+  // 2. Conexão Real-time corrigida com Polyfill
+  useEffect(() => {
+    if (!chat?.mercureToken || !chat?.topico) return;
+
+    // Em vez de usar URLSearchParams, vamos montar a string manualmente
+    // para garantir que não haja encodes estranhos no início
+    const hubUrl = `https://localhost/.well-known/mercure?topic=${encodeURIComponent(chat.topico)}`;
+
+    const eventSource = new EventSourcePolyfill(hubUrl, {
+      headers: {
+        Authorization: `Bearer ${chat.mercureToken}`,
+      },
+      // O polyfill as vezes precisa disso para cross-origin
+      withCredentials: false,
+    });
+
+    eventSource.onopen = () => console.log("✅ Mercure Conectado!");
+
+    eventSource.onmessage = (e) => {
+      const newMessage = JSON.parse(e.data);
+      setChat((prev) => {
+        if (!prev || prev.messagens.some((m) => m.id === newMessage.id))
+          return prev;
+        return { ...prev, messagens: [...prev.messagens, newMessage] };
+      });
+    };
+
+    eventSource.onerror = (err: any) => {
+      // Verifique o console.log aqui embaixo:
+      console.error("Erro detalhado Mercure:", err.status, err.message);
+    };
+
+    return () => eventSource.close();
+  }, [chat?.mercureToken, chat?.topico]);
+
+  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -87,30 +123,15 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({
-            texto: input,
-          }),
+          body: JSON.stringify({ texto: input }),
         },
       );
 
       if (response.ok) {
         setInput("");
-        // Como o Mercure ainda não está ativo, você pode descomentar
-        // o bloco abaixo para ver a mensagem aparecer na hora localmente:
-        /*
-        const newMessage: Message = {
-            id: Math.random().toString(),
-            enviado_por: user.id,
-            tipo: "texto",
-            texto: input,
-            enviado_em: new Date().toLocaleTimeString(),
-            arquivo: null
-        };
-        setChat(prev => prev ? { ...prev, messagens: [...prev.messagens, newMessage] } : null);
-        */
       }
     } catch (error) {
-      alert("Erro ao enviar mensagem");
+      console.error("Erro ao enviar:", error);
     } finally {
       setSending(false);
     }
@@ -121,7 +142,7 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
       <div className="flex flex-col items-center justify-center h-[600px] bg-slate-50 rounded-3xl border border-slate-200">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-          Sincronizando...
+          Iniciando conexão segura...
         </p>
       </div>
     );
@@ -135,8 +156,8 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
             <User size={20} className="text-slate-400" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">
-              Conversando com
+            <p className="text-[10px] font-black uppercase tracking-widest text-green-600 leading-none mb-1">
+              • Online
             </p>
             <h3 className="font-bold text-slate-900 italic">
               {user?.id === chat?.participantes.cliente.id
@@ -153,7 +174,8 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
         className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/30"
       >
         {chat?.messagens.map((msg) => {
-          const isMe = msg.enviado_por === user?.id;
+          // Comparação robusta de ID
+          const isMe = String(msg.enviado_por) === String(user?.id);
           return (
             <div
               key={msg.id}
@@ -166,13 +188,34 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
                     : "bg-white text-slate-800 border border-slate-100 rounded-tl-none"
                 }`}
               >
-                {msg.tipo === "texto" && (
+                {msg.tipo === "texto" ? (
                   <p className="text-sm font-bold leading-relaxed">
                     {msg.texto}
                   </p>
+                ) : (
+                  <div className="space-y-2">
+                    {msg.arquivo?.mime_type.startsWith("image/") ? (
+                      <img
+                        src={msg.arquivo.url}
+                        className="rounded-lg max-w-full h-auto"
+                        alt="Anexo"
+                      />
+                    ) : (
+                      <a
+                        href={msg.arquivo?.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-xs font-bold underline"
+                      >
+                        <FileIcon size={14} /> Baixar Arquivo
+                      </a>
+                    )}
+                  </div>
                 )}
                 <p
-                  className={`text-[9px] mt-2 font-black uppercase tracking-tighter opacity-40 ${isMe ? "text-right" : "text-left"}`}
+                  className={`text-[9px] mt-2 font-black uppercase tracking-tighter opacity-40 ${
+                    isMe ? "text-right" : "text-left"
+                  }`}
                 >
                   {msg.enviado_em}
                 </p>
@@ -194,16 +237,14 @@ export default function ChatRoom({ serviceId }: ChatRoomProps) {
           >
             <Paperclip size={20} />
           </button>
-
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Sua mensagem..."
-            className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 py-2"
+            className="flex-1 bg-transparent border-none outline-none text-sm font-bold py-2 text-slate-700"
             disabled={sending}
           />
-
           <button
             type="submit"
             disabled={!input.trim() || sending}
