@@ -2,7 +2,9 @@
 
 namespace App\Repository\Servico;
 
+use App\Entity\Auth\Usuario;
 use App\Entity\Servico\Servico;
+use App\Enum\StatusServico;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,30 @@ class ServicoRepository extends ServiceEntityRepository
         parent::__construct($registry, Servico::class);
     }
 
-    //    /**
-    //     * @return Servico[] Returns an array of Servico objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function buscarDashboardPrestador(Usuario $prestador): array
+    {
+        $trintaDiasAtras = new \DateTimeImmutable('-30 days');
 
-    //    public function findOneBySomeField($value): ?Servico
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $this->createQueryBuilder('s')
+            ->where('s.prestador = :prestador')
+            ->andWhere('s.excluidoEm IS NULL')
+            ->andWhere(
+                '(s.status IN (:statusImediato)) OR 
+                 (s.status IN (:statusRecentes) AND s.encerramento >= :dataLimite)'
+            )
+            ->setParameter('prestador', $prestador)
+            ->setParameter('statusImediato', [
+                StatusServico::EmDecorrencia,
+                StatusServico::SolicitacaoDeOrcamento,
+            ])
+            ->setParameter('statusRecentes', [
+                StatusServico::Concluido,
+                StatusServico::CanceladoPeloCliente,
+                StatusServico::CanceladoPeloPrestador
+            ])
+            ->setParameter('dataLimite', $trintaDiasAtras)
+            ->orderBy('s.inicio', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

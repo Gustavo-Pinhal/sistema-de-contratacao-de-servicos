@@ -32,10 +32,11 @@ security:
             jwt: ~
 
     role_hierarchy:
-        PREMIUM: PRESTADOR
+        ROLE_PREMIUM: ROLE_PRESTADOR
 
     access_control:
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/cadastro-usuario, roles: PUBLIC_ACCESS }
         - { path: ^/api/ui, roles: PUBLIC_ACCESS }
+        - { path: ^/api/areaprestador, roles: ROLE_PRESTADOR }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
