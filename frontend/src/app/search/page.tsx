@@ -10,145 +10,209 @@ import {
   Building2,
 } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "@/app/context/UserContext";
 
-// Definição do tipo que vem do seu backend
 interface Profissao {
   id: number;
   descricao: string;
 }
 
+interface Prestador {
+  nome: string;
+  profissoes: Profissao[];
+  // Campos abaixo são opcionais dependendo do que seu back retorna agora,
+  // adicionei mock values para manter o visual do Card.
+  rating?: number;
+  avatar?: string;
+}
+
 export default function SearchProviders() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useUser(); // Pegamos o token do contexto
 
-  // Estados para o Backend
+  // Estados do Backend
   const [profissoes, setProfissoes] = useState<Profissao[]>([]);
-  const [loadingProfissoes, setLoadingProfissoes] = useState(true);
+  const [prestadores, setPrestadores] = useState<Prestador[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Estados de Filtro
+  // Filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const selectedSpecialty = searchParams.get("specialty") || "all";
-  const [onlyVerified, setOnlyVerified] = useState(false);
-  const [onlyBusiness, setOnlyBusiness] = useState(false);
-  const [sortBy, setSortBy] = useState("rating");
+  const selectedSpecialtyDesc = searchParams.get("specialty") || "all";
 
-  // 1. Efeito para carregar as profissões do seu endpoint real
+  // 1. Carregar Categorias (Profissões)
   useEffect(() => {
     async function loadProfissoes() {
       try {
         const response = await fetch("/api/ui/profissoes");
-        if (!response.ok) throw new Error("Erro ao carregar profissões");
         const data = await response.json();
         setProfissoes(data);
-      } catch (error) {
-        console.error("Falha ao buscar profissões:", error);
-      } finally {
-        setLoadingProfissoes(false);
+      } catch (e) {
+        console.error("Erro profissoes", e);
       }
     }
     loadProfissoes();
   }, []);
 
-  // Função para atualizar a URL (Next.js Navigation)
-  const updateSpecialty = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === "all") {
-      params.delete("specialty");
-    } else {
-      params.set("specialty", value);
+  // 2. Carregar Prestadores (sempre que a especialidade mudar)
+  useEffect(() => {
+    async function fetchPrestadores() {
+      if (!user?.token) return;
+
+      setLoading(true);
+      try {
+        const profId = profissoes.find(
+          (p) => p.descricao === selectedSpecialtyDesc,
+        )?.id;
+        const url = profId
+          ? `/api/prestadores/buscar?profissao=${profId}`
+          : "/api/prestadores/buscar";
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            Accept: "application/json",
+          },
+        });
+
+        const data = await response.json();
+
+        // DEBUG: Veja no console do navegador o que está chegando
+        console.log("Dados recebidos do back:", data);
+
+        if (response.ok && Array.isArray(data)) {
+          setPrestadores(data);
+        } else {
+          console.error("Back não retornou um array:", data);
+          setPrestadores([]); // Garante que continue sendo um array vazio em caso de erro
+        }
+      } catch (e) {
+        console.error("Erro na requisição:", e);
+        setPrestadores([]);
+      } finally {
+        setLoading(false);
+      }
     }
+
+    fetchPrestadores();
+  }, [selectedSpecialtyDesc, profissoes, user?.token]);
+
+  const updateSpecialty = (desc: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    desc === "all" ? params.delete("specialty") : params.set("specialty", desc);
     router.push(`/search?${params.toString()}`);
   };
 
-  // Mock temporário para os profissionais (até conectarmos o próximo endpoint)
-  const filteredProviders: any[] = [];
+  // Filtro local apenas para o nome (client-side search)
+  const filteredPrestadores = prestadores.filter((p) =>
+    p.nome.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header simplificado */}
-        <div className="mb-10 text-center max-w-2xl mx-auto">
-          <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">
-            Buscar Profissionais
-          </h1>
-          <p className="text-slate-500 font-medium">
-            Encontre especialistas com avaliações reais para o seu projeto.
-          </p>
-        </div>
-
-        {/* Barra de Busca e Filtros Rápidos */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/20 p-6 mb-10 border border-slate-100">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Search Header */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-10 border border-slate-100">
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-1 relative">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Buscar por nome..."
+                placeholder="Buscar por nome do profissional..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-14 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-bold transition-all"
+                className="w-full pl-14 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none font-bold"
               />
-            </div>
-
-            <div className="flex items-center gap-6 px-2">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={onlyVerified}
-                  onChange={(e) => setOnlyVerified(e.target.checked)}
-                  className="w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-600"
-                />
-                <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4" /> Verificados
-                </span>
-              </label>
             </div>
           </div>
 
-          {/* LISTAGEM DE PROFISSÕES (CONECTADA AO BACKEND) */}
-          <div className="mt-8 border-t border-slate-100 pt-6">
+          {/* Categorias Dinâmicas */}
+          <div className="mt-8 border-t pt-6">
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => updateSpecialty("all")}
                 className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                  selectedSpecialty === "all"
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                    : "bg-slate-50 border border-slate-200 text-slate-600 hover:bg-indigo-50"
+                  selectedSpecialtyDesc === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 Todos
               </button>
-
-              {loadingProfissoes
-                ? // Skeleton simples enquanto carrega
-                  [1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-10 w-24 bg-slate-100 animate-pulse rounded-xl"
-                    />
-                  ))
-                : profissoes.map((prof) => (
-                    <button
-                      key={prof.id}
-                      onClick={() => updateSpecialty(prof.descricao)}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                        selectedSpecialty === prof.descricao
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                          : "bg-slate-50 border border-slate-200 text-slate-600 hover:bg-indigo-50"
-                      }`}
-                    >
-                      {prof.descricao}
-                    </button>
-                  ))}
+              {profissoes.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => updateSpecialty(p.descricao)}
+                  className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                    selectedSpecialtyDesc === p.descricao
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  {p.descricao}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Listagem de profissionais (vazia por enquanto) */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {/* Cards virão aqui */}
-        </div>
+        {/* Grid de Resultados */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-64 bg-white animate-pulse rounded-3xl"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredPrestadores.map((prestador, idx) => (
+              <ProviderCard key={idx} provider={prestador} />
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredPrestadores.length === 0 && (
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed">
+            <p className="text-slate-400 font-bold">
+              Nenhum profissional encontrado.
+            </p>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function ProviderCard({ provider }: { provider: Prestador }) {
+  return (
+    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+      <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden">
+        <img
+          src={
+            provider.avatar ||
+            `https://ui-avatars.com/api/?name=${provider.nome}&background=random`
+          }
+          className="w-full h-full object-cover"
+          alt={provider.nome}
+        />
+      </div>
+      <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
+      <div className="flex flex-wrap gap-1 mb-4">
+        {provider.profissoes.map((p) => (
+          <span
+            key={p.id}
+            className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+          >
+            {p.descricao}
+          </span>
+        ))}
+      </div>
+      <button className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors">
+        Ver Perfil
+      </button>
     </div>
   );
 }
