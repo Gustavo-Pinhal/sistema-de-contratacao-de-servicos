@@ -12,12 +12,17 @@ import {
 import Link from "next/link";
 import { useUser } from "@/app/context/UserContext";
 
+interface Usuario {
+  id: string;
+}
+
 interface Profissao {
   id: number;
   descricao: string;
 }
 
 interface Prestador {
+  usuario: Usuario;
   nome: string;
   profissoes: Profissao[];
   // Campos abaixo são opcionais dependendo do que seu back retorna agora,
@@ -188,7 +193,7 @@ export default function SearchProviders() {
 
 function ProviderCard({ provider }: { provider: Prestador }) {
   return (
-    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full">
       <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden">
         <img
           src={
@@ -199,20 +204,27 @@ function ProviderCard({ provider }: { provider: Prestador }) {
           alt={provider.nome}
         />
       </div>
-      <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
-      <div className="flex flex-wrap gap-1 mb-4">
-        {provider.profissoes.map((p) => (
-          <span
-            key={p.id}
-            className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
-          >
-            {p.descricao}
-          </span>
-        ))}
+
+      <div className="flex-1">
+        <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
+        <div className="flex flex-wrap gap-1 mb-4">
+          {provider.profissoes.map((p) => (
+            <span
+              key={p.id}
+              className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+            >
+              {p.descricao}
+            </span>
+          ))}
+        </div>
       </div>
-      <button className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors">
-        Ver Perfil
-      </button>
+
+      <Link
+        href={`/provider/${provider.usuario.id}/request`}
+        className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors text-center block"
+      >
+        Solicitar Orçamento
+      </Link>
     </div>
   );
 }
