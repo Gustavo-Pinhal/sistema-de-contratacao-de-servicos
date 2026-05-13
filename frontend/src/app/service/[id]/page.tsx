@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
+import ChatRoom from "@/app/components/ChatRoom";
 
 export default function ServiceTrackingPage() {
   const params = useParams();
@@ -138,82 +139,9 @@ export default function ServiceTrackingPage() {
         </div>
 
         {/* Coluna da Direita: Área do Chat (Visual Only) */}
-        <div className="lg:col-span-2 flex flex-col h-[600px] lg:h-[750px] bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-          {/* Chat Header */}
-          <div className="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-900">
-                Chat com Prestador
-              </span>
-            </div>
-            <span className="text-[10px] font-bold text-slate-400">
-              Responde geralmente em 15 min
-            </span>
-          </div>
-
-          {/* Chat Messages Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
-            {/* System Message */}
-            <div className="flex justify-center">
-              <span className="bg-white px-4 py-1.5 rounded-full border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 shadow-sm">
-                Solicitação enviada às 10:30
-              </span>
-            </div>
-
-            {/* Message From Provider (Fake) */}
-            <div className="flex gap-3 max-w-[80%]">
-              <img
-                src={service.provider.avatar}
-                className="w-8 h-8 rounded-lg shadow-sm self-end"
-                alt=""
-              />
-              <div className="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100">
-                <p className="text-sm font-bold text-slate-700">
-                  Olá! Recebi sua solicitação. Pelas fotos que você enviou,
-                  parece ser um problema no disjuntor principal. Você teria
-                  disponibilidade para eu passar aí hoje à tarde?
-                </p>
-                <span className="text-[9px] font-black text-slate-400 mt-2 block uppercase">
-                  10:45
-                </span>
-              </div>
-            </div>
-
-            {/* Message From Client (Fake) */}
-            <div className="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
-              <div className="bg-blue-600 p-4 rounded-2xl rounded-br-none shadow-lg shadow-blue-100">
-                <p className="text-sm font-bold text-white">
-                  Oi João! Tenho sim, a partir das 14h estarei em casa. Pode
-                  vir!
-                </p>
-                <span className="text-[9px] font-black text-blue-200 mt-2 block uppercase text-right">
-                  10:48 • Lido
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Input Area */}
-          <div className="p-6 bg-white border-t border-slate-100">
-            <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500 transition-all">
-              <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                <Paperclip size={20} />
-              </button>
-              <input
-                type="text"
-                placeholder="Escreva sua mensagem..."
-                className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 py-2"
-                disabled
-              />
-              <button className="bg-blue-600 text-white p-3 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">
-                <Send size={18} />
-              </button>
-            </div>
-            <p className="text-center text-[10px] font-bold text-slate-400 mt-3 uppercase tracking-tighter">
-              Somente mensagens de texto e imagens são permitidas
-            </p>
-          </div>
+        {/* Substitua a coluna do chat por: */}
+        <div className="lg:col-span-2 h-[700px]">
+          <ChatRoom serviceId={params.id} />
         </div>
       </div>
     </div>

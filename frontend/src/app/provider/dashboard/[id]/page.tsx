@@ -17,6 +17,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
+import ChatRoom from "@/app/components/ChatRoom";
 
 export default function ProviderServicePage() {
   const params = useParams();
@@ -132,79 +133,9 @@ export default function ProviderServicePage() {
         </div>
 
         {/* LADO DIREITO: CHAT OPERACIONAL (8 colunas) */}
-        <div className="lg:col-span-8 flex flex-col h-[700px] bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-          {/* Status Bar */}
-          <div className="bg-amber-50 border-b border-amber-100 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-amber-700">
-              <AlertCircle size={16} />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                Ação Necessária: Envie uma mensagem inicial para o cliente
-              </span>
-            </div>
-          </div>
-
-          {/* Chat History */}
-          <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/50">
-            {/* Divider Data */}
-            <div className="flex justify-center">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 bg-slate-100 px-3 py-1 rounded-md">
-                Hoje
-              </span>
-            </div>
-
-            {/* Balão do Sistema */}
-            <div className="max-w-md mx-auto text-center">
-              <p className="text-[11px] font-bold text-slate-500 leading-snug">
-                O cliente solicitou este serviço há 15 minutos. <br /> Respostas
-                rápidas aumentam em 40% a chance de fechamento.
-              </p>
-            </div>
-
-            {/* Mensagem do Cliente (Vindo da esquerda) */}
-            <div className="flex gap-3 max-w-[80%]">
-              <img
-                src={service.client.avatar}
-                className="w-8 h-8 rounded-lg self-end"
-                alt=""
-              />
-              <div className="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-200">
-                <p className="text-sm font-bold text-slate-800">
-                  {service.description}
-                </p>
-                <div className="flex gap-2 mt-3">
-                  <div className="w-20 h-20 bg-slate-200 rounded-lg animate-pulse"></div>
-                  <div className="w-20 h-20 bg-slate-200 rounded-lg animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Input de Mensagem do Prestador */}
-          <div className="p-6 bg-white border-t border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 flex items-center gap-3 bg-slate-100 p-2 rounded-2xl border-2 border-transparent focus-within:border-blue-600 focus-within:bg-white transition-all">
-                <input
-                  type="text"
-                  placeholder="Escreva sua resposta para o cliente..."
-                  className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 py-3 px-2"
-                />
-                <button className="bg-slate-900 text-white p-3 rounded-xl hover:bg-blue-600 transition-all">
-                  <Send size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-center gap-6 mt-4">
-              <button className="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition-colors">
-                Anexar Foto
-              </button>
-              <button className="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition-colors">
-                Solicitar Localização
-              </button>
-              <button className="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition-colors">
-                Modelo de Resposta
-              </button>
-            </div>
-          </div>
+        {/* Substitua a coluna do chat por: */}
+        <div className="lg:col-span-8 h-[700px]">
+          <ChatRoom serviceId={params.id} />
         </div>
       </div>
     </div>
