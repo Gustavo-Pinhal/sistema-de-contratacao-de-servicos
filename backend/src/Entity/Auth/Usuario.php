@@ -4,14 +4,20 @@ namespace App\Entity\Auth;
 
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[Groups('listagem_prestadores:read')]
     private ?Uuid $id = null;
+
     private ?string $email = null;
+
     private array $roles = [];
+
     private ?string $password = null;
+
     private ?string $nome = null;
 
     public function __construct()

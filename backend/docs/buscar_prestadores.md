@@ -23,6 +23,7 @@ A requisição responde com um array de objetos no seguinte formato:
 ```json
 [
     {
+        "usuario": { "id": "019e2140-3d13-7547-864e-05536c20bcf9" },
         "nome": "João Augusto",
         "profissoes": [
             {
@@ -32,6 +33,7 @@ A requisição responde com um array de objetos no seguinte formato:
         ]
     },
     {
+        "usuario": { "id": "019e2140-3d13-7547-864e-05536c20bcf2" },
         "nome": "Lucas Mendes",
         "profissoes": [
             {

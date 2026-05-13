@@ -11,6 +11,7 @@ use Symfony\Component\Uid\Uuid;
 
 class Prestador
 {
+    #[Groups('listagem_prestadores:read')]
     private ?Usuario $usuario = null;
 
     #[Groups('listagem_prestadores:read')]
