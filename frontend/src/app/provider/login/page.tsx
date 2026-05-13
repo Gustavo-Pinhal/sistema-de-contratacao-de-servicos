@@ -60,7 +60,7 @@ export default function ProviderLoginPage() {
       setLoading(true);
       const success = await login(formData.email, formData.password);
       if (success) {
-        router.push("/dashboard");
+        router.push("/provider/dashboard");
       } else {
         setError("Credenciais inválidas para prestador.");
         setLoading(false);
