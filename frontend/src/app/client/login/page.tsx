@@ -37,7 +37,7 @@ export default function ClientLoginPage() {
       // Chamada real para o seu backend via Contexto
       const success = await login(formData.email, formData.password);
       if (success) {
-        router.push("/"); // Redireciona para a home pós-login
+        router.push("/search");
       } else {
         setError("E-mail ou senha incorretos. Tente novamente.");
         setLoading(false);
