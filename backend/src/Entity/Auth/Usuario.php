@@ -9,7 +9,7 @@ use Symfony\Component\Uid\Uuid;
 
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[Groups('listagem_prestadores:read')]
+    #[Groups('listagem_prestadores:read', 'servico_dashboard:read')]
     private ?Uuid $id = null;
 
     private ?string $email = null;
@@ -18,6 +18,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
     private ?string $password = null;
 
+    #[Groups('servico_dashboard:read')]
     private ?string $nome = null;
 
     public function __construct()
