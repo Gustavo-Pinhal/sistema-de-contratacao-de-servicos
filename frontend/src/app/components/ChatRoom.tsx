@@ -1,16 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import {
-  Loader2,
-  User,
-  FileIcon,
-  Image as ImageIcon,
-  Paperclip,
-  Send,
-} from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Loader2, User, FileIcon, Paperclip, Send } from "lucide-react";
+import { EventSourcePolyfill } from "event-source-polyfill";
 import { useUser } from "@/app/context/UserContext";
-import { EventSourcePolyfill } from "event-source-polyfill"; // Importe a biblioteca aqui
 
 interface Message {
   id: string;
@@ -18,10 +11,7 @@ interface Message {
   tipo: "texto" | "arquivo";
   texto: string;
   enviado_em: string;
-  arquivo?: {
-    url: string;
-    mime_type: string;
-  } | null;
+  arquivo?: { url: string; mime_type: string } | null;
 }
 
 interface ChatData {
@@ -43,47 +33,48 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 1. Carregamento Inicial
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
   useEffect(() => {
+    if (!user?.token) return;
+
+    const controller = new AbortController();
+
     async function loadChat() {
-      if (!user?.token) return;
       try {
         setLoading(true);
         const response = await fetch(
           `https://localhost/api/servico/${serviceId}/chat`,
           {
-            headers: { Authorization: `Bearer ${user.token}` },
+            headers: { Authorization: `Bearer ${user?.token}` },
+            signal: controller.signal,
           },
         );
-        if (!response.ok) throw new Error("Erro ao abrir chat");
+        if (!response.ok) throw new Error("Falha ao carregar chat");
         const data = await response.json();
         setChat(data);
-      } catch (error) {
-        console.error("Erro ao carregar chat:", error);
+      } catch (error: any) {
+        if (error.name !== "AbortError") console.error(error);
       } finally {
         setLoading(false);
       }
     }
+
     loadChat();
+    return () => controller.abort();
   }, [serviceId, user?.token]);
 
-  // 2. Conexão Real-time corrigida com Polyfill
   useEffect(() => {
     if (!chat?.mercureToken || !chat?.topico) return;
 
-    // Em vez de usar URLSearchParams, vamos montar a string manualmente
-    // para garantir que não haja encodes estranhos no início
     const hubUrl = `https://localhost/.well-known/mercure?topic=${encodeURIComponent(chat.topico)}`;
-
     const eventSource = new EventSourcePolyfill(hubUrl, {
-      headers: {
-        Authorization: `Bearer ${chat.mercureToken}`,
-      },
-      // O polyfill as vezes precisa disso para cross-origin
-      withCredentials: false,
+      headers: { Authorization: `Bearer ${chat.mercureToken}` },
     });
-
-    eventSource.onopen = () => console.log("✅ Mercure Conectado!");
 
     eventSource.onmessage = (e) => {
       const newMessage = JSON.parse(e.data);
@@ -94,24 +85,17 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
       });
     };
 
-    eventSource.onerror = (err: any) => {
-      // Verifique o console.log aqui embaixo:
-      console.error("Erro detalhado Mercure:", err.status, err.message);
-    };
-
     return () => eventSource.close();
   }, [chat?.mercureToken, chat?.topico]);
 
-  // Auto-scroll
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [chat?.messagens]);
+    scrollToBottom();
+  }, [chat?.messagens, scrollToBottom]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || sending || !user?.token) return;
+    const messageText = input.trim();
+    if (!messageText || sending || !user?.token) return;
 
     setSending(true);
     try {
@@ -123,58 +107,53 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify({ texto: input }),
+          body: JSON.stringify({ texto: messageText }),
         },
       );
 
-      if (response.ok) {
-        setInput("");
-      }
+      if (response.ok) setInput("");
     } catch (error) {
-      console.error("Erro ao enviar:", error);
+      console.error(error);
     } finally {
       setSending(false);
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[600px] bg-slate-50 rounded-3xl border border-slate-200">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-          Iniciando conexão segura...
-        </p>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+          Sincronizando
+        </span>
       </div>
     );
+  }
+
+  const interlocutor =
+    user?.id === chat?.participantes.cliente.id
+      ? chat?.participantes.prestador.nome
+      : chat?.participantes.cliente.nome;
 
   return (
     <div className="flex flex-col h-[600px] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-200">
-            <User size={20} className="text-slate-400" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-green-600 leading-none mb-1">
-              • Online
-            </p>
-            <h3 className="font-bold text-slate-900 italic">
-              {user?.id === chat?.participantes.cliente.id
-                ? chat?.participantes.prestador.nome
-                : chat?.participantes.cliente.nome}
-            </h3>
-          </div>
+      <header className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-200 text-slate-400">
+          <User size={20} />
         </div>
-      </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-green-600 leading-none mb-1">
+            • Online
+          </p>
+          <h3 className="font-bold text-slate-900 italic">{interlocutor}</h3>
+        </div>
+      </header>
 
-      {/* Área de Mensagens */}
-      <div
+      <main
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/30"
       >
         {chat?.messagens.map((msg) => {
-          // Comparação robusta de ID
           const isMe = String(msg.enviado_por) === String(user?.id);
           return (
             <div
@@ -182,11 +161,7 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[75%] rounded-2xl p-4 shadow-sm ${
-                  isMe
-                    ? "bg-slate-900 text-white rounded-tr-none"
-                    : "bg-white text-slate-800 border border-slate-100 rounded-tl-none"
-                }`}
+                className={`max-w-[75%] rounded-2xl p-4 shadow-sm ${isMe ? "bg-slate-900 text-white rounded-tr-none" : "bg-white text-slate-800 border border-slate-100 rounded-tl-none"}`}
               >
                 {msg.tipo === "texto" ? (
                   <p className="text-sm font-bold leading-relaxed">
@@ -207,15 +182,13 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-xs font-bold underline"
                       >
-                        <FileIcon size={14} /> Baixar Arquivo
+                        <FileIcon size={14} /> Arquivo
                       </a>
                     )}
                   </div>
                 )}
                 <p
-                  className={`text-[9px] mt-2 font-black uppercase tracking-tighter opacity-40 ${
-                    isMe ? "text-right" : "text-left"
-                  }`}
+                  className={`text-[9px] mt-2 font-black uppercase tracking-tighter opacity-40 ${isMe ? "text-right" : "text-left"}`}
                 >
                   {msg.enviado_em}
                 </p>
@@ -223,14 +196,13 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
             </div>
           );
         })}
-      </div>
+      </main>
 
-      {/* Input de Envio */}
-      <form
-        onSubmit={handleSendMessage}
-        className="p-4 bg-white border-t border-slate-100"
-      >
-        <div className="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl border-2 border-transparent focus-within:border-slate-900 focus-within:bg-white transition-all">
+      <footer className="p-4 bg-white border-t border-slate-100">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl border-2 border-transparent focus-within:border-slate-900 focus-within:bg-white transition-all"
+        >
           <button
             type="button"
             className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
@@ -256,8 +228,8 @@ export default function ChatRoom({ serviceId }: { serviceId: string }) {
               <Send size={18} />
             )}
           </button>
-        </div>
-      </form>
+        </form>
+      </footer>
     </div>
   );
 }
