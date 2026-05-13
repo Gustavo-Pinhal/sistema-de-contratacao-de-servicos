@@ -1,10 +1,26 @@
 services:
-  ###> Frontend ###
+  ###> Next.js ###
   frontend:
     image: node:20-alpine
     working_dir: /app
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - app-network
+  ###< Next.js ###
+
+  ###> Frontend Antigo (Legacy) ###
+  frontend_old:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend.old:/app
       - /app/node_modules
     ports:
       - "5173:5173"
@@ -13,7 +29,6 @@ services:
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
     networks:
       - app-network
-  ###< Frontend ###
 
   ###> Nginx ###
   nginx:
