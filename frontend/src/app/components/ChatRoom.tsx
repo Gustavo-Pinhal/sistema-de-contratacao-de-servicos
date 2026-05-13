@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-// Adicionado Paperclip e Send nos imports abaixo
 import {
   Loader2,
   User,

@@ -11,6 +11,7 @@ import {
 export type UserRole = "client" | "provider" | "business" | null;
 
 export interface UserProfile {
+  id: string;
   name?: string;
   email: string;
   role: UserRole;
@@ -53,13 +54,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) return false;
 
-      const data = await response.json(); // Recebe o { "token": "..." }
+      const data = await response.json(); // { "token": "..." }
 
-      // Aqui você pode decodificar o payload do JWT se precisar do nome/role
-      // ou apenas salvar o email e o token.
-      setUser({ email, token: data.token, role: "client" });
-      return true;
+      // Decodificando o token
+      const decoded = parseJwt(data.token);
+
+      if (decoded) {
+        setUser({
+          // Ajuste os nomes abaixo conforme a estrutura do seu JWT (ex: sub, id, role)
+          id: decoded.id || decoded.sub,
+          email: email,
+          token: data.token,
+          role: decoded.roles?.[0] || "client",
+          name: decoded.nome,
+        });
+        return true;
+      }
+
+      return false;
     } catch (error) {
+      console.error("Erro no login:", error);
       return false;
     }
   };
@@ -71,6 +85,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
       {!loading && children}
     </UserContext.Provider>
   );
+
+  function parseJwt(token: string) {
+    try {
+      // Pega a parte do Payload (índice 1)
+      const base64Url = token.split(".")[1];
+      // Ajusta caracteres especiais do padrão Base64Url para Base64
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      // Decodifica e converte para objeto JSON
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(""),
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 export const useUser = () => {
