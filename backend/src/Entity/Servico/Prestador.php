@@ -6,17 +6,25 @@ use App\Entity\Auth\Usuario;
 use App\Entity\Localizacao\Cep;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Prestador
 {
     private ?Usuario $usuario = null;
+
+    #[Groups('listagem_prestadores:read')]
     private ?string $nome = null;
+
     private ?Cep $cep = null;
+
     private bool $ativo = true;
+
     private \DateTimeImmutable $criadoEm;
+
     private ?\DateTimeImmutable $excluidoEm = null;
 
+    #[Groups('listagem_prestadores:read')]
     /** @var Collection<int, Profissao> */
     private Collection $profissoes;
 

@@ -16,28 +16,26 @@ class PrestadorRepository extends ServiceEntityRepository
         parent::__construct($registry, Prestador::class);
     }
 
-    //    /**
-    //     * @return Prestador[] Returns an array of Prestador objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @param \App\Entity\Servico\Profissao[] $profissoes
+     * @return Prestador[]
+     */
+    public function buscarPorProfissoes(array $profissoes = []): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->innerJoin('p.usuario', 'u')
+            ->addSelect('u')
+            ->where('p.excluidoEm IS NULL')
+            ->andWhere('p.ativo = true');
 
-    //    public function findOneBySomeField($value): ?Prestador
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if (!empty($profissoes)) {
+            $qb->innerJoin('p.profissoes', 'pr')
+                ->andWhere('pr IN (:profissoes)')
+                ->setParameter('profissoes', $profissoes);
+        }
+
+        return $qb->orderBy('p.nome', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

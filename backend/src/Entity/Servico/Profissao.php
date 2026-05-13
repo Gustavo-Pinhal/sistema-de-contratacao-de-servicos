@@ -9,10 +9,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 class Profissao
 {
-    #[Groups(['profissao:read', 'ui_list:read'])]
+    #[Groups(['profissao:read', 'ui_list:read', 'listagem_prestadores:read'])]
     private ?int $id = null;
 
-    #[Groups(['profissao:read', 'ui_list:read'])]
+    #[Groups(['profissao:read', 'ui_list:read', 'listagem_prestadores:read'])]
     private ?string $descricao = null;
 
     #[Groups(['profissao:read'])]
