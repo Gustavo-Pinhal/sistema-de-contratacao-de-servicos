@@ -11,12 +11,13 @@ use Symfony\Component\Uid\Uuid;
 
 class Servico
 {
-    #[Groups('servico_dashboard:read')]
+    #[Groups(['meus_orcamentos:read', 'servico_dashboard:read'])]
     private ?Uuid $id = null;
 
     #[Groups('servico_dashboard:read')]
     private ?Usuario $cliente = null;
 
+    #[Groups('meus_orcamentos:read')]
     private ?Usuario $prestador = null;
 
     private ?StatusServico $status = null;
