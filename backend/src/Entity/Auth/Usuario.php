@@ -21,6 +21,8 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['servico_dashboard:read',  'meus_orcamentos:read'])]
     private ?string $nome = null;
 
+    private ?Perfil $perfil = null;
+
     public function __construct()
     {
         $this->roles = [];
@@ -81,6 +83,17 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNome(?string $nome): self
     {
         $this->nome = $nome;
+        return $this;
+    }
+
+    public function getPerfil(): ?Perfil
+    {
+        return $this->perfil;
+    }
+
+    public function setPerfil(Perfil $perfil): self
+    {
+        $this->perfil = $perfil;
         return $this;
     }
 }
