@@ -22,6 +22,7 @@ interface UserContextType {
   user: UserProfile | null;
   isLoggedIn: boolean;
   login: (email: string, pass: string) => Promise<boolean>;
+  register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -31,6 +32,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Persistência local
   useEffect(() => {
     const saved = localStorage.getItem("app_user");
     if (saved) setUser(JSON.parse(saved));
@@ -39,10 +41,28 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!loading) {
-      if (user) localStorage.setItem("app_user", JSON.stringify(user));
-      else localStorage.removeItem("app_user");
+      user
+        ? localStorage.setItem("app_user", JSON.stringify(user))
+        : localStorage.removeItem("app_user");
     }
   }, [user, loading]);
+
+  const parseJwt = (token: string) => {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(""),
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  };
 
   const login = async (email: string, pass: string) => {
     try {
@@ -54,58 +74,63 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) return false;
 
-      const data = await response.json(); // { "token": "..." }
-
-      // Decodificando o token
-      const decoded = parseJwt(data.token);
+      const { token } = await response.json();
+      const decoded = parseJwt(token);
 
       if (decoded) {
         setUser({
-          // Ajuste os nomes abaixo conforme a estrutura do seu JWT (ex: sub, id, role)
           id: decoded.id || decoded.sub,
-          email: email,
-          token: data.token,
+          email,
+          token,
           role: decoded.roles?.[0] || "client",
           name: decoded.nome,
         });
         return true;
       }
-
       return false;
     } catch (error) {
-      console.error("Erro no login:", error);
+      console.error("Login error:", error);
       return false;
+    }
+  };
+
+  const register = async (userData: any) => {
+    try {
+      const response = await fetch(
+        "https://localhost/api/cadastro-usuario/cliente",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: userData.name,
+            email: userData.email,
+            telefone: userData.phone,
+            senha: userData.password,
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (response.ok) return { success: true };
+
+      return {
+        success: false,
+        error: data.message || data.detail || "Erro ao realizar cadastro.",
+      };
+    } catch (error) {
+      return { success: false, error: "Conexão com o servidor falhou." };
     }
   };
 
   const logout = () => setUser(null);
 
   return (
-    <UserContext.Provider value={{ user, isLoggedIn: !!user, login, logout }}>
+    <UserContext.Provider
+      value={{ user, isLoggedIn: !!user, login, register, logout }}
+    >
       {!loading && children}
     </UserContext.Provider>
   );
-
-  function parseJwt(token: string) {
-    try {
-      // Pega a parte do Payload (índice 1)
-      const base64Url = token.split(".")[1];
-      // Ajusta caracteres especiais do padrão Base64Url para Base64
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      // Decodifica e converte para objeto JSON
-      const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(""),
-      );
-
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      return null;
-    }
-  }
 }
 
 export const useUser = () => {
