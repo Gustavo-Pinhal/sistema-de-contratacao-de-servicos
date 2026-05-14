@@ -1,19 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Search,
-  Star,
-  CheckCircle,
-  SlidersHorizontal,
-  Building2,
-} from "lucide-react";
+import { Search, User, Calendar, MapPin, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/app/context/UserContext";
 
-interface Usuario {
+interface ServicoAtivo {
   id: string;
+  prestador: { id: string; nome: string };
+  endereco: string;
+  data: string;
+  status: string;
 }
 
 interface Profissao {
@@ -22,48 +20,52 @@ interface Profissao {
 }
 
 interface Prestador {
-  usuario: Usuario;
+  usuario: { id: string };
   nome: string;
   profissoes: Profissao[];
-  // Campos abaixo são opcionais dependendo do que seu back retorna agora,
-  // adicionei mock values para manter o visual do Card.
-  rating?: number;
   avatar?: string;
 }
 
 export default function SearchProviders() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useUser(); // Pegamos o token do contexto
+  const { user } = useUser();
 
-  // Estados do Backend
   const [profissoes, setProfissoes] = useState<Profissao[]>([]);
   const [prestadores, setPrestadores] = useState<Prestador[]>([]);
+  const [servicos, setServicos] = useState<ServicoAtivo[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Filtros
   const [searchTerm, setSearchTerm] = useState("");
+
   const selectedSpecialtyDesc = searchParams.get("specialty") || "all";
 
-  // 1. Carregar Categorias (Profissões)
+  // 1. Carregar Dados Iniciais (Profissões e Serviços Ativos)
   useEffect(() => {
-    async function loadProfissoes() {
+    async function loadInitialData() {
       try {
-        const response = await fetch("/api/ui/profissoes");
-        const data = await response.json();
-        setProfissoes(data);
+        const resProf = await fetch("/api/ui/profissoes");
+        setProfissoes(await resProf.json());
+
+        if (user?.token) {
+          const resServ = await fetch(
+            "/api/cliente/servicos?apenasAtivos=true",
+            {
+              headers: { Authorization: `Bearer ${user.token}` },
+            },
+          );
+          if (resServ.ok) setServicos(await resServ.json());
+        }
       } catch (e) {
-        console.error("Erro profissoes", e);
+        console.error("Erro ao carregar dados iniciais", e);
       }
     }
-    loadProfissoes();
-  }, []);
+    loadInitialData();
+  }, [user?.token]);
 
-  // 2. Carregar Prestadores (sempre que a especialidade mudar)
+  // 2. Buscar Prestadores por Especialidade
   useEffect(() => {
     async function fetchPrestadores() {
       if (!user?.token) return;
-
       setLoading(true);
       try {
         const profId = profissoes.find(
@@ -73,32 +75,17 @@ export default function SearchProviders() {
           ? `/api/prestadores/buscar?profissao=${profId}`
           : "/api/prestadores/buscar";
 
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            Accept: "application/json",
-          },
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${user.token}` },
         });
-
-        const data = await response.json();
-
-        // DEBUG: Veja no console do navegador o que está chegando
-        console.log("Dados recebidos do back:", data);
-
-        if (response.ok && Array.isArray(data)) {
-          setPrestadores(data);
-        } else {
-          console.error("Back não retornou um array:", data);
-          setPrestadores([]); // Garante que continue sendo um array vazio em caso de erro
-        }
+        const data = await res.json();
+        setPrestadores(Array.isArray(data) ? data : []);
       } catch (e) {
-        console.error("Erro na requisição:", e);
         setPrestadores([]);
       } finally {
         setLoading(false);
       }
     }
-
     fetchPrestadores();
   }, [selectedSpecialtyDesc, profissoes, user?.token]);
 
@@ -108,7 +95,6 @@ export default function SearchProviders() {
     router.push(`/search?${params.toString()}`);
   };
 
-  // Filtro local apenas para o nome (client-side search)
   const filteredPrestadores = prestadores.filter((p) =>
     p.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -116,52 +102,77 @@ export default function SearchProviders() {
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Search Header */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 mb-10 border border-slate-100">
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Buscar por nome do profissional..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-14 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none font-bold"
-              />
-            </div>
-          </div>
-
-          {/* Categorias Dinâmicas */}
-          <div className="mt-8 border-t pt-6">
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => updateSpecialty("all")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                  selectedSpecialtyDesc === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                Todos
-              </button>
-              {profissoes.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => updateSpecialty(p.descricao)}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                    selectedSpecialtyDesc === p.descricao
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                  }`}
+        {/* Seção de Serviços Ativos (Apenas se houver algum) */}
+        {user && servicos.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-2">
+              Seus Serviços Ativos
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {servicos.map((serv) => (
+                <Link
+                  key={serv.id}
+                  href={`/service/${serv.id}`}
+                  className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-500 transition-all flex items-center justify-between group"
                 >
-                  {p.descricao}
-                </button>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm">
+                        {serv.prestador.nome}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">
+                        {serv.status}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold mb-1">
+                      <Calendar size={12} /> {serv.data}
+                    </div>
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+                      <MapPin size={12} /> {serv.endereco.split("-")[0]}
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
+        )}
+
+        {/* Busca e Filtros */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-10 border border-slate-100">
+          <div className="relative">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Buscar por nome do profissional..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none font-bold"
+            />
+          </div>
+
+          <div className="mt-8 border-t pt-6 flex flex-wrap gap-2">
+            <FilterButton
+              label="Todos"
+              active={selectedSpecialtyDesc === "all"}
+              onClick={() => updateSpecialty("all")}
+            />
+            {profissoes.map((p) => (
+              <FilterButton
+                key={p.id}
+                label={p.descricao}
+                active={selectedSpecialtyDesc === p.descricao}
+                onClick={() => updateSpecialty(p.descricao)}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Grid de Resultados */}
+        {/* Listagem de Prestadores */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
@@ -173,17 +184,15 @@ export default function SearchProviders() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredPrestadores.map((prestador, idx) => (
-              <ProviderCard key={idx} provider={prestador} />
+            {filteredPrestadores.map((p) => (
+              <ProviderCard key={p.usuario.id} provider={p} />
             ))}
           </div>
         )}
 
         {!loading && filteredPrestadores.length === 0 && (
-          <div className="text-center py-20 bg-white rounded-3xl border border-dashed">
-            <p className="text-slate-400 font-bold">
-              Nenhum profissional encontrado.
-            </p>
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 font-bold">
+            Nenhum profissional encontrado.
           </div>
         )}
       </div>
@@ -191,20 +200,42 @@ export default function SearchProviders() {
   );
 }
 
+function FilterButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+        active
+          ? "bg-blue-600 text-white"
+          : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function ProviderCard({ provider }: { provider: Prestador }) {
   return (
-    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full">
+    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
       <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden">
         <img
           src={
             provider.avatar ||
             `https://ui-avatars.com/api/?name=${provider.nome}&background=random`
           }
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           alt={provider.nome}
         />
       </div>
-
       <div className="flex-1">
         <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
         <div className="flex flex-wrap gap-1 mb-4">
@@ -218,7 +249,6 @@ function ProviderCard({ provider }: { provider: Prestador }) {
           ))}
         </div>
       </div>
-
       <Link
         href={`/provider/${provider.usuario.id}/request`}
         className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors text-center block"
