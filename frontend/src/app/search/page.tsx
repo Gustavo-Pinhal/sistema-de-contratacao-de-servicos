@@ -71,9 +71,7 @@ export default function SearchProviders() {
         const profId = profissoes.find(
           (p) => p.descricao === selectedSpecialtyDesc,
         )?.id;
-        const url = profId
-          ? `/api/prestadores/buscar?profissao=${profId}`
-          : "/api/prestadores/buscar";
+        const url = profId ? `/api/busca?profissao=${profId}` : "/api/busca";
 
         const res = await fetch(url, {
           headers: { Authorization: `Bearer ${user.token}` },
