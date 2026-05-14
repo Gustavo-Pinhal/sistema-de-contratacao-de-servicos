@@ -2,6 +2,7 @@
 
 namespace App\Repository\Servico;
 
+use App\Entity\Auth\Usuario;
 use App\Entity\Servico\Prestador;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,5 +41,20 @@ class PrestadorRepository extends ServiceEntityRepository
             ->getQuery()
             ->enableResultCache(300)
             ->getResult();
+    }
+
+    public function buscarParaEdicaoDePerfil(Usuario $usuario): ?Prestador
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.usuario', 'u')
+            ->addSelect('u')
+            ->innerJoin('p.cep', 'c')
+            ->addSelect('c')
+            ->leftJoin('p.profissoes', 'pr')
+            ->addSelect('pr')
+            ->where('p.usuario = :usuario')
+            ->setParameter('usuario', $usuario)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }
