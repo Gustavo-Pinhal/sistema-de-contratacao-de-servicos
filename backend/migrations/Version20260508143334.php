@@ -20,6 +20,9 @@ final class Version20260508143334 extends AbstractMigration
         CREATE TABLE auth.perfis (
             id              UUID            PRIMARY KEY,
             caminho_foto    VARCHAR(255)    NOT NULL,
+            caminho         VARCHAR(512)    NOT NULL,
+            mime_type       VARCHAR(100)    NOT NULL,
+            tamanho         INTEGER         NOT NULL,
             FOREIGN KEY (id) REFERENCES auth.usuarios (id)
         );
         SQL);
