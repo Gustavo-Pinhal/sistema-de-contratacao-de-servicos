@@ -9,10 +9,8 @@
 
         <field name="caminhoFoto" type="string" length="255" column="caminho_foto" nullable="false" />
 
-        <one-to-one field="perfil" target-entity="App\Entity\Auth\Perfil" mapped-by="usuario">
-            <cascade>
-                <cascade-persist/>
-            </cascade>
+        <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario" inversed-by="perfil">
+            <join-column name="id" referenced-column-name="id" on-delete="CASCADE" />
         </one-to-one>
 
     </entity>

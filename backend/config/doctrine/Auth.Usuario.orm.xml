@@ -18,5 +18,11 @@
 
         <field name="nome" type="string" length="255" nullable="false" column="nome" />
 
+        <one-to-one field="perfil" target-entity="App\Entity\Auth\Perfil" mapped-by="usuario">
+            <cascade>
+                <cascade-persist/>
+            </cascade>
+        </one-to-one>
+
     </entity>
 </doctrine-mapping>
