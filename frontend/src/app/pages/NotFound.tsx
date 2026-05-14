@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import Link from "next/link";
 import { Home } from "lucide-react";
 
 export function NotFound() {

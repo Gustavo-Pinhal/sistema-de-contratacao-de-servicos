@@ -18,6 +18,21 @@ class ServicoRepository extends ServiceEntityRepository
         parent::__construct($registry, Servico::class);
     }
 
+    public function buscarMeusOrcamentos(Usuario $cliente): array
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.prestador', 'p')
+            ->addSelect('p')
+            ->leftJoin('s.sala', 'sala')
+            ->addSelect('sala')
+            ->where('s.cliente = :cliente')
+            ->andWhere('s.excluidoEm IS NULL')
+            ->setParameter('cliente', $cliente)
+            ->orderBy('s.inicio', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function buscarDashboardPrestador(Usuario $prestador): array
     {
         $trintaDiasAtras = new \DateTimeImmutable('-30 days');

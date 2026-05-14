@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import Link from "next/link";
 import { Check, Crown, Star, TrendingUp, ArrowLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
 

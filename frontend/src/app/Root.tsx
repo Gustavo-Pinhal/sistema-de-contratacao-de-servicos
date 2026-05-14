@@ -29,7 +29,7 @@ export function Root() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <img 
                 src={logo} 
                 alt="Marido de Aluguel Logo" 
@@ -418,8 +418,8 @@ export function Root() {
             <div>
               <h3 className="font-semibold text-slate-900 mb-4 tracking-tight">Recursos</h3>
               <ul className="space-y-3 text-sm text-slate-500">
-                <li><Link to="/search" className="hover:text-indigo-600 transition-colors">Buscar Profissionais</Link></li>
-                <li><Link to="/" className="hover:text-indigo-600 transition-colors">Como Funciona</Link></li>
+                <li><Link href="/search" className="hover:text-indigo-600 transition-colors">Buscar Profissionais</Link></li>
+                <li><Link href="/" className="hover:text-indigo-600 transition-colors">Como Funciona</Link></li>
               </ul>
             </div>
             
@@ -443,11 +443,11 @@ export function Root() {
       </footer>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 flex justify-around items-center py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:hidden">
-        <Link to="/" className="flex flex-col items-center gap-1 group">
+        <Link href="/" className="flex flex-col items-center gap-1 group">
           <Search className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
           <span className="text-[10px] font-bold uppercase tracking-tight text-gray-500 group-hover:text-green-600">Prestadores</span>
         </Link>
-        <Link to="/business/dashboard" className="flex flex-col items-center gap-1 group">
+        <Link href="/business/dashboard" className="flex flex-col items-center gap-1 group">
           <Briefcase className="w-5 h-5 text-gray-400 group-hover:text-pink-600 transition-colors" />
           <span className="text-[10px] font-bold uppercase tracking-tight text-gray-500 group-hover:text-pink-600">Empresarial</span>
         </Link>

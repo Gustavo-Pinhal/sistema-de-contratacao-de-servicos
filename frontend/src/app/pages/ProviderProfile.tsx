@@ -19,7 +19,7 @@ export function ProviderProfile() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Prestador não encontrado</h1>
-          <Link to="/search" className="text-green-600 hover:underline">
+          <Link href="/search" className="text-green-600 hover:underline">
             Voltar para busca
           </Link>
         </div>

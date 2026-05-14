@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import Link from "next/link";
 import { Send, User, Search, Filter, MoreVertical, Phone, Video, Info, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { mockProviders } from "../data/mockData";
 
@@ -86,7 +86,7 @@ export function Chat() {
         {/* Chat Header */}
         <div className="p-4 border-b flex items-center justify-between shadow-sm z-10">
           <div className="flex items-center gap-3">
-            <Link to="/search" className="md:hidden">
+            <Link href="/search" className="md:hidden">
               <ArrowLeft className="w-5 h-5 text-gray-500" />
             </Link>
             <div className="relative">
