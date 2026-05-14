@@ -58,7 +58,7 @@ final class ChatController extends AbstractController
                     'nome' => $prestador->getNome(),
                 ],
             ],
-            'messagens' => $mapper->paraCollection($mensagens),
+            'messagens' => $mapper->mensagens($mensagens->toArray()),
         ], context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
@@ -84,7 +84,7 @@ final class ChatController extends AbstractController
         $manager->persist($mensagem);
         $manager->flush();
 
-        $outputDto = $mapper->paraDto($mensagem);
+        $outputDto = $mapper->mensagem($mensagem);
         $update = new Update(
             self::TOPICO . $servico->getId(),
             $serializer->serialize($outputDto, 'json'),
@@ -127,7 +127,7 @@ final class ChatController extends AbstractController
             $manager->persist($mensagem);
             $manager->flush();
 
-            $dto = $mapper->paraDto($mensagem);
+            $dto = $mapper->mensagem($mensagem);
 
             try {
                 $update = new Update(
