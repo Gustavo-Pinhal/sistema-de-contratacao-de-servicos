@@ -6,18 +6,30 @@ use App\Entity\Auth\Usuario;
 use App\Entity\Chat\Sala;
 use App\Entity\Localizacao\Endereco;
 use App\Enum\StatusServico;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Servico
 {
+    #[Groups(['meus_orcamentos:read', 'servico_dashboard:read'])]
     private ?Uuid $id = null;
+
+    #[Groups('servico_dashboard:read')]
     private ?Usuario $cliente = null;
+
+    #[Groups('meus_orcamentos:read')]
     private ?Usuario $prestador = null;
+
     private ?StatusServico $status = null;
+
     private ?Endereco $endereco = null;
+
     private ?Sala $sala = null;
+
     private \DateTimeImmutable $inicio;
+
     private ?\DateTimeImmutable $encerramento = null;
+
     private ?\DateTimeImmutable $excluidoEm = null;
 
     public function __construct()
