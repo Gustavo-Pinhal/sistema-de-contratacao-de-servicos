@@ -31,3 +31,21 @@ Em caso de Cep inexistente ou inválido, o json possui o seguinte formato
     "errors": { "cep": "CEP inv\u00e1lido." }
 }
 ```
+
+## Consultar Profissões
+
+Consulta as profissões existentes no sistema
+
+```bash
+curl -k https://localhost/api/ui/profissoes
+```
+
+A requisição responde com um array de profissões no seguinte format
+
+```json
+[
+    { "id": 63, "descricao": "Chaveiro" },
+    { "id": 55, "descricao": "Eletricista" },
+    { "id": 62, "descricao": "T\u00e9cnico de Ar Condicionado" }
+]
+```
