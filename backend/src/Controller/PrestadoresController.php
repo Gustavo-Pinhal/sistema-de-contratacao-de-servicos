@@ -44,18 +44,4 @@ final class PrestadoresController extends AbstractController
 
         return $this->json($prestadores, context: ['groups' => 'listagem_prestadores:read']);
     }
-
-    #[IsGranted('ROLE_CLIENTE')]
-    #[Route('/cliente/orcamentos', name: 'app_cliente_meus_orcamentos', methods: ['GET'])]
-    public function index(
-        \App\Repository\Servico\ServicoRepository $repositorio,
-    ): JsonResponse {
-        $usuario = $this->getUser();
-
-        $servicos = $repositorio->buscarMeusOrcamentos($usuario);
-
-        return $this->json($servicos, context: [
-            'groups' => ['meus_orcamentos:read']
-        ]);
-    }
 }

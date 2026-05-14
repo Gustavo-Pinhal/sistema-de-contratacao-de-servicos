@@ -18,17 +18,22 @@ class ServicoRepository extends ServiceEntityRepository
         parent::__construct($registry, Servico::class);
     }
 
-    public function buscarMeusOrcamentos(Usuario $cliente): array
+    public function buscarPorCliente(Usuario $cliente, bool $apenasAtivos = false): array
     {
-        return $this->createQueryBuilder('s')
+        $qb = $this->createQueryBuilder('s')
             ->innerJoin('s.prestador', 'p')
             ->addSelect('p')
-            ->leftJoin('s.sala', 'sala')
-            ->addSelect('sala')
+            ->innerJoin('s.endereco', 'e')
+            ->addSelect('e')
             ->where('s.cliente = :cliente')
             ->andWhere('s.excluidoEm IS NULL')
-            ->setParameter('cliente', $cliente)
-            ->orderBy('s.inicio', 'DESC')
+            ->setParameter('cliente', $cliente);
+
+        if ($apenasAtivos) {
+            $qb->andWhere('s.encerramento IS NULL');
+        }
+
+        return $qb->orderBy('s.inicio', 'DESC')
             ->getQuery()
             ->getResult();
     }

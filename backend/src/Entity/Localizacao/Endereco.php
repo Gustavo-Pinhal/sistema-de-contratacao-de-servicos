@@ -90,4 +90,9 @@ class Endereco
         $this->complemento = $complemento;
         return $this;
     }
+
+    public function exibir(): string
+    {
+        return "{$this->rua}, {$this->numero} - {$this->bairro}";
+    }
 }
