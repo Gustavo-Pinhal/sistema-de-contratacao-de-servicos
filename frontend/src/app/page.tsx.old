@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -10,10 +12,10 @@ import {
   PlayCircle,
   CheckCircle,
 } from "lucide-react";
-import { useUser } from "../../context/UserContext";
-import { ProviderHome } from "./ProviderHome";
-import { BusinessHome } from "./BusinessHome";
-import { RoleSelectionDialog } from "../components/RoleSelectionDialog";
+import { useUser } from "./context/UserContext";
+import { ProviderHome } from "./pages/ProviderHome";
+import { BusinessHome } from "./pages/BusinessHome";
+import { RoleSelectionDialog } from "/components/RoleSelectionDialog";
 import heroImg from "../../assets/hero-handyman.png";
 
 export function Home() {

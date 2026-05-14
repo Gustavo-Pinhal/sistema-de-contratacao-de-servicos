@@ -11,7 +11,7 @@ import {
   Loader2,
   Inbox,
 } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 interface BudgetRequest {
   id: string;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Star, Calendar, User, ChevronLeft, MessageSquare } from "lucide-react";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 
 interface Review {
   id: string;
@@ -25,38 +25,47 @@ export function ClientReviews() {
     // Carregar avaliações do localStorage
     const loadReviews = () => {
       try {
-        const allReviews = JSON.parse(localStorage.getItem('serviceReviews') || '[]');
-        const serviceRequests = JSON.parse(localStorage.getItem('serviceRequests') || '[]');
-        
-        console.log('DEBUG - Todas as avaliações:', allReviews);
-        console.log('DEBUG - ID do usuário atual:', user?.id);
-        console.log('DEBUG - Todos os serviços:', serviceRequests);
-        
+        const allReviews = JSON.parse(
+          localStorage.getItem("serviceReviews") || "[]",
+        );
+        const serviceRequests = JSON.parse(
+          localStorage.getItem("serviceRequests") || "[]",
+        );
+
+        console.log("DEBUG - Todas as avaliações:", allReviews);
+        console.log("DEBUG - ID do usuário atual:", user?.id);
+        console.log("DEBUG - Todos os serviços:", serviceRequests);
+
         // Filtrar apenas avaliações do cliente atual
-        const clientReviews = allReviews.filter((review: Review) => review.clientId === user?.id);
-        
-        console.log('DEBUG - Avaliações do cliente:', clientReviews);
-        
+        const clientReviews = allReviews.filter(
+          (review: Review) => review.clientId === user?.id,
+        );
+
+        console.log("DEBUG - Avaliações do cliente:", clientReviews);
+
         // Adicionar informações do serviço e prestador
         const reviewsWithDetails = clientReviews.map((review: Review) => {
-          const service = serviceRequests.find((s: any) => s.id === review.serviceId);
+          const service = serviceRequests.find(
+            (s: any) => s.id === review.serviceId,
+          );
           return {
             ...review,
-            providerName: service?.providerName || 'Prestador',
-            serviceName: service?.service || 'Serviço'
+            providerName: service?.providerName || "Prestador",
+            serviceName: service?.service || "Serviço",
           };
         });
-        
-        console.log('DEBUG - Avaliações com detalhes:', reviewsWithDetails);
-        
+
+        console.log("DEBUG - Avaliações com detalhes:", reviewsWithDetails);
+
         // Ordenar por data (mais recente primeiro)
-        reviewsWithDetails.sort((a: Review, b: Review) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
+        reviewsWithDetails.sort(
+          (a: Review, b: Review) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
-        
+
         setReviews(reviewsWithDetails);
       } catch (error) {
-        console.error('Erro ao carregar avaliações:', error);
+        console.error("Erro ao carregar avaliações:", error);
       } finally {
         setLoading(false);
       }
@@ -72,7 +81,9 @@ export function ClientReviews() {
           <Star
             key={star}
             className={`w-4 h-4 ${
-              star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+              star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
             }`}
           />
         ))}
@@ -82,10 +93,10 @@ export function ClientReviews() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -107,14 +118,14 @@ export function ClientReviews() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            to="/client/profile" 
+          <Link
+            to="/client/profile"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8 font-bold"
           >
             <ChevronLeft className="w-4 h-4" />
             Voltar para o Perfil
           </Link>
-          
+
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Minhas Avaliações
@@ -136,16 +147,18 @@ export function ClientReviews() {
             </div>
             <div>
               <div className="text-3xl font-bold text-yellow-500 mb-2">
-                {reviews.length > 0 
-                  ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-                  : '0.0'
-                }
+                {reviews.length > 0
+                  ? (
+                      reviews.reduce((sum, r) => sum + r.rating, 0) /
+                      reviews.length
+                    ).toFixed(1)
+                  : "0.0"}
               </div>
               <div className="text-gray-600 text-sm">Média de Avaliação</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-green-600 mb-2">
-                {reviews.filter(r => r.rating >= 4).length}
+                {reviews.filter((r) => r.rating >= 4).length}
               </div>
               <div className="text-gray-600 text-sm">Avaliações Positivas</div>
             </div>
@@ -160,7 +173,7 @@ export function ClientReviews() {
               Nenhuma avaliação encontrada
             </h3>
             <p className="text-gray-600 mb-6">
-              Você ainda não avaliou nenhum serviço. Após concluir um serviço, 
+              Você ainda não avaliou nenhum serviço. Após concluir um serviço,
               volte aqui para deixar sua avaliação!
             </p>
             <Link
@@ -173,7 +186,10 @@ export function ClientReviews() {
         ) : (
           <div className="space-y-6">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-white rounded-xl shadow-sm p-6">
+              <div
+                key={review.id}
+                className="bg-white rounded-xl shadow-sm p-6"
+              >
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -188,11 +204,9 @@ export function ClientReviews() {
                     {formatDate(review.date)}
                   </div>
                 </div>
-                
-                <div className="mb-4">
-                  {renderStars(review.rating)}
-                </div>
-                
+
+                <div className="mb-4">{renderStars(review.rating)}</div>
+
                 {review.comment && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-gray-700 leading-relaxed">
@@ -200,7 +214,7 @@ export function ClientReviews() {
                     </p>
                   </div>
                 )}
-                
+
                 <div className="mt-4 pt-4 border-t">
                   <Link
                     to={`/service/${review.serviceId}`}

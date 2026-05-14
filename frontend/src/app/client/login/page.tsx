@@ -13,7 +13,7 @@ import {
   User,
   Phone,
 } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 export default function ClientLoginPage() {
   const { login, register } = useUser(); // register vindo do context

@@ -17,8 +17,8 @@ import {
   ShieldCheck,
   CreditCard,
 } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
-import { Button } from "@/app/components/ui/button";
+import { useUser } from "@/context/UserContext";
+import { Button } from "@/components/ui/button";
 
 // Se você tiver o componente PricingCards, certifique-se de movê-lo para src/app/components
 // import { PricingCards } from "@/app/components/PricingCards";

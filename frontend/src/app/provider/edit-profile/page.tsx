@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 interface Profissao {
   id: number;

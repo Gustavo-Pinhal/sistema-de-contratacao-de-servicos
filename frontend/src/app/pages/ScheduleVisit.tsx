@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router";
-import { ChevronLeft, Calendar, Clock, MapPin, User, AlertCircle, CheckCircle } from "lucide-react";
-import { useSimulation } from "../context/SimulationContext";
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { useSimulation } from "../../context/SimulationContext";
 
 export function ScheduleVisit() {
   const { id } = useParams();
@@ -13,7 +21,7 @@ export function ScheduleVisit() {
     date: "",
     time: "",
     address: request?.address || "",
-    notes: ""
+    notes: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,7 +30,9 @@ export function ScheduleVisit() {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Serviço não encontrado</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Serviço não encontrado
+          </h1>
           <Link href="/dashboard" className="text-green-600 hover:underline">
             Voltar para o Painel
           </Link>
@@ -49,20 +59,29 @@ export function ScheduleVisit() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Visita Já Agendada</h1>
-              <p className="text-gray-600">Esta solicitação já possui uma visita agendada</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                Visita Já Agendada
+              </h1>
+              <p className="text-gray-600">
+                Esta solicitação já possui uma visita agendada
+              </p>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-3">
-              <h3 className="font-semibold text-green-900 mb-3">Detalhes da Visita</h3>
+              <h3 className="font-semibold text-green-900 mb-3">
+                Detalhes da Visita
+              </h3>
               <div className="flex items-center gap-3 text-green-800">
                 <Calendar className="w-5 h-5" />
                 <span>
-                  {new Date(request.visitScheduled.date).toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  {new Date(request.visitScheduled.date).toLocaleDateString(
+                    "pt-BR",
+                    {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-green-800">
@@ -81,21 +100,25 @@ export function ScheduleVisit() {
                 </div>
               )}
               <div className="pt-3 border-t border-green-200">
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                  request.visitScheduled.status === 'confirmed' 
-                    ? 'bg-green-100 text-green-800'
-                    : request.visitScheduled.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : request.visitScheduled.status === 'completed'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  Status: {
-                    request.visitScheduled.status === 'confirmed' ? 'Confirmada' :
-                    request.visitScheduled.status === 'pending' ? 'Pendente' :
-                    request.visitScheduled.status === 'completed' ? 'Concluída' :
-                    'Cancelada'
-                  }
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                    request.visitScheduled.status === "confirmed"
+                      ? "bg-green-100 text-green-800"
+                      : request.visitScheduled.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : request.visitScheduled.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  Status:{" "}
+                  {request.visitScheduled.status === "confirmed"
+                    ? "Confirmada"
+                    : request.visitScheduled.status === "pending"
+                      ? "Pendente"
+                      : request.visitScheduled.status === "completed"
+                        ? "Concluída"
+                        : "Cancelada"}
                 </span>
               </div>
             </div>
@@ -111,7 +134,7 @@ export function ScheduleVisit() {
                 className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
                 onClick={() => {
                   if (confirm("Tem certeza que deseja cancelar esta visita?")) {
-                    if (id) updateVisitStatus(id, 'cancelled');
+                    if (id) updateVisitStatus(id, "cancelled");
                     alert("Visita cancelada!");
                     navigate(`/manage-service/${id}`);
                   }
@@ -154,7 +177,7 @@ export function ScheduleVisit() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
@@ -164,34 +187,36 @@ export function ScheduleVisit() {
         date: formData.date,
         time: formData.time,
         address: formData.address,
-        notes: formData.notes
+        notes: formData.notes,
       });
     }
 
-    alert("Visita agendada com sucesso! O cliente será notificado para aprovação.");
+    alert(
+      "Visita agendada com sucesso! O cliente será notificado para aprovação.",
+    );
     navigate(`/manage-service/${id}`);
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   // Generate time slots
   const timeSlots = [];
   for (let hour = 8; hour <= 18; hour++) {
-    timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+    timeSlots.push(`${hour.toString().padStart(2, "0")}:00`);
     if (hour < 18) {
-      timeSlots.push(`${hour.toString().padStart(2, '0')}:30`);
+      timeSlots.push(`${hour.toString().padStart(2, "0")}:30`);
     }
   }
 
   // Get minimum date (tomorrow)
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  const minDate = tomorrow.toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -207,7 +232,9 @@ export function ScheduleVisit() {
 
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Agendar Visita</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Agendar Visita
+          </h1>
           <p className="text-gray-600">
             Agende uma visita para avaliar o serviço presencialmente
           </p>
@@ -215,18 +242,24 @@ export function ScheduleVisit() {
 
         {/* Service Info */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Informações do Serviço</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">
+            Informações do Serviço
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <User className="w-5 h-5 text-gray-600" />
               <div>
                 <p className="text-sm text-gray-600">Cliente</p>
-                <p className="font-semibold text-gray-900">{request.clientName}</p>
+                <p className="font-semibold text-gray-900">
+                  {request.clientName}
+                </p>
               </div>
             </div>
             <div>
               <p className="text-sm text-gray-600">Tipo de Serviço</p>
-              <p className="font-semibold text-gray-900">{request.serviceType}</p>
+              <p className="font-semibold text-gray-900">
+                {request.serviceType}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Descrição</p>
@@ -236,9 +269,14 @@ export function ScheduleVisit() {
         </div>
 
         {/* Scheduling Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-gray-900 mb-6">Dados do Agendamento</h2>
-          
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-sm p-6 mb-6"
+        >
+          <h2 className="font-semibold text-gray-900 mb-6">
+            Dados do Agendamento
+          </h2>
+
           <div className="space-y-5">
             {/* Date */}
             <div>
@@ -250,10 +288,10 @@ export function ScheduleVisit() {
                 <input
                   type="date"
                   value={formData.date}
-                  onChange={(e) => handleChange('date', e.target.value)}
+                  onChange={(e) => handleChange("date", e.target.value)}
                   min={minDate}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none ${
-                    errors.date ? 'border-red-500' : 'border-gray-300'
+                    errors.date ? "border-red-500" : "border-gray-300"
                   }`}
                 />
               </div>
@@ -271,14 +309,16 @@ export function ScheduleVisit() {
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <select
                   value={formData.time}
-                  onChange={(e) => handleChange('time', e.target.value)}
+                  onChange={(e) => handleChange("time", e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none appearance-none ${
-                    errors.time ? 'border-red-500' : 'border-gray-300'
+                    errors.time ? "border-red-500" : "border-gray-300"
                   }`}
                 >
                   <option value="">Selecione um horário</option>
-                  {timeSlots.map(slot => (
-                    <option key={slot} value={slot}>{slot}</option>
+                  {timeSlots.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -299,11 +339,11 @@ export function ScheduleVisit() {
                 <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 <textarea
                   value={formData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  onChange={(e) => handleChange("address", e.target.value)}
                   rows={3}
                   placeholder="Rua, número, bairro, cidade..."
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none ${
-                    errors.address ? 'border-red-500' : 'border-gray-300'
+                    errors.address ? "border-red-500" : "border-gray-300"
                   }`}
                 />
               </div>
@@ -319,7 +359,7 @@ export function ScheduleVisit() {
               </label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
+                onChange={(e) => handleChange("notes", e.target.value)}
                 rows={4}
                 placeholder="Informações adicionais como portão, interfone, pontos de referência..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none"
@@ -334,9 +374,13 @@ export function ScheduleVisit() {
               <div className="text-sm text-green-900">
                 <p className="font-semibold mb-1">Importante:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>O cliente receberá uma notificação com os detalhes da visita</li>
+                  <li>
+                    O cliente receberá uma notificação com os detalhes da visita
+                  </li>
                   <li>Certifique-se de estar disponível no horário agendado</li>
-                  <li>Você pode cancelar ou reagendar até 24h antes da visita</li>
+                  <li>
+                    Você pode cancelar ou reagendar até 24h antes da visita
+                  </li>
                 </ul>
               </div>
             </div>

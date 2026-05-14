@@ -1,7 +1,16 @@
 import Link from "next/link";
-import { ChevronLeft, Calendar, Clock, MapPin, FileText, CheckCircle, XCircle, Eye } from "lucide-react";
-import { useSimulation } from "../context/SimulationContext";
-import { useUser } from "../context/UserContext";
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Eye,
+} from "lucide-react";
+import { useSimulation } from "../../context/SimulationContext";
+import { useUser } from "../../context/UserContext";
 
 export function ViewQuotes() {
   const { serviceRequests } = useSimulation();
@@ -9,30 +18,49 @@ export function ViewQuotes() {
 
   // Filter service requests that have quotes (status = 'quote' and belong to current user ID)
   const quotesReceived = serviceRequests.filter(
-    (req) => req.status === 'quote' && req.clientId === user?.id
+    (req) => req.status === "quote" && req.clientId === user?.id,
   );
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return new Date(dateStr).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
   const getStatusBadge = (validUntil?: string) => {
-    if (!validUntil) return <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Válido</span>;
-    
+    if (!validUntil)
+      return (
+        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+          Válido
+        </span>
+      );
+
     const today = new Date();
     const expiryDate = new Date(validUntil);
-    const daysRemaining = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const daysRemaining = Math.ceil(
+      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     if (daysRemaining < 0) {
-      return <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">Expirado</span>;
+      return (
+        <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">
+          Expirado
+        </span>
+      );
     } else if (daysRemaining <= 3) {
-      return <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">Expira em breve</span>;
+      return (
+        <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">
+          Expira em breve
+        </span>
+      );
     }
-    return <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Válido</span>;
+    return (
+      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+        Válido
+      </span>
+    );
   };
 
   return (
@@ -49,9 +77,12 @@ export function ViewQuotes() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Meus Orçamentos</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">
+            Meus Orçamentos
+          </h1>
           <p className="text-gray-600 font-medium font-medium">
-            Visualize e gerencie os orçamentos recebidos dos prestadores para {user?.name}
+            Visualize e gerencie os orçamentos recebidos dos prestadores para{" "}
+            {user?.name}
           </p>
         </div>
 
@@ -65,7 +96,8 @@ export function ViewQuotes() {
               Nenhum orçamento encontrado
             </h3>
             <p className="text-gray-500 font-medium mb-8 max-w-sm mx-auto">
-              Sua conta é nova ou você ainda não solicitou novos serviços nesta simulação.
+              Sua conta é nova ou você ainda não solicitou novos serviços nesta
+              simulação.
             </p>
             <Link
               to="/search"
@@ -78,7 +110,7 @@ export function ViewQuotes() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {quotesReceived.map((request) => {
               const quote = request.quoteDetails;
-              
+
               return (
                 <div
                   key={request.id}
@@ -91,17 +123,19 @@ export function ViewQuotes() {
                         <h3 className="font-black text-gray-900 mb-1 uppercase tracking-tight text-lg">
                           {request.providerName}
                         </h3>
-                        <p className="text-xs font-black uppercase tracking-widest text-green-600">{request.serviceType}</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-green-600">
+                          {request.serviceType}
+                        </p>
                       </div>
                       {getStatusBadge(quote?.validUntil)}
                     </div>
-                    
+
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="text-3xl font-black text-green-600 tracking-tighter">
                         {request.proposedValue || quote?.value || "A definir"}
                       </span>
                     </div>
-                    
+
                     <p className="text-sm text-gray-500 font-medium line-clamp-2">
                       {request.description}
                     </p>
@@ -113,11 +147,16 @@ export function ViewQuotes() {
                     <div className="space-y-2 text-sm font-medium">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Clock className="w-4 h-4 flex-shrink-0 text-green-500" />
-                        <span>Duração: {quote?.estimatedDuration || "Estimativa no chat"}</span>
+                        <span>
+                          Duração:{" "}
+                          {quote?.estimatedDuration || "Estimativa no chat"}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <MapPin className="w-4 h-4 flex-shrink-0 text-green-500" />
-                        <span className="line-clamp-1">{request.address || "Endereço não informado"}</span>
+                        <span className="line-clamp-1">
+                          {request.address || "Endereço não informado"}
+                        </span>
                       </div>
                       {quote?.validUntil && (
                         <div className="flex items-center gap-2 text-gray-600">
@@ -164,7 +203,9 @@ export function ViewQuotes() {
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>Entre em contato com o prestador para esclarecer dúvidas</span>
+              <span>
+                Entre em contato com o prestador para esclarecer dúvidas
+              </span>
             </li>
           </ul>
         </div>

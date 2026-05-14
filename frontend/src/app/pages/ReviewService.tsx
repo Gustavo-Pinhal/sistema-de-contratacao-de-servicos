@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router";
 import { ChevronLeft, Star } from "lucide-react";
-import { useSimulation } from "../context/SimulationContext";
-import { useUser } from "../context/UserContext";
+import { useSimulation } from "../../context/SimulationContext";
+import { useUser } from "../../context/UserContext";
 
 export function ReviewService() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { serviceRequests } = useSimulation();
   const { user } = useUser();
-  const service = serviceRequests.find(s => s.id === id);
+  const service = serviceRequests.find((s) => s.id === id);
 
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -19,8 +19,13 @@ export function ReviewService() {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">Serviço não encontrado</h1>
-          <Link href="/client/profile" className="text-green-600 font-bold hover:underline">
+          <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+            Serviço não encontrado
+          </h1>
+          <Link
+            href="/client/profile"
+            className="text-green-600 font-bold hover:underline"
+          >
             Voltar para o perfil
           </Link>
         </div>
@@ -34,9 +39,9 @@ export function ReviewService() {
       alert("Por favor, selecione uma avaliação em estrelas");
       return;
     }
-    
+
     // Salvar avaliação no localStorage
-    const reviews = JSON.parse(localStorage.getItem('serviceReviews') || '[]');
+    const reviews = JSON.parse(localStorage.getItem("serviceReviews") || "[]");
     const newReview = {
       id: Date.now().toString(),
       serviceId: id,
@@ -45,35 +50,43 @@ export function ReviewService() {
       rating,
       comment,
       date: new Date().toISOString(),
-      providerId: service?.providerId
+      providerId: service?.providerId,
     };
-    
-    console.log('DEBUG - Nova avaliação a ser salva:', newReview);
-    console.log('DEBUG - Avaliações existentes:', reviews);
-    
+
+    console.log("DEBUG - Nova avaliação a ser salva:", newReview);
+    console.log("DEBUG - Avaliações existentes:", reviews);
+
     reviews.push(newReview);
-    localStorage.setItem('serviceReviews', JSON.stringify(reviews));
-    
-    console.log('DEBUG - Avaliações após salvar:', reviews);
-    console.log('DEBUG - Verificando se foi salvo:', JSON.parse(localStorage.getItem('serviceReviews') || '[]'));
-    
+    localStorage.setItem("serviceReviews", JSON.stringify(reviews));
+
+    console.log("DEBUG - Avaliações após salvar:", reviews);
+    console.log(
+      "DEBUG - Verificando se foi salvo:",
+      JSON.parse(localStorage.getItem("serviceReviews") || "[]"),
+    );
+
     // Atualizar status do serviço para avaliado e salvar review no serviço
-    const services = JSON.parse(localStorage.getItem('serviceRequests') || '[]');
+    const services = JSON.parse(
+      localStorage.getItem("serviceRequests") || "[]",
+    );
     const serviceIndex = services.findIndex((s: any) => s.id === id);
     if (serviceIndex !== -1) {
-      services[serviceIndex].status = 'completed';
+      services[serviceIndex].status = "completed";
       services[serviceIndex].reviewed = true;
       services[serviceIndex].clientReview = {
         rating,
         comment,
         date: new Date().toISOString(),
-        clientName: user?.name
+        clientName: user?.name,
       };
-      localStorage.setItem('serviceRequests', JSON.stringify(services));
-      
-      console.log('DEBUG - Serviço atualizado com avaliação:', services[serviceIndex]);
+      localStorage.setItem("serviceRequests", JSON.stringify(services));
+
+      console.log(
+        "DEBUG - Serviço atualizado com avaliação:",
+        services[serviceIndex],
+      );
     }
-    
+
     alert("Avaliação realizada com sucesso! Obrigado pelo feedback.");
     navigate("/client/reviews");
   };
@@ -92,7 +105,9 @@ export function ReviewService() {
 
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Avaliar Serviço</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Avaliar Serviço
+          </h1>
           <p className="text-gray-600">
             Sua opinião é muito importante para ajudar outros clientes
           </p>
@@ -100,31 +115,44 @@ export function ReviewService() {
 
         {/* Service Info */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Informações do Serviço</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">
+            Informações do Serviço
+          </h2>
           <div className="space-y-3">
             <div>
               <p className="text-sm text-gray-600">Prestador</p>
-              <p className="font-semibold text-gray-900">{service.providerName}</p>
+              <p className="font-semibold text-gray-900">
+                {service.providerName}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Tipo de Serviço</p>
-              <p className="font-semibold text-gray-900">{service.serviceType}</p>
+              <p className="font-semibold text-gray-900">
+                {service.serviceType}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Descrição</p>
-              <p className="font-semibold text-gray-900">{service.description}</p>
+              <p className="font-semibold text-gray-900">
+                {service.description}
+              </p>
             </div>
             {service.proposedValue && (
               <div>
                 <p className="text-sm text-gray-600">Valor</p>
-                <p className="font-semibold text-gray-900">{service.proposedValue}</p>
+                <p className="font-semibold text-gray-900">
+                  {service.proposedValue}
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {/* Review Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-sm p-6"
+        >
           <div className="space-y-6">
             {/* Star Rating */}
             <div>
@@ -144,8 +172,8 @@ export function ReviewService() {
                     <Star
                       className={`w-12 h-12 ${
                         star <= (hoveredRating || rating)
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'text-gray-300'
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300"
                       }`}
                     />
                   </button>
@@ -185,9 +213,9 @@ export function ReviewService() {
             {/* Info Box */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-green-900">
-                <span className="font-semibold">Dica:</span> Avaliações honestas e detalhadas 
-                ajudam outros clientes a tomar melhores decisões e incentivam os prestadores 
-                a manterem um serviço de qualidade.
+                <span className="font-semibold">Dica:</span> Avaliações honestas
+                e detalhadas ajudam outros clientes a tomar melhores decisões e
+                incentivam os prestadores a manterem um serviço de qualidade.
               </p>
             </div>
 

@@ -4,11 +4,18 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
   useEffect,
+  useCallback,
+  ReactNode,
 } from "react";
 
-export type UserRole = "client" | "provider" | "business" | null;
+export type UserRole =
+  | "ROLE_CLIENTE"
+  | "ROLE_PRESTADOR"
+  | "client"
+  | "provider"
+  | "business"
+  | null;
 
 export interface UserProfile {
   id: string;
@@ -21,10 +28,31 @@ export interface UserProfile {
 interface UserContextType {
   user: UserProfile | null;
   isLoggedIn: boolean;
+  loading: boolean;
   login: (email: string, pass: string) => Promise<boolean>;
   register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
+
+const STORAGE_KEY = "@app:user";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://localhost";
+
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -32,41 +60,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Persistência local
+  // Inicialização e Persistência
   useEffect(() => {
-    const saved = localStorage.getItem("app_user");
-    if (saved) setUser(JSON.parse(saved));
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsedUser = JSON.parse(saved);
+        // Opcional: Validar expiração do token aqui
+        setUser(parsedUser);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
     if (!loading) {
-      user
-        ? localStorage.setItem("app_user", JSON.stringify(user))
-        : localStorage.removeItem("app_user");
+      if (user) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     }
   }, [user, loading]);
 
-  const parseJwt = (token: string) => {
+  // Ações
+  const login = useCallback(async (email: string, pass: string) => {
     try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(""),
-      );
-      return JSON.parse(jsonPayload);
-    } catch {
-      return null;
-    }
-  };
-
-  const login = async (email: string, pass: string) => {
-    try {
-      const response = await fetch("/api/login_check", {
+      const response = await fetch(`${API_BASE_URL}/api/login_check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: email, password: pass }),
@@ -83,21 +105,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
           email,
           token,
           role: decoded.roles?.[0] || "client",
-          name: decoded.nome,
+          name: decoded.nome || decoded.name,
         });
         return true;
       }
       return false;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login Error:", error);
       return false;
     }
-  };
+  }, []);
 
-  const register = async (userData: any) => {
+  const register = useCallback(async (userData: any) => {
     try {
       const response = await fetch(
-        "https://localhost/api/cadastro-usuario/cliente",
+        `${API_BASE_URL}/api/cadastro-usuario/cliente`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,6 +133,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       );
 
       const data = await response.json();
+
       if (response.ok) return { success: true };
 
       return {
@@ -118,17 +141,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
         error: data.message || data.detail || "Erro ao realizar cadastro.",
       };
     } catch (error) {
+      console.error("Register Error:", error);
       return { success: false, error: "Conexão com o servidor falhou." };
     }
-  };
+  }, []);
 
-  const logout = () => setUser(null);
+  const logout = useCallback(() => {
+    setUser(null);
+  }, []);
 
   return (
     <UserContext.Provider
-      value={{ user, isLoggedIn: !!user, login, register, logout }}
+      value={{
+        user,
+        isLoggedIn: !!user,
+        loading,
+        login,
+        register,
+        logout,
+      }}
     >
-      {!loading && children}
+      {children}
     </UserContext.Provider>
   );
 }

@@ -1,7 +1,3 @@
-"use client"; 
-
-import { Home } from "@/app/pages/Home"; 
-
-export default function Page() {
-  return <Home />;
+export default function Home() {
+  return <h1>Hello World!</h1>;
 }

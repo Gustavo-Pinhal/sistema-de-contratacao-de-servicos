@@ -14,7 +14,7 @@ import {
   MessageSquare,
   ChevronRight,
 } from "lucide-react";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 // Tipagem baseada no retorno da sua API
 interface ServiceAPI {

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, User, Calendar, MapPin, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 interface ServicoAtivo {
   id: string;

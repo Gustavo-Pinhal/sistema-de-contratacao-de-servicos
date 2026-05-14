@@ -1,14 +1,12 @@
 "use client";
 
-import { UserProvider } from './context/UserContext';
-import { SimulationProvider } from './context/SimulationContext';
+import { UserProvider } from "../context/UserContext";
+import { ServiceProvider } from "../context/ServiceProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <UserProvider>
-      <SimulationProvider>
-        {children}
-      </SimulationProvider>
+      <ServiceProvider>{children}</ServiceProvider>
     </UserProvider>
   );
 }

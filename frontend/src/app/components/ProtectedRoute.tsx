@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from "react-router";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 
 interface ProtectedRouteProps {
-  allowedRoles?: ('client' | 'provider' | 'business')[];
+  allowedRoles?: ("client" | "provider" | "business")[];
 }
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {

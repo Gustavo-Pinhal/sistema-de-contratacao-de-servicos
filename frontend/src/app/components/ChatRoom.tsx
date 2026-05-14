@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, User, FileIcon, Paperclip, Send } from "lucide-react";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 interface Message {
   id: string;

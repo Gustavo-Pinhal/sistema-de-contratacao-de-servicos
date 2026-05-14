@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router";
-import { 
-  ChevronLeft, 
-  CheckCircle, 
-  XCircle, 
-  Calendar, 
-  Clock, 
-  MapPin, 
+import {
+  ChevronLeft,
+  CheckCircle,
+  XCircle,
+  Calendar,
+  Clock,
+  MapPin,
   FileText,
   User,
   AlertCircle,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../../context/SimulationContext";
 import { mockProviders } from "../data/mockData";
 
 export function QuoteDetails() {
@@ -24,14 +24,21 @@ export function QuoteDetails() {
 
   const { user } = useUser();
   const request = serviceRequests.find((req) => req.id === id);
-  const provider = request ? mockProviders.find(p => p.id === request.providerId) : null;
+  const provider = request
+    ? mockProviders.find((p) => p.id === request.providerId)
+    : null;
 
   if (!request || !request.quoteDetails || request.clientId !== user?.id) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">Orçamento não encontrado</h1>
-          <Link href="/client/profile" className="text-green-600 font-bold hover:underline">
+          <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+            Orçamento não encontrado
+          </h1>
+          <Link
+            href="/client/profile"
+            className="text-green-600 font-bold hover:underline"
+          >
             Voltar para o perfil
           </Link>
         </div>
@@ -42,21 +49,21 @@ export function QuoteDetails() {
   const quote = request.quoteDetails;
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return new Date(dateStr).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
   const handleAccept = () => {
-    updateRequestStatus(request.id, 'active');
+    updateRequestStatus(request.id, "active");
     alert("Orçamento aceito com sucesso! O serviço agora está em andamento.");
     navigate("/client/profile");
   };
 
   const handleDecline = () => {
-    updateRequestStatus(request.id, 'cancelled');
+    updateRequestStatus(request.id, "cancelled");
     alert("Orçamento recusado.");
     navigate("/client/profile");
   };
@@ -77,7 +84,9 @@ export function QuoteDetails() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Detalhes do Orçamento</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                Detalhes do Orçamento
+              </h1>
               <p className="text-gray-600">ID: {quote.id}</p>
             </div>
             <div className="text-right">
@@ -94,7 +103,9 @@ export function QuoteDetails() {
               </div>
               <div>
                 <p className="text-xs text-gray-600">Duração Estimada</p>
-                <p className="font-semibold text-gray-900">{quote.estimatedDuration}</p>
+                <p className="font-semibold text-gray-900">
+                  {quote.estimatedDuration}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -103,7 +114,9 @@ export function QuoteDetails() {
               </div>
               <div>
                 <p className="text-xs text-gray-600">Válido Até</p>
-                <p className="font-semibold text-gray-900">{formatDate(quote.validUntil)}</p>
+                <p className="font-semibold text-gray-900">
+                  {formatDate(quote.validUntil)}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -113,7 +126,7 @@ export function QuoteDetails() {
               <div>
                 <p className="text-xs text-gray-600">Criado em</p>
                 <p className="font-semibold text-gray-900">
-                  {new Date(quote.createdAt).toLocaleDateString('pt-BR')}
+                  {new Date(quote.createdAt).toLocaleDateString("pt-BR")}
                 </p>
               </div>
             </div>
@@ -134,11 +147,15 @@ export function QuoteDetails() {
 
             {/* Service Request Info */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Informações da Solicitação</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">
+                Informações da Solicitação
+              </h2>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-gray-600">Tipo de Serviço</p>
-                  <p className="font-semibold text-gray-900">{request.serviceType}</p>
+                  <p className="font-semibold text-gray-900">
+                    {request.serviceType}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Sua Descrição</p>
@@ -173,8 +190,8 @@ export function QuoteDetails() {
               <h3 className="font-semibold text-gray-900 mb-4">Prestador</h3>
               <div className="flex items-center gap-3 mb-4">
                 {provider ? (
-                  <img 
-                    src={provider.avatar} 
+                  <img
+                    src={provider.avatar}
                     alt={request.providerName}
                     className="w-16 h-16 rounded-full object-cover"
                   />
@@ -184,13 +201,19 @@ export function QuoteDetails() {
                   </div>
                 )}
                 <div>
-                  <p className="font-semibold text-gray-900">{request.providerName}</p>
+                  <p className="font-semibold text-gray-900">
+                    {request.providerName}
+                  </p>
                   <p className="text-sm text-gray-600">{request.serviceType}</p>
                   {provider && (
                     <div className="flex items-center gap-1 mt-1">
                       <span className="text-amber-500">★</span>
-                      <span className="text-sm font-semibold">{provider.rating}</span>
-                      <span className="text-xs text-gray-600">({provider.reviewCount})</span>
+                      <span className="text-sm font-semibold">
+                        {provider.rating}
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        ({provider.reviewCount})
+                      </span>
                     </div>
                   )}
                 </div>
@@ -234,8 +257,9 @@ export function QuoteDetails() {
             {/* Info Box */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-green-900">
-                <span className="font-semibold">Dica:</span> Você pode conversar 
-                com o prestador para esclarecer dúvidas antes de aceitar o orçamento.
+                <span className="font-semibold">Dica:</span> Você pode conversar
+                com o prestador para esclarecer dúvidas antes de aceitar o
+                orçamento.
               </p>
             </div>
           </div>
@@ -249,11 +273,14 @@ export function QuoteDetails() {
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Aceitar Orçamento</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Aceitar Orçamento
+                </h2>
               </div>
               <p className="text-gray-600 mb-6">
-                Tem certeza que deseja aceitar este orçamento de <strong>{quote.value}</strong>? 
-                O prestador será notificado e o serviço passará para o status ativo.
+                Tem certeza que deseja aceitar este orçamento de{" "}
+                <strong>{quote.value}</strong>? O prestador será notificado e o
+                serviço passará para o status ativo.
               </p>
               <div className="flex gap-3">
                 <button
@@ -281,11 +308,13 @@ export function QuoteDetails() {
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                   <XCircle className="w-6 h-6 text-red-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Recusar Orçamento</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Recusar Orçamento
+                </h2>
               </div>
               <p className="text-gray-600 mb-6">
-                Tem certeza que deseja recusar este orçamento? O prestador será notificado 
-                e você poderá solicitar um novo orçamento se desejar.
+                Tem certeza que deseja recusar este orçamento? O prestador será
+                notificado e você poderá solicitar um novo orçamento se desejar.
               </p>
               <div className="flex gap-3">
                 <button

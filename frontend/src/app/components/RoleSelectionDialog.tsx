@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -5,8 +7,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
+} from "../../components/ui/dialog"; // Certifique-se que o caminho está correto
+import { Button } from "../../components/ui/button";
 import { ShoppingBag, Briefcase, Building2 } from "lucide-react";
 import Link from "next/link";
 
@@ -23,70 +25,80 @@ export function RoleSelectionDialog({
 }: RoleSelectionDialogProps) {
   const isReg = type === "register";
 
+  // Mapeamento explícito de cores para evitar classes dinâmicas que o Tailwind ignora
   const roles = [
     {
       title: "Cliente",
       desc: "Buscar e contratar serviços",
       icon: ShoppingBag,
-      color: "blue",
-      href: isReg ? "/client/login?mode=register" : "/client/login",
+      styles: "bg-blue-100 text-blue-600",
+      href: isReg ? "/login?mode=register&role=client" : "/login?role=client",
     },
     {
       title: "Prestador",
       desc: "Oferecer serviços profissionais",
       icon: Briefcase,
-      color: "green",
-      href: isReg ? "/provider/login?mode=register" : "/provider/login",
+      styles: "bg-green-100 text-green-600",
+      href: isReg
+        ? "/login?mode=register&role=provider"
+        : "/login?role=provider",
     },
     {
       title: "Empresa",
       desc: "Gerenciar equipe e serviços",
       icon: Building2,
-      color: "purple",
-      href: isReg ? "/business/login?mode=register" : "/business/login",
+      styles: "bg-purple-100 text-purple-600",
+      href: isReg
+        ? "/login?mode=register&role=business"
+        : "/login?role=business",
     },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md border-none rounded-[32px] p-8">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-2xl font-black tracking-tight text-slate-900">
             {type === "login" ? "Entrar como:" : "Cadastrar como:"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="font-medium text-slate-500">
             Selecione o tipo de conta para continuar
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-3 mt-4">
           {roles.map((role) => (
             <Link
               key={role.title}
               href={role.href}
               onClick={onClose}
-              className="block"
+              className="block group"
             >
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-5 p-6 h-auto hover:bg-slate-50 transition-all"
-              >
-                <div className={`bg-${role.color}-100 p-3 rounded-xl`}>
-                  <role.icon className={`w-8 h-8 text-${role.color}-600`} />
+              <div className="flex items-center gap-5 p-4 rounded-2xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer">
+                <div
+                  className={`p-3 rounded-xl transition-colors ${role.styles}`}
+                >
+                  <role.icon className="w-8 h-8" />
                 </div>
                 <div className="text-left">
-                  <div className="text-lg font-semibold">{role.title}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-lg font-bold text-slate-900 leading-none mb-1">
+                    {role.title}
+                  </div>
+                  <div className="text-sm font-medium text-slate-500 group-hover:text-slate-600">
                     {role.desc}
                   </div>
                 </div>
-              </Button>
+              </div>
             </Link>
           ))}
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
+        <DialogFooter className="sm:justify-center mt-6">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="font-bold text-slate-400 hover:text-slate-900"
+          >
             Cancelar
           </Button>
         </DialogFooter>

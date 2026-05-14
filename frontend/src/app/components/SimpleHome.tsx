@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
 
 export function SimpleHome() {
@@ -24,14 +24,14 @@ export function SimpleHome() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
+          <Button
             size="lg"
             onClick={() => setLoginDialogOpen(true)}
             className="px-8 py-6 text-lg"
           >
             Entrar
           </Button>
-          <Button 
+          <Button
             size="lg"
             variant="outline"
             onClick={() => setRegisterDialogOpen(true)}
@@ -43,13 +43,13 @@ export function SimpleHome() {
       </div>
 
       {/* Role Selection Dialogs */}
-      <RoleSelectionDialog 
+      <RoleSelectionDialog
         isOpen={loginDialogOpen}
         onClose={() => setLoginDialogOpen(false)}
         type="login"
       />
-      
-      <RoleSelectionDialog 
+
+      <RoleSelectionDialog
         isOpen={registerDialogOpen}
         onClose={() => setRegisterDialogOpen(false)}
         type="register"
