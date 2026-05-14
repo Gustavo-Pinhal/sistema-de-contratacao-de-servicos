@@ -3,7 +3,7 @@
 Retorna endereço com base no cep digitado. Útil para facilitar o usuário a digitar seu endeço a partir do Cep.
 
 ```bash
-curl -k https://localhost/api/endereco?cep=01310000 \
+curl -k https://localhost/api/ui/endereco?cep=01310000 \
     -H "Authorization: Bearer $TOKEN"
 ```
 
