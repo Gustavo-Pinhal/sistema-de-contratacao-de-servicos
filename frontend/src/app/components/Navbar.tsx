@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../../context/UserContext";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
+import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -58,10 +59,15 @@ export function Navbar() {
       <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
-                MA
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-15 h-15 group-hover:scale-105 transition-transform">
+                <Image
+                  src="/logo.png"
+                  alt="Logo Marido de Aluguel"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
               <span className="text-xl font-bold text-slate-900 hidden sm:inline tracking-tighter">
                 Marido de Aluguel
