@@ -12,10 +12,6 @@ final class EditarPrestadorInputDto
 
         public readonly ?string $nomeProfissional,
 
-        #[Assert\NotBlank(message: 'O email é obrigatório.')]
-        #[Assert\Email(message: 'O email {{ value }} não é um email válido.')]
-        public readonly string $email,
-
         #[Assert\NotBlank(message: 'O CEP é obrigatório.')]
         public readonly string $cep,
 

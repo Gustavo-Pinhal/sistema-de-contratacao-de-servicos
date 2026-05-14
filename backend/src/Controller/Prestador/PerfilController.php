@@ -54,8 +54,6 @@ final class PerfilController extends AbstractController
 
         try {
             $usuario->setNome($dto->nome);
-            $usuario->setEmail($dto->email);
-
             $prestador->setNome($dto->nomeProfissional ?: $dto->nome);
             $prestador->setCep($cepService->buscarOuCadastrar($dto->cep));
 
