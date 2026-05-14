@@ -5,6 +5,7 @@ namespace App\Repository\Servico;
 use App\Entity\Servico\Prestador;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Servico\Profissao;
 
 /**
  * @extends ServiceEntityRepository<Prestador>
@@ -17,25 +18,27 @@ class PrestadorRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param \App\Entity\Servico\Profissao[] $profissoes
-     * @return Prestador[]
+     * @param int[]|Profissao[];
      */
     public function buscarPorProfissoes(array $profissoes = []): array
     {
         $qb = $this->createQueryBuilder('p')
             ->innerJoin('p.usuario', 'u')
             ->addSelect('u')
+            ->leftJoin('p.profissoes', 'pr_lista')
+            ->addSelect('pr_lista')
             ->where('p.excluidoEm IS NULL')
             ->andWhere('p.ativo = true');
 
         if (!empty($profissoes)) {
-            $qb->innerJoin('p.profissoes', 'pr')
-                ->andWhere('pr IN (:profissoes)')
+            $qb->innerJoin('p.profissoes', 'pr_filtro')
+                ->andWhere('pr_filtro.id IN (:profissoes)')
                 ->setParameter('profissoes', $profissoes);
         }
 
         return $qb->orderBy('p.nome', 'ASC')
             ->getQuery()
+            ->enableResultCache(300)
             ->getResult();
     }
 }
