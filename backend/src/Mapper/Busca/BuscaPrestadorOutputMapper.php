@@ -3,10 +3,14 @@
 namespace App\Mapper\Busca;
 
 use App\Entity\Servico\Prestador;
-use App\Entity\Servico\Profissao;
+use App\Mapper\Ui\ProfissoesOutputMapper;
 
 class BuscaPrestadorOutputMapper
 {
+    public function __construct(
+        private ProfissoesOutputMapper $profissaoMapper,
+    ) {}
+
     /**
      * @param Prestador[] $prestadores;
      */
@@ -17,15 +21,8 @@ class BuscaPrestadorOutputMapper
 
     private function prestador(Prestador $prestador): array
     {
-        $usuario = [
-            'id' => $prestador->getUsuario()->getId(),
-        ];
-
-        $profissoes = array_map(fn(Profissao $profissao) => [
-            'id' => $profissao->getId(),
-            'descricao' => $profissao->getDescricao(),
-        ], $prestador->getProfissoes()->toArray());
-
+        $usuario = ['id' => $prestador->getUsuario()->getId()];
+        $profissoes = $this->profissaoMapper->map($prestador->getProfissoes()->toArray());
         return [
             'usuario' => $usuario,
             'nome' => $prestador->getNome(),

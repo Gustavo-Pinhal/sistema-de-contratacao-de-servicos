@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Mapper\Ui\ProfissoesOutputMapper;
 use App\Repository\Servico\ProfissaoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,8 +16,9 @@ final class UiElementsController extends AbstractController
     #[Cache(public: true, maxage: 3600, mustRevalidate: true)]
     public function index(
         ProfissaoRepository $repositorio,
+        ProfissoesOutputMapper $mapper,
     ): JsonResponse {
         $profissoes = $repositorio->obterTodos();
-        return $this->json($profissoes, context: ['groups' => 'ui_list:read']);
+        return $this->json($mapper->map($profissoes));
     }
 }
