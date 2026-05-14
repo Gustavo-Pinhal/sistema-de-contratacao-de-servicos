@@ -4,11 +4,13 @@ namespace App\Mapper\Busca;
 
 use App\Entity\Servico\Prestador;
 use App\Mapper\Ui\ProfissoesOutputMapper;
+use App\Service\PublicMediaService;
 
 class BuscaPrestadorOutputMapper
 {
     public function __construct(
         private ProfissoesOutputMapper $profissaoMapper,
+        private PublicMediaService $mediaService,
     ) {}
 
     /**
@@ -26,7 +28,7 @@ class BuscaPrestadorOutputMapper
         return [
             'usuario' => $usuario,
             'nome' => $prestador->getNome(),
-            'urlPerfil' => '',
+            'urlPerfil' => $this->mediaService->getUrlPublica($prestador->getUsuario()->getId()),
             'profissoes' => $profissoes,
         ];
     }

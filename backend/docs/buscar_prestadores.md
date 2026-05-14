@@ -22,6 +22,7 @@ A requisição responde com status code **Sucesso (200 OK)** e um array de objet
 [
     {
         "usuario": { "id": "019e2140-3d13-7547-864e-05536c20bcf9" },
+        "urlPerfil": "https://localhost/storage/app-public/perfis/019e2140-3d13-7547-864e-05536c20bcf9.jpg",
         "nome": "João Augusto",
         "profissoes": [
             {
@@ -32,6 +33,7 @@ A requisição responde com status code **Sucesso (200 OK)** e um array de objet
     },
     {
         "usuario": { "id": "019e2140-3d13-7547-864e-05536c20bcf2" },
+        "urlPerfil": "https://localhost/storage/app-public/perfis/019e2140-3d13-7547-864e-05536c20bcf2.jpg",
         "nome": "Lucas Mendes",
         "profissoes": [
             {

@@ -23,6 +23,8 @@ final class BuscaController extends AbstractController
         $filtros = $idProfissao ? [$idProfissao] : [];
         $prestadores = $repositorio->buscarPorProfissoes($filtros);
 
-        return $this->json($mapper->map($prestadores));
+        return $this->json($mapper->map($prestadores), context: [
+            'json_encode_options' => JSON_UNESCAPED_SLASHES
+        ]);
     }
 }
