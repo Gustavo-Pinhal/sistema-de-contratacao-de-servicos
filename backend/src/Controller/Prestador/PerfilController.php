@@ -32,7 +32,7 @@ final class PerfilController extends AbstractController
         $usuario = $this->getUser();
         $prestador = $repositorio->buscarParaEdicaoDePerfil($usuario);
 
-        return $this->json($mapper->map($prestador));
+        return $this->json($mapper->map($prestador), context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
     #[IsGranted('ROLE_PRESTADOR')]
