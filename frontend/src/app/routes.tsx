@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
 
       // Protected Routes for Clients
       {
-        element: <ProtectedRoute allowedRoles={["client"]} />,
+        element: <ProtectedRoute allowedRoles={["client", "ROLE_CLIENTE"]} />,
         children: [
           { path: "client/profile", Component: ClientProfile },
           { path: "client/edit-profile", Component: EditClientProfile },
@@ -57,7 +57,7 @@ export const router = createBrowserRouter([
 
       // Protected Routes for Providers
       {
-        element: <ProtectedRoute allowedRoles={["provider"]} />,
+        element: <ProtectedRoute allowedRoles={["provider", "ROLE_PRESTADOR"]} />,
         children: [
           { path: "provider/edit-profile", Component: EditProviderProfile },
           { path: "provider/organize-profile", Component: OrganizeProfile },

@@ -30,7 +30,7 @@ class UsuarioFixtures extends Fixture implements DependentFixtureInterface
             'admin@teste.com',
             'Admin de Teste',
             '123456',
-            ['ADMIN'],
+            ['ROLE_ADMIN'],
         );
         $this->addReference('user-admin', $admin);
         $manager->persist($admin);
