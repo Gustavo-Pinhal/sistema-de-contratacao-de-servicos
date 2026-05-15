@@ -87,28 +87,28 @@ final class PerfilController extends AbstractController
             return $this->json(['message' => 'Nenhum arquivo de imagem foi enviado.'], 400);
         }
 
-        try {
-            $dados = $service->uploadFotoPerfil($foto, $usuario);
+        // try {
+        $dados = $service->uploadFotoPerfil($foto, $usuario);
 
-            $perfil = $usuario->getPerfil();
+        $perfil = $usuario->getPerfil();
 
-            if (!$perfil) {
-                $perfil = new Perfil($usuario, $dados['path'], $dados['mimeType'], $dados['size']);
-                $usuario->setPerfil($perfil);
-                $manager->persist($perfil);
-            } else {
-                $perfil->setMimeType($dados['mimeType']);
-                $perfil->setTamanho($dados['size']);
-            }
-
-            $manager->flush();
-
-            return $this->json([
-                'message' => 'Foto de perfil atualizada com sucesso!',
-                'url' => $service->obterUrlFotoPerfil($usuario),
-            ]);
-        } catch (\Exception $e) {
-            return $this->json(['message' => 'Erro ao processar imagem.', 'errors' => $e->getMessage()], 400);
+        if (!$perfil) {
+            $perfil = new Perfil($usuario, $dados['path'], $dados['mimeType'], $dados['size']);
+            $usuario->setPerfil($perfil);
+            $manager->persist($perfil);
+        } else {
+            $perfil->setMimeType($dados['mimeType']);
+            $perfil->setTamanho($dados['size']);
         }
+
+        $manager->flush();
+
+        return $this->json([
+            'message' => 'Foto de perfil atualizada com sucesso!',
+            'url' => $service->obterUrlFotoPerfil($usuario),
+        ]);
+        //} catch (\Exception $e) {
+        //    return $this->json(['message' => 'Erro ao processar imagem.', 'errors' => $e->getMessage()], 400);
+        //}
     }
 }
