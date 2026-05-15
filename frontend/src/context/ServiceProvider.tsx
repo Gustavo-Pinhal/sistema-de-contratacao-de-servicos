@@ -36,10 +36,14 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
+  const isClient = user?.role === "client" || user?.role === "ROLE_CLIENTE";
 
   // 1. Carregar Serviços da API (Substitui o LocalStorage)
   const refreshServices = useCallback(async () => {
-    if (!user?.token) return;
+    if (!user?.token || !isClient) {
+      setServiceRequests([]);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -59,7 +63,7 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [user?.token]);
+  }, [user?.token, isClient]);
 
   // Carregar ao montar o componente ou mudar o usuário
   useEffect(() => {

@@ -83,7 +83,7 @@ final class ProfissaoController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->json($profissao, Response::HTTP_OK);
+        return $this->json($profissao, Response::HTTP_OK, context: ['groups' => 'profissao:read']);
     }
 
     #[Route('/{id}', methods: ['DELETE'], name: 'app_admin_cadastro_profissao_excluir')]
