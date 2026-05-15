@@ -4,12 +4,12 @@ namespace App\Mapper\EditarPerfil;
 
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Profissao;
-use App\Service\PublicMediaService;
+use App\Service\PerfilMediaService;
 
 class PrestadorEditarPerfilOutputMapper
 {
     public function __construct(
-        private PublicMediaService $service,
+        private PerfilMediaService $service,
     ) {}
 
     public function map(Prestador $pretador): array
@@ -17,7 +17,7 @@ class PrestadorEditarPerfilOutputMapper
         $usuario = $pretador->getUsuario();
 
         return [
-            'urlPerfil' => $this->service->getUrlPublica($pretador->getUsuario()->getId()),
+            'urlPerfil' => $this->service->obterUrlFotoPerfil($pretador->getUsuario()),
             'nome' => $usuario->getNome(),
             'nomeProfissional' => $pretador->getNome(),
             'email' => $usuario->getEmail(),

@@ -15,6 +15,7 @@ services:
         autowire: true # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
+            $publicHost: "%env(STORAGE_PUBLIC_HOST)%"
             $publicBucket: "%env(STORAGE_BUCKET_PUBLIC)%"
             $privateBucket: "%env(STORAGE_BUCKET_PRIVATE)%"
             $mercureSecret: "%env(MERCURE_JWT_SECRET)%"

@@ -9,7 +9,7 @@ use App\Mapper\EditarPerfil\PrestadorEditarPerfilOutputMapper;
 use App\Repository\Servico\PrestadorRepository;
 use App\Repository\Servico\ProfissaoRepository;
 use App\Service\Localizacao\CepService;
-use App\Service\PublicMediaService;
+use App\Service\PerfilMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -76,7 +76,7 @@ final class PerfilController extends AbstractController
     #[Route('/foto', methods: ['POST'], name: 'app_prestador_perfil_foto_post')]
     public function atualizarFoto(
         Request $request,
-        PublicMediaService $mediaService,
+        PerfilMediaService $service,
         EntityManagerInterface $manager,
     ): JsonResponse {
         /** @var Usuario $usuario */
@@ -88,23 +88,24 @@ final class PerfilController extends AbstractController
         }
 
         try {
-            $caminho = $mediaService->uploadFotoPerfil($foto, $usuario->getId());
+            $dados = $service->uploadFotoPerfil($foto, $usuario);
 
             $perfil = $usuario->getPerfil();
 
             if (!$perfil) {
-                $perfil = new Perfil($usuario, $caminho);
+                $perfil = new Perfil($usuario, $dados['path'], $dados['mimeType'], $dados['size']);
                 $usuario->setPerfil($perfil);
                 $manager->persist($perfil);
             } else {
-                $perfil->setCaminhoFoto($caminho);
+                $perfil->setMimeType($dados['mimeType']);
+                $perfil->setTamanho($dados['size']);
             }
 
             $manager->flush();
 
             return $this->json([
                 'message' => 'Foto de perfil atualizada com sucesso!',
-                'url' => $caminho,
+                'url' => $service->obterUrlFotoPerfil($usuario),
             ]);
         } catch (\Exception $e) {
             return $this->json(['message' => 'Erro ao processar imagem.', 'errors' => $e->getMessage()], 400);
