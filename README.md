@@ -69,6 +69,9 @@ php bin/console app:storage:setup
 
 # Gerar chaves para autenticação JWT
 php bin/console lexik:jwt:generate-keypair
+
+# Criar ademiro
+php bin/console app:create-admin
 ```
 
 ---
