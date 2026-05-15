@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[Route('/api/servico/{id}/chat')]
 final class ChatController extends AbstractController
 {
-    private const TOPICO = 'http://chat/com/servico/';
+    private const TOPICO = 'chat-servico-';
 
     #[Route('', methods: ['GET'], name: 'app_servico_chat')]
     public function index(
