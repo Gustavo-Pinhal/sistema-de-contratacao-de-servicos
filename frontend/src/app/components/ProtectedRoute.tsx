@@ -1,20 +1,22 @@
 import { Navigate, Outlet } from "react-router";
-import { useUser } from "../../context/UserContext";
+import { useUser, UserRole } from "../../context/UserContext";
 
 interface ProtectedRouteProps {
-  allowedRoles?: ("client" | "provider" | "business")[];
+  allowedRoles?: UserRole[];
 }
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const { isLoggedIn, userRole } = useUser();
+  const { isLoggedIn, user } = useUser();
 
   // Se não estiver logado, manda para a home (ou login)
   if (!isLoggedIn) {
     return <Navigate to="/" replace />;
   }
 
+  const userRole = user?.role;
+
   // Se o papel do usuário não estiver na lista de permitidos, manda para a home
-  if (allowedRoles && userRole && !allowedRoles.includes(userRole as any)) {
+  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" replace />;
   }
 

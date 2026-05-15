@@ -39,5 +39,6 @@ security:
         - { path: ^/api/cadastro-usuario, roles: PUBLIC_ACCESS }
         - { path: ^/api/busca, roles: PUBLIC_ACCESS }
         - { path: ^/api/ui, roles: PUBLIC_ACCESS }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/areaprestador, roles: ROLE_PRESTADOR }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

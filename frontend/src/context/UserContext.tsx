@@ -10,8 +10,10 @@ import {
 } from "react";
 
 export type UserRole =
+  | "ROLE_ADMIN"
   | "ROLE_CLIENTE"
   | "ROLE_PRESTADOR"
+  | "admin"
   | "client"
   | "provider"
   | "business"

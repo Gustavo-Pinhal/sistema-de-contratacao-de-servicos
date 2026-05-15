@@ -13,6 +13,7 @@ import {
   FileText,
   Bell,
   RotateCcw,
+  Settings,
 } from "lucide-react";
 import { useUser } from "../../context/UserContext";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
@@ -79,6 +80,16 @@ export function Navbar() {
               {isLoggedIn && (
                 <>
                   {/* Links de acordo com a Role */}
+                  {(role === "admin" || role === "ROLE_ADMIN") && (
+                    <NavLink
+                      href="/admin/profissoes"
+                      active={pathname.startsWith("/admin")}
+                      icon={<Settings className="w-4 h-4" />}
+                    >
+                      Painel Administrativo
+                    </NavLink>
+                  )}
+
                   {(role === "client" || role === "ROLE_CLIENTE") && (
                     <>
                       <NavLink
