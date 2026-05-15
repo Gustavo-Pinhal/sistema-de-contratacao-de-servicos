@@ -7,7 +7,11 @@
 
         <id name="usuario" association-key="true" />
 
-        <field name="caminhoFoto" type="string" length="255" column="caminho_foto" nullable="false" />
+        <field name="caminho" type="string" length="255" column="caminho" nullable="false" />
+
+        <field name="mimeType" type="string" length="100" column="mime_type" nullable="false" />
+
+        <field name="tamanho" type="integer" column="tamanho" nullable="false" />
 
         <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario" inversed-by="perfil">
             <join-column name="id" referenced-column-name="id" on-delete="CASCADE" />
