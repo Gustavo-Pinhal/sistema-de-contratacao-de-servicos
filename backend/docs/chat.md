@@ -33,10 +33,24 @@ A requisição responde com um objeto contendo o histórico e os metadados de co
             "referencia": "",
             "arquivo": null,
             "enviado_em": "10/05/2026 às 22:04"
+        },
+        {
+            "id": "019e13ec-450c-7bb6-9060-9abf55d0c277",
+            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "tipo": "arquivo",
+            "texto": null,
+            "referencia": "",
+            "arquivo": {
+                "id": "019e13ec-450c-7bb6-9060-9abf55d0c277",
+                "mime_type": "image/jpeg"
+            },
+            "enviado_em": "10/05/2026 às 22:04"
         }
     ]
 }
 ```
+
+A estrutura do campo `arquivo` agora contém apenas os metadados necessários para solicitar a URL de download.
 
 #### Respostas possíveis:
 
@@ -101,7 +115,7 @@ Para receber mensagens instantaneamente sem atualizar a página, o frontend deve
 ```bash
 curl -i -k -N \
 -H "Authorization: Bearer $MERCURE_TOKEN" \
-"https://localhost/.well-known/mercure?topic=http://chat/com/servico/019e134d-e21c-78a0-a004-a772f82b114a"
+"https://localhost/.well-known/mercure?topic=TOPIC"
 ```
 
 O Hub enviará eventos `data` no formato JSON sempre que uma nova mensagem (texto ou arquivo) for postada:
@@ -120,7 +134,30 @@ O Hub enviará eventos `data` no formato JSON sempre que uma nova mensagem (text
 
 ## Recuperação de Imagens e Arquivos
 
-As imagens e arquivos enviados não são públicos. Para acessá-los, a API gera **URLs Assinadas (Presigned URLs)**.
+As imagens e arquivos enviados não são públicos e suas URLs não são enviadas automaticamente no histórico para otimizar o tráfego. Para visualizar um arquivo, o frontend deve solicitar uma **URL Assinada (Presigned URL)** sob demanda.
+
+#### Obter URL de download
+
+```bash
+curl -k -X GET https://localhost/api/servico/{idServico}/chat/{idMensagem}/download \
+    -H "Authorization: Bearer $TOKEN"
+```
+
+#### Resposta de Sucesso (200 OK):
+
+```json
+{
+    "url": "https://localhost/storage/chats/019e13eb...jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=1200..."
+}
+```
+
+#### Regras de acesso:
+
+- **Endpoint dinâmico:** O `{idMensagem}` para a rota de download deve ser o ID contido no objeto `arquivo` da mensagem original.
+
+- **Expiração:** As URLs geradas expiram em **20 minutos**.
+
+- **Segurança:** Apenas participantes da sala (cliente ou prestador) podem gerar a URL de download para arquivos daquela sala específica.
 
 Ao consultar o histórico ou receber uma mensagem de arquivo, o campo `arquivo` conterá a estrutura:
 
@@ -131,10 +168,6 @@ Ao consultar o histórico ou receber uma mensagem de arquivo, o campo `arquivo` 
     "mime_type": "image/jpeg"
 }
 ```
-
-#### Regras de acesso:
-
-- **Expiração:** As URLs geradas expiram em **20 minutos**. Após esse período, o frontend deve solicitar os dados do chat novamente para obter novas URLs válidas.
 
 ---
 
