@@ -10,13 +10,16 @@ use Doctrine\Common\Collections\Collection;
 class Sala
 {
     private ?int $id = null;
-    private ?Servico $servico = null;
-    private ?Usuario $prestador = null;
-    private ?Usuario $cliente = null;
+    private Servico $servico;
+    private Usuario $prestador;
+    private Usuario $cliente;
     private Collection $mensagens;
 
-    public function __construct()
-    {
+    public function __construct(
+        Servico $servico,
+    ) {
+        $this->prestador = $servico->getPrestador();
+        $this->cliente = $servico->getCliente();
         $this->mensagens = new ArrayCollection();
     }
 
@@ -25,37 +28,19 @@ class Sala
         return $this->id;
     }
 
-    public function getServico(): ?Servico
+    public function getServico(): Servico
     {
         return $this->servico;
     }
 
-    public function setServico(Servico $servico): self
-    {
-        $this->servico = $servico;
-        return $this;
-    }
-
-    public function getPrestador(): ?Usuario
+    public function getPrestador(): Usuario
     {
         return $this->prestador;
     }
 
-    public function setPrestador(Usuario $prestador): self
-    {
-        $this->prestador = $prestador;
-        return $this;
-    }
-
-    public function getCliente(): ?Usuario
+    public function getCliente(): Usuario
     {
         return $this->cliente;
-    }
-
-    public function setCliente(Usuario $cliente): self
-    {
-        $this->cliente = $cliente;
-        return $this;
     }
 
     public function eParticipante(Usuario $usuario): bool

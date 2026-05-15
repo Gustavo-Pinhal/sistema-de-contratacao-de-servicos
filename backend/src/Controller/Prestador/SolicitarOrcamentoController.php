@@ -42,13 +42,7 @@ final class SolicitarOrcamentoController extends AbstractController
                 'text' => $dto->descricao,
             ]);
 
-        $sala = new Sala();
-        $sala->setServico($servico)
-            ->setCliente($uCliente)
-            ->setPrestador($uPrestador)
-            ->addMensagem($mensagem);
-
-        $servico->setSala($sala);
+        $servico->getSala()->addMensagem($mensagem);
 
         $manager->persist($servico);
         $manager->flush();

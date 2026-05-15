@@ -40,7 +40,7 @@ class Servico
         $this->status = StatusServico::SolicitacaoDeOrcamento;
         $this->agendamentos = new ArrayCollection();
         $this->orcamentos = new ArrayCollection();
-        $this->sala = new Sala();
+        $this->sala = new Sala($this);
         $this->inicio = new \DateTimeImmutable();
     }
 
