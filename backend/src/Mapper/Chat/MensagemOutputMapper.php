@@ -31,7 +31,7 @@ class MensagemOutputMapper
             'id' => $mensagem->getId()->toString(),
             'enviador_por' => $mensagem->getUsuario()->getId(),
             'tipo' => $tipo,
-            'texto' => $conteudo['texto'] ?? null,
+            'texto' => $conteudo['text'] ?? null,
             'referencia' => $referencia,
             'arquivo' => $arquivo,
             'enviado_em' => $mensagem->getEnvioEm()->format('d/m/Y às H:i'),
