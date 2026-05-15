@@ -1,46 +1,97 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import {
   ChevronLeft,
-  MessageSquare,
   Clock,
   MapPin,
-  User,
   FileText,
-  CheckCircle2,
-  Send,
-  Paperclip,
-  Image as ImageIcon,
+  Loader2,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import ChatRoom from "@/app/components/ChatRoom";
+import { useUser } from "@/context/UserContext";
+
+interface ChatMetadata {
+  idServico: string;
+  mercureToken: string;
+  topico: string;
+  participantes: {
+    cliente: { id: string; nome: string };
+    prestador: { id: string; nome: string };
+  };
+  messagens: any[];
+}
 
 export default function ServiceTrackingPage() {
   const params = useParams();
-  const serviceId = params.id;
+  const serviceId = params.id as string;
+  const { user } = useUser();
 
-  // DADOS FAKES PARA VISUALIZAÇÃO
-  const [service] = useState({
-    id: serviceId,
-    status: "quote", // or 'active', 'completed'
-    description:
-      "Reparo no quadro elétrico e troca de fiação da cozinha que está em curto.",
-    createdAt: "2024-05-20T10:30:00",
-    proposedValue: "R$ 450,00",
-    address: "Rua das Flores, 123 - Centro",
-    provider: {
-      name: "João Eletricista",
-      avatar:
-        "https://ui-avatars.com/api/?name=Joao+Eletricista&background=0D8ABC&color=fff",
-      specialty: "Eletricista Residencial",
-    },
-  });
+  const [chatData, setChatData] = useState<ChatMetadata | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.token || !serviceId) return;
+
+    async function loadChatDetails() {
+      try {
+        const res = await fetch(`/api/servico/${serviceId}/chat`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+
+        if (res.status === 403) {
+          setError("Você não tem permissão para acessar este chat.");
+          return;
+        }
+
+        if (!res.ok) throw new Error("Erro ao carregar dados do chat.");
+
+        const data = await res.json();
+        setChatData(data);
+      } catch (err: any) {
+        setError(err.message || "Falha na conexão.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadChatDetails();
+  }, [serviceId, user?.token]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
+        <Loader2 className="animate-spin text-blue-600 w-8 h-8" />
+        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+          Carregando Sala...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
+        <p className="text-sm font-black text-red-500 uppercase tracking-widest mb-4">
+          {error}
+        </p>
+        <Link
+          href="/search"
+          className="text-xs font-bold text-slate-600 underline uppercase tracking-wider"
+        >
+          Voltar para a busca
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header de Navegação */}
+      {/* Navigation Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
@@ -55,19 +106,19 @@ export default function ServiceTrackingPage() {
               Protocolo do Serviço
             </span>
             <span className="block text-xs font-mono font-bold text-slate-600">
-              #{serviceId?.toString().slice(0, 8)}
+              #{serviceId?.slice(0, 8)}
             </span>
           </div>
-          <div className="w-10"></div> {/* Spacer */}
+          <div className="w-10"></div>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna da Esquerda: Detalhes do Serviço */}
+        {/* Sidebar Informações */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Status Card */}
+          {/* Card de Status */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
                 <Clock className="text-white" size={20} />
               </div>
@@ -80,68 +131,39 @@ export default function ServiceTrackingPage() {
                 </span>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2"></div>
-                <p className="text-sm font-medium text-slate-600">
-                  O prestador está analisando sua solicitação.
-                </p>
-              </div>
-            </div>
           </div>
 
-          {/* Provider Card */}
+          {/* Card do Prestador */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
             <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">
               Prestador Responsável
             </h2>
-            <div className="flex items-center gap-4 mb-4">
-              <img
-                src={service.provider.avatar}
-                className="w-14 h-14 rounded-2xl object-cover shadow-md"
-                alt=""
-              />
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm">
+                <User size={24} />
+              </div>
               <div>
                 <h3 className="font-black text-slate-900 leading-none">
-                  {service.provider.name}
+                  {chatData?.participantes.prestador.nome}
                 </h3>
-                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
-                  {service.provider.specialty}
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mt-1">
+                  Profissional Parceiro
                 </span>
               </div>
-            </div>
-            <button className="w-full py-3 border-2 border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all">
-              Ver Perfil Completo
-            </button>
-          </div>
-
-          {/* Details Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
-            <div>
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-2">
-                <FileText size={12} /> Descrição
-              </h2>
-              <p className="text-sm font-bold text-slate-700 leading-relaxed">
-                {service.description}
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-slate-50">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-2">
-                <MapPin size={12} /> Local do Serviço
-              </h2>
-              <p className="text-sm font-bold text-slate-700">
-                {service.address}
-              </p>
             </div>
           </div>
         </div>
 
-        {/* Coluna da Direita: Área do Chat (Visual Only) */}
-        {/* Substitua a coluna do chat por: */}
-        <div className="lg:col-span-2 h-[700px]">
-          <ChatRoom serviceId={params.id} />
+        {/* Sala de Chat Dedicada */}
+        <div className="lg:col-span-2 h-[650px] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          {chatData && (
+            <ChatRoom
+              serviceId={serviceId}
+              initialMessages={chatData.messagens}
+              topic={chatData.topico}
+              mercureToken={chatData.mercureToken}
+            />
+          )}
         </div>
       </div>
     </div>
