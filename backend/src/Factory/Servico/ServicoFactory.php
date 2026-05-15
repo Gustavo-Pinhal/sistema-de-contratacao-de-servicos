@@ -5,9 +5,7 @@ namespace App\Factory\Servico;
 use App\Dto\Request\Prestador\SolicitarOrcamentoInputDto;
 use App\Entity\Auth\Usuario;
 use App\Entity\Localizacao\Endereco;
-use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
-use App\Enum\StatusServico;
 use App\Repository\Localizacao\EnderecoRepository;
 use App\Service\Localizacao\CepService;
 
@@ -40,11 +38,11 @@ class ServicoFactory
             $endereco->setUsuario($cliente);
         }
 
-        $servico = new Servico();
-        $servico->setCliente($cliente);
-        $servico->setPrestador($prestador);
-        $servico->setStatus(StatusServico::SolicitacaoDeOrcamento);
-        $servico->setEndereco($endereco);
+        $servico = new Servico(
+            $cliente,
+            $prestador,
+            $endereco,
+        );
 
         return $servico;
     }

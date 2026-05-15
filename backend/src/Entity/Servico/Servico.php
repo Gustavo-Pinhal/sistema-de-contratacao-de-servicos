@@ -14,53 +14,49 @@ use Symfony\Component\Uid\Uuid;
 class Servico
 {
     #[Groups(['meus_orcamentos:read', 'servico_dashboard:read'])]
-    private ?Uuid $id = null;
+    private Uuid $id;
     #[Groups('servico_dashboard:read')]
-    private ?Usuario $cliente = null;
+    private Usuario $cliente;
     #[Groups('meus_orcamentos:read')]
-    private ?Usuario $prestador = null;
-    private ?StatusServico $status = null;
-    private ?Endereco $endereco = null;
+    private Usuario $prestador;
+    private StatusServico $status;
+    private Endereco $endereco;
     private Collection $agendamentos;
     private Collection $orcamentos;
-    private ?Sala $sala = null;
+    private Sala $sala;
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        Usuario $cliente,
+        Usuario $prestador,
+        Endereco $endereco,
+    ) {
         $this->id = Uuid::v7();
+        $this->cliente = $cliente;
+        $this->prestador = $prestador;
+        $this->endereco = $endereco;
+        $this->status = StatusServico::SolicitacaoDeOrcamento;
         $this->agendamentos = new ArrayCollection();
         $this->orcamentos = new ArrayCollection();
+        $this->sala = new Sala();
         $this->inicio = new \DateTimeImmutable();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function getCliente(): ?Usuario
+    public function getCliente(): Usuario
     {
         return $this->cliente;
     }
 
-    public function setCliente(Usuario $cliente): self
-    {
-        $this->cliente = $cliente;
-        return $this;
-    }
-
-    public function getPrestador(): ?Usuario
+    public function getPrestador(): Usuario
     {
         return $this->prestador;
-    }
-
-    public function setPrestador(Usuario $prestador): self
-    {
-        $this->prestador = $prestador;
-        return $this;
     }
 
     public function getInicio(): \DateTimeImmutable
@@ -68,32 +64,14 @@ class Servico
         return $this->inicio;
     }
 
-    public function setInicio(\DateTimeImmutable $inicio): self
-    {
-        $this->inicio = $inicio;
-        return $this;
-    }
-
-    public function getStatus(): ?StatusServico
+    public function getStatus(): StatusServico
     {
         return $this->status;
-    }
-
-    public function setStatus(StatusServico $status): self
-    {
-        $this->status = $status;
-        return $this;
     }
 
     public function getEndereco(): ?Endereco
     {
         return $this->endereco;
-    }
-
-    public function setEndereco(Endereco $endereco): self
-    {
-        $this->endereco = $endereco;
-        return $this;
     }
 
     /** @return Collection<int, Agendamento> */
@@ -106,6 +84,13 @@ class Servico
     public function getOrcamentos(): Collection
     {
         return $this->orcamentos;
+    }
+
+    public function addOrcamento(Orcamento $orcamento): self
+    {
+        $this->status = StatusServico::EmDecorrencia;
+        $this->orcamentos->add($orcamento);
+        return $this;
     }
 
     public function getValorTotal(): float
@@ -122,20 +107,33 @@ class Servico
         return $this->sala;
     }
 
-    public function setSala(Sala $sala): self
-    {
-        $this->sala = $sala;
-        return $this;
-    }
-
     public function getEncerramento(): ?\DateTimeImmutable
     {
         return $this->encerramento;
     }
 
-    public function setEncerramento(?\DateTimeImmutable $encerramento): self
+    public function cancelar(Usuario $cancelante): self
     {
-        $this->encerramento = $encerramento;
+        $this->encerramento = new \DateTimeImmutable();
+
+        $this->status = $cancelante->getId()->equals($this->cliente->getId())
+            ? StatusServico::CanceladoPeloCliente
+            : StatusServico::CanceladoPeloPrestador;
+
+        return $this;
+    }
+
+    public function concluir(): self
+    {
+        $this->status = StatusServico::Concluido;
+        $this->encerramento = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function expirar(): self
+    {
+        $this->status = StatusServico::Expirado;
+        $this->encerramento = new \DateTimeImmutable();
         return $this;
     }
 
