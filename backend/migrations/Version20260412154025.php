@@ -94,8 +94,9 @@ final class Version20260412154025 extends AbstractMigration
         CREATE TABLE servico.orcamentos (
             id              UUID            PRIMARY KEY,
             id_servico      UUID            NOT NULL,
-            sequencia       INTEGER         NOT NULL DEFAULT 0,
+            descricao       VARCHAR(255)    NOT NULL DEFAULT,
             valor           DOUBLE PRECISION NOT NULL,
+            observacoes     TEXT            ,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_servico)    REFERENCES servico.servicos             (id)

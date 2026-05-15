@@ -8,18 +8,15 @@
         <id name="id" type="uuid" column="id" />
 
         <field name="status" type="integer" column="id_status" enum-type="App\Enum\StatusServico" />
-
         <field name="inicio" type="datetime_immutable" column="inicio" />
-
         <field name="encerramento" type="datetime_immutable" column="encerramento" nullable="true" />
-
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
-        <many-to-one field="cliente" target-entity="App\Entity\Auth\Usuario">
+        <many-to-one field="cliente" target-entity="App\Entity\Servico\Cliente">
             <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
-        <many-to-one field="prestador" target-entity="App\Entity\Auth\Usuario">
+        <many-to-one field="prestador" target-entity="App\Entity\Servico\Prestador">
             <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
@@ -35,6 +32,18 @@
                 <cascade-persist/>
             </cascade>
         </one-to-one>
+
+        <one-to-many field="agendamentos" target-entity="App\Entity\Servico\Agendamento" mapped-by="servico">
+            <order-by>
+                <order-by-field name="data" direction="DESC" />
+            </order-by>
+        </one-to-many>
+
+        <one-to-many field="orcamentos" target-entity="App\Entity\Servico\Orcamento" mapped-by="servico">
+            <order-by>
+                <order-by-field name="sequencia" direction="ASC" />
+            </order-by>
+        </one-to-many>
 
     </entity>
 </doctrine-mapping>
