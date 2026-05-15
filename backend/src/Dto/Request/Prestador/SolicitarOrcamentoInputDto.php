@@ -13,7 +13,6 @@ readonly class SolicitarOrcamentoInputDto
         #[Assert\Uuid]
         public ?string $idEndereco,
 
-        #[Assert\NotBlank]
         #[Assert\Length(min: 8, max: 8)]
         #[Assert\Regex(pattern: "/^\d+$/")]
         public ?string $cep,
@@ -21,7 +20,6 @@ readonly class SolicitarOrcamentoInputDto
         #[Assert\Length(max: 255)]
         public ?string $bairro,
 
-        #[Assert\NotBlank]
         #[Assert\Length(max: 255)]
         public ?string $rua,
 
