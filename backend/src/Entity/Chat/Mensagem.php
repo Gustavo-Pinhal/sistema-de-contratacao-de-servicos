@@ -7,46 +7,40 @@ use Symfony\Component\Uid\Uuid;
 
 class Mensagem
 {
-    private ?Uuid $id = null;
-    private ?Usuario $usuario = null;
-    private ?Sala $sala = null;
+    private Uuid $id;
+    private Usuario $usuario;
+    private Sala $sala;
     private array $conteudo = [];
     private ?Mensagem $responde = null;
     private ?Arquivo $arquivo = null;
     private \DateTimeImmutable $envioEm;
     private ?\DateTimeImmutable $visualizadoEm = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        Usuario $usuario,
+        Sala $sala,
+        ?Mensagem $responde = null,
+    ) {
         $this->id = Uuid::v7();
+        $this->usuario = $usuario;
+        $this->sala = $sala;
+        $this->responde = $responde;
         $this->envioEm = new \DateTimeImmutable();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function getUsuario(): ?Usuario
+    public function getUsuario(): Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(Usuario $u): self
-    {
-        $this->usuario = $u;
-        return $this;
-    }
-
-    public function getSala(): ?Sala
+    public function getSala(): Sala
     {
         return $this->sala;
-    }
-
-    public function setSala(Sala $s): self
-    {
-        $this->sala = $s;
-        return $this;
     }
 
     public function getConteudo(): array
@@ -63,12 +57,6 @@ class Mensagem
     public function getResponde(): ?Mensagem
     {
         return $this->responde;
-    }
-
-    public function setResponde(?Mensagem $r): self
-    {
-        $this->responde = $r;
-        return $this;
     }
 
     public function getArquivo(): ?Arquivo
@@ -92,9 +80,9 @@ class Mensagem
         return $this->visualizadoEm;
     }
 
-    public function setVisualizadoEm(?\DateTimeImmutable $v): self
+    public function visualizar(): self
     {
-        $this->visualizadoEm = $v;
+        $this->visualizadoEm = new \DateTimeImmutable();
         return $this;
     }
 }

@@ -19,18 +19,18 @@ class MensagemFactory
         Sala $sala,
         Usuario $usuario
     ): Mensagem {
-        $mensagem = new Mensagem();
-        $mensagem->setSala($sala);
-        $mensagem->setUsuario($usuario);
-        $mensagem->setConteudo([
+        $referencia = $dto->responde
+            ? $this->em->getRepository(Mensagem::class)->find($dto->responde)
+            : null;
+
+        $mensagem = new Mensagem(
+            $usuario,
+            $sala,
+            $referencia,
+        )->setConteudo([
             'tipo' => 'texto',
             'texto' => $dto->texto
         ]);
-
-        if ($dto->responde) {
-            $referencia = $this->em->getRepository(Mensagem::class)->find($dto->responde);
-            $mensagem->setResponde($referencia);
-        }
 
         return $mensagem;
     }

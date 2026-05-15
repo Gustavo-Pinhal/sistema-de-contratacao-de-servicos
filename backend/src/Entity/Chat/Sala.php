@@ -61,7 +61,6 @@ class Sala
     {
         if (!$this->mensagens->contains($mensagem)) {
             $this->mensagens->add($mensagem);
-            $mensagem->setSala($this);
         }
 
         return $this;

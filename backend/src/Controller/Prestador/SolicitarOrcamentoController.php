@@ -35,12 +35,13 @@ final class SolicitarOrcamentoController extends AbstractController
             $uCliente,
         );
 
-        $mensagem = new Mensagem()
-            ->setUsuario($uCliente)
-            ->setConteudo([
-                'tipo' => 'text',
-                'text' => $dto->descricao,
-            ]);
+        $mensagem = new Mensagem(
+            $uCliente,
+            $servico->getSala(),
+        )->setConteudo([
+            'tipo' => 'text',
+            'text' => $dto->descricao,
+        ]);
 
         $servico->getSala()->addMensagem($mensagem);
 
