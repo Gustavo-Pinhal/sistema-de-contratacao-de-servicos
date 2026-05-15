@@ -9,23 +9,20 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 class Profissao
 {
-    #[Groups(['profissao:read', 'ui_list:read', 'listagem_prestadores:read'])]
+    #[Groups(['profissao:read', 'listagem_prestadores:read'])]
     private ?int $id = null;
-
-    #[Groups(['profissao:read', 'ui_list:read', 'listagem_prestadores:read'])]
-    private ?string $descricao = null;
-
+    #[Groups(['profissao:read', 'listagem_prestadores:read'])]
+    private string $descricao;
     #[Groups(['profissao:read'])]
     private \DateTimeImmutable $criadoEm;
-
     #[Groups(['profissao:read'])]
     private ?\DateTimeImmutable $excluidoEm = null;
-
-    /** @var Collection<int, Prestador> */
     private Collection $prestadores;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $descricao,
+    ) {
+        $this->descricao = $descricao;
         $this->criadoEm = new \DateTimeImmutable();
         $this->prestadores = new ArrayCollection();
     }
@@ -35,12 +32,12 @@ class Profissao
         return $this->id;
     }
 
-    public function getDescricao(): ?string
+    public function getDescricao(): string
     {
         return $this->descricao;
     }
 
-    public function setDescricao(?string $descricao): self
+    public function setDescricao(string $descricao): self
     {
         $this->descricao = $descricao;
         return $this;
@@ -68,22 +65,5 @@ class Profissao
     public function getPrestadores(): Collection
     {
         return $this->prestadores;
-    }
-
-    public function addPrestador(Prestador $prestador): self
-    {
-        if (!$this->prestadores->contains($prestador)) {
-            $this->prestadores->add($prestador);
-            $prestador->addProfissao($this);
-        }
-        return $this;
-    }
-
-    public function removePrestador(Prestador $prestador): self
-    {
-        if ($this->prestadores->removeElement($prestador)) {
-            $prestador->removeProfissao($this);
-        }
-        return $this;
     }
 }

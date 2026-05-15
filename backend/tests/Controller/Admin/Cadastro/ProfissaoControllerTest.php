@@ -163,8 +163,7 @@ final class ProfissaoControllerTest extends WebTestCase
 
     private function criarProfissao(string $descricao): Profissao
     {
-        $profissao = new Profissao();
-        $profissao->setDescricao($descricao);
+        $profissao = new Profissao($descricao);
         $this->entityManager->persist($profissao);
         $this->entityManager->flush();
 

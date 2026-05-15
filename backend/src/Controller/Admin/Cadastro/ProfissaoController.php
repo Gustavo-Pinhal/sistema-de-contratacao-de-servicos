@@ -39,8 +39,7 @@ final class ProfissaoController extends AbstractController
         ProfissaoInputDto $dto,
     ): JsonResponse {
         try {
-            $profissao = new Profissao();
-            $profissao->setDescricao($dto->descricao);
+            $profissao = new Profissao($dto->descricao);
 
             $this->entityManager->persist($profissao);
             $this->entityManager->flush();

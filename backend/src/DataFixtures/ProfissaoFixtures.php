@@ -23,8 +23,7 @@ class ProfissaoFixtures extends Fixture
         ];
 
         foreach ($profissoes as $profissao) {
-            $e = new Profissao();
-            $e->setDescricao($profissao);
+            $e = new Profissao($profissao);
             $manager->persist($e);
             $this->addReference('profissão ' . $profissao, $e);
         }
