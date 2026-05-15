@@ -46,10 +46,8 @@ class PerfilMediaService
             return '';
         }
 
-        $publicHost = $this->publicHost  ?? null;
-
-        if ($publicHost) {
-            return rtrim($publicHost, '/') . '/' . ltrim($perfil->getCaminho(), '/');
+        if ($this->publicHost) {
+            return rtrim($this->publicHost, '/') . '/' . $this->publicBucket . '/' . ltrim($perfil->getCaminho(), '/');
         }
 
         return $this->s3Client->getObjectUrl($this->publicBucket, $perfil->getCaminho());
