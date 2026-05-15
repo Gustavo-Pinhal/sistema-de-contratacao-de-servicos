@@ -12,47 +12,41 @@ use Symfony\Component\Uid\Uuid;
 class Prestador
 {
     #[Groups('listagem_prestadores:read')]
-    private ?Usuario $usuario = null;
-
+    private Usuario $usuario;
     #[Groups('listagem_prestadores:read')]
-    private ?string $nome = null;
-
-    private ?Cep $cep = null;
-
+    private string $nome;
+    private Cep $cep;
     private bool $ativo = true;
-
     private \DateTimeImmutable $criadoEm;
-
     private ?\DateTimeImmutable $excluidoEm = null;
 
     #[Groups('listagem_prestadores:read')]
-    /** @var Collection<int, Profissao> */
     private Collection $profissoes;
 
-    public function __construct()
-    {
+    public function __construct(
+        Usuario $usuario,
+        string $nome,
+        Cep $cep,
+    ) {
+        $this->usuario = $usuario;
+        $this->nome = $nome;
+        $this->cep = $cep;
         $this->criadoEm = new \DateTimeImmutable();
         $this->ativo = true;
         $this->profissoes = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->usuario->getId();
     }
 
-    public function getUsuario(): ?Usuario
+    public function getUsuario(): Usuario
     {
         return $this->usuario;
     }
 
-    public function setUsuario(Usuario $usuario): self
-    {
-        $this->usuario = $usuario;
-        return $this;
-    }
-
-    public function getNome(): ?string
+    public function getNome(): string
     {
         return $this->nome;
     }
@@ -63,12 +57,12 @@ class Prestador
         return $this;
     }
 
-    public function getCep(): ?Cep
+    public function getCep(): Cep
     {
         return $this->cep;
     }
 
-    public function setCep(?Cep $cep): self
+    public function setCep(Cep $cep): self
     {
         $this->cep = $cep;
         return $this;

@@ -26,11 +26,13 @@ class PrestadorFactory
             ['ROLE_PRESTADOR']
         );
 
-        $prestador = new Prestador();
-        $prestador->setUsuario($usuario)
-            ->setNome($usuario->getNome())
-            ->setCep($cep)
-            ->addProfissao($profissao);
+        $prestador = new Prestador(
+            $usuario,
+            $usuario->getNome(),
+            $cep,
+        );
+
+        $prestador->addProfissao($profissao);
 
         return $prestador;
     }
