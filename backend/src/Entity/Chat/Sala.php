@@ -18,6 +18,7 @@ class Sala
     public function __construct(
         Servico $servico,
     ) {
+        $this->servico = $servico;
         $this->prestador = $servico->getPrestador();
         $this->cliente = $servico->getCliente();
         $this->mensagens = new ArrayCollection();

@@ -4,7 +4,6 @@ namespace App\Controller\Prestador;
 
 use App\Dto\Request\Prestador\SolicitarOrcamentoInputDto;
 use App\Entity\Chat\Mensagem;
-use App\Entity\Chat\Sala;
 use App\Entity\Servico\Prestador;
 use App\Factory\Servico\ServicoFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,8 +20,7 @@ final class SolicitarOrcamentoController extends AbstractController
     #[Route('/prestadores/{id}/solicitar', methods: ['POST'], name: 'app_prestador_solicitacao_orcamento_criar')]
     public function criar(
         Prestador $prestador,
-        #[MapRequestPayload]
-        SolicitarOrcamentoInputDto $dto,
+        #[MapRequestPayload] SolicitarOrcamentoInputDto $dto,
         ServicoFactory $factory,
         EntityManagerInterface $manager,
     ): JsonResponse {
