@@ -26,7 +26,6 @@ import { Chat } from "./pages/Chat";
 import { ProviderSubscription } from "./pages/ProviderSubscription";
 import { NotFound } from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { AdminProfissoes } from "./pages/AdminProfissoes";
 
 export const router = createBrowserRouter([
   {
@@ -79,14 +78,6 @@ export const router = createBrowserRouter([
           { path: "business/dashboard", Component: BusinessDashboard },
           { path: "business/add-provider", Component: AddProvider },
           { path: "business/edit-profile", Component: EditBusinessProfile },
-        ],
-      },
-
-      // Protected Routes for Admin
-      {
-        element: <ProtectedRoute allowedRoles={["admin", "ROLE_ADMIN"]} />,
-        children: [
-          { path: "admin/profissoes", Component: AdminProfissoes },
         ],
       },
 

@@ -19,5 +19,9 @@ export async function apiRequest(endpoint: string, method: string, token?: strin
     throw new Error(error.message || "Erro na requisição");
   }
 
+  if (response.status === 204 || response.headers.get("content-length") === "0") {
+    return null;
+  }
+
   return response.json();
 }

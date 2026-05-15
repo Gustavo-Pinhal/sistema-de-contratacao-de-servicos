@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, RotateCcw, Check, X, AlertCircle } from "lucide-react";
-import { useUser } from "../context/UserContext";
-import { apiRequest } from "../../lib/api";
+import { useUser } from "@/context/UserContext";
+import { apiRequest } from "@/lib/api";
 
 interface Profissao {
   id: number;
@@ -11,13 +11,14 @@ interface Profissao {
   excluidoEm: string | null;
 }
 
-export function AdminProfissoes() {
+export default function AdminProfissoesPage() {
   const { user } = useUser();
+  const isAdmin = user?.role === "admin" || user?.role === "ROLE_ADMIN";
   const [profissoes, setProfissoes] = useState<Profissao[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showExcluidos, setShowExcluidos] = useState(false);
-  
+
   // State for new/edit
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const [formData, setFormData] = useState({ descricao: "" });
@@ -37,13 +38,25 @@ export function AdminProfissoes() {
   };
 
   useEffect(() => {
-    if (user?.token) {
-      fetchProfissoes();
+    if (!user?.token) {
+      setLoading(false);
+      return;
     }
-  }, [user?.token, showExcluidos]);
+
+    if (!isAdmin) {
+      setLoading(false);
+      return;
+    }
+
+    fetchProfissoes();
+  }, [user?.token, showExcluidos, isAdmin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      setError("Acesso restrito a administradores.");
+      return;
+    }
     if (!formData.descricao.trim()) return;
 
     setIsSubmitting(true);
@@ -69,6 +82,10 @@ export function AdminProfissoes() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!isAdmin) {
+      setError("Acesso restrito a administradores.");
+      return;
+    }
     if (!confirm("Tem certeza que deseja excluir esta profissão?")) return;
     try {
       await apiRequest(`/admin/cadastro/profissoes/${id}`, "DELETE", user?.token);
@@ -79,6 +96,10 @@ export function AdminProfissoes() {
   };
 
   const handleRestore = async (id: number) => {
+    if (!isAdmin) {
+      setError("Acesso restrito a administradores.");
+      return;
+    }
     try {
       await apiRequest(`/admin/cadastro/profissoes/${id}/restaurar`, "POST", user?.token);
       fetchProfissoes();
@@ -86,6 +107,26 @@ export function AdminProfissoes() {
       setError(err.message || "Erro ao restaurar profissão");
     }
   };
+
+  if (!user?.token) {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-r-lg">
+          Faça login para acessar esta página.
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg">
+          Acesso negado. Esta área é exclusiva para administradores.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -181,10 +222,8 @@ export function AdminProfissoes() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {profissoes.map((p) => (
-                <tr key={p.id} className={`hover:bg-slate-50/50 transition-colors ${p.excluidoEm ? 'bg-slate-50/30' : ''}`}>
-                  <td className="px-6 py-4 text-slate-700 font-medium">
-                    {p.descricao}
-                  </td>
+                <tr key={p.id} className={`hover:bg-slate-50/50 transition-colors ${p.excluidoEm ? "bg-slate-50/30" : ""}`}>
+                  <td className="px-6 py-4 text-slate-700 font-medium">{p.descricao}</td>
                   <td className="px-6 py-4">
                     {p.excluidoEm ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
