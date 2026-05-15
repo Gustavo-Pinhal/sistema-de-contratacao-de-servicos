@@ -36,7 +36,7 @@ class Prestador
         $this->profissoes = new ArrayCollection();
     }
 
-    public function getId(): Uuid
+    public function getId(): ?Uuid
     {
         return $this->usuario->getId();
     }

@@ -18,7 +18,7 @@ class Cliente
         $this->criadoEm = new \DateTimeImmutable();
     }
 
-    public function getId(): Uuid
+    public function getId(): ?Uuid
     {
         return $this->usuario->getId();
     }
