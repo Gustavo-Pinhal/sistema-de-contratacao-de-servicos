@@ -7,6 +7,7 @@ use App\Entity\Servico\Servico;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Factory\Chat\MensagemFactory;
 use App\Mapper\Chat\MensagemOutputMapper;
+use App\Repository\Chat\SalaRepository;
 use App\Service\ChatMediaService;
 use App\Service\ChatMercureTokenService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,11 +29,12 @@ final class ChatController extends AbstractController
     #[Route('', methods: ['GET'], name: 'app_servico_chat')]
     public function index(
         Servico $servico,
+        SalaRepository $repositorio,
         MensagemOutputMapper $mapper,
         ChatMercureTokenService $mercure,
     ): JsonResponse {
         $usuario = $this->getUser();
-        $sala = $servico->getSala();
+        $sala = $repositorio->buscarSalaComMensagensPorServico($servico);
 
         if (!$sala->eParticipante($usuario)) {
             return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
