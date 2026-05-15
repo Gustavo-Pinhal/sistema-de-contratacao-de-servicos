@@ -18,11 +18,10 @@ class ClienteFactory
             $dto->email,
             $dto->nome,
             $dto->senha,
-            ['ROLE_CLIENTE'] // Boa prática: use o prefixo ROLE_
+            ['ROLE_CLIENTE'],
         );
 
-        $cliente = new Cliente();
-        $cliente->setUsuario($usuario);
+        $cliente = new Cliente($usuario);
 
         return $cliente;
     }

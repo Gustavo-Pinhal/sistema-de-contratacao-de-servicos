@@ -7,29 +7,25 @@ use Symfony\Component\Uid\Uuid;
 
 class Cliente
 {
-    private ?Usuario $usuario = null;
+    private Usuario $usuario;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        Usuario $usuario
+    ) {
+        $this->usuario = $usuario;
         $this->criadoEm = new \DateTimeImmutable();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
-        return $this->usuario?->getId();
+        return $this->usuario->getId();
     }
 
-    public function getUsuario(): ?Usuario
+    public function getUsuario(): Usuario
     {
         return $this->usuario;
-    }
-
-    public function setUsuario(Usuario $usuario): self
-    {
-        $this->usuario = $usuario;
-        return $this;
     }
 
     public function getCriadoEm(): \DateTimeImmutable
