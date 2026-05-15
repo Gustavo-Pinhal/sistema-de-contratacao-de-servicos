@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, User, Calendar, MapPin, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
+import Image from "next/image";
 
 interface ServicoAtivo {
   id: string;
@@ -23,7 +24,7 @@ interface Prestador {
   usuario: { id: string };
   nome: string;
   profissoes: Profissao[];
-  avatar?: string;
+  urlPerfil?: string; // Alterado de avatar para urlPerfil
 }
 
 export default function SearchProviders() {
@@ -222,18 +223,25 @@ function FilterButton({
 }
 
 function ProviderCard({ provider }: { provider: Prestador }) {
+  // Lógica para definir a imagem: prioriza urlPerfil, se vazio usa ui-avatars
+  const imageUrl =
+    provider.urlPerfil && provider.urlPerfil !== ""
+      ? provider.urlPerfil
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.nome)}&background=random`;
+
   return (
     <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
-      <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden">
-        <img
-          src={
-            provider.avatar ||
-            `https://ui-avatars.com/api/?name=${provider.nome}&background=random`
-          }
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-          alt={provider.nome}
+      <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
+        <Image
+          src={imageUrl}
+          alt={`Foto de ${provider.nome}`}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          unoptimized={imageUrl.includes("localhost")} // Útil para evitar erros de SSL em dev
         />
       </div>
+
       <div className="flex-1">
         <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
         <div className="flex flex-wrap gap-1 mb-4">
@@ -247,6 +255,7 @@ function ProviderCard({ provider }: { provider: Prestador }) {
           ))}
         </div>
       </div>
+
       <Link
         href={`/provider/${provider.usuario.id}/request`}
         className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors text-center block"
