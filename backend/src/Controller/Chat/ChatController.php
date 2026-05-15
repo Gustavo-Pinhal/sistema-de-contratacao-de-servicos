@@ -7,6 +7,7 @@ use App\Entity\Servico\Servico;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Factory\Chat\MensagemFactory;
 use App\Mapper\Chat\MensagemOutputMapper;
+use App\Repository\Chat\ArquivoRepository;
 use App\Repository\Chat\SalaRepository;
 use App\Service\ChatMediaService;
 use App\Service\ChatMercureTokenService;
@@ -61,7 +62,7 @@ final class ChatController extends AbstractController
                 ],
             ],
             'messagens' => $mapper->mensagens($mensagens->toArray()),
-        ], context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
+        ]);
     }
 
     #[Route('', methods: ['POST'], name: 'app_servico_chat_enviar')]
@@ -95,6 +96,33 @@ final class ChatController extends AbstractController
         $hub->publish($update);
 
         return $this->json(['status' => 'success'], Response::HTTP_CREATED);
+    }
+
+    #[Route('/{mensagemId}/download', methods: ['GET'], name: 'app_servico_chat_download_url')]
+    public function downloadUrl(
+        string $id,
+        string $mensagemId,
+        ArquivoRepository $repositorio,
+        ChatMediaService $mediaService,
+    ): JsonResponse {
+        $usuario = $this->getUser();
+
+        $arquivo = $repositorio->find($mensagemId);
+
+        if (!$arquivo) {
+            return $this->json(['error' => 'Arquivo não encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        $sala = $arquivo->getMensagem()->getSala();
+        if (!$sala->eParticipante($usuario)) {
+            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
+        }
+
+        $url = $mediaService->generateSecureUrl($arquivo->getCaminho());
+
+        return $this->json([
+            'url' => $url
+        ], context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
     #[Route('/upload', methods: ['POST'], name: 'app_servico_chat_upload')]

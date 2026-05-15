@@ -3,14 +3,9 @@
 namespace App\Mapper\Chat;
 
 use App\Entity\Chat\Mensagem;
-use App\Service\ChatMediaService;
 
 class MensagemOutputMapper
 {
-    public function __construct(
-        private ChatMediaService $midiaService
-    ) {}
-
     public function mensagem(Mensagem $mensagem): array
     {
         $conteudo = $mensagem->getConteudo();
@@ -19,8 +14,7 @@ class MensagemOutputMapper
         $arquivo = null;
         if ($mensagem->getArquivo()) {
             $arquivo = [
-                'id' => $mensagem->getArquivo()->getId(),
-                'url' => $this->midiaService->generateSecureUrl($mensagem->getArquivo()->getCaminho()),
+                'id' => $mensagem->getArquivo()->getId()->toString(),
                 'mime_type' => $mensagem->getArquivo()->getMimeType(),
             ];
         }
@@ -31,7 +25,7 @@ class MensagemOutputMapper
             'id' => $mensagem->getId()->toString(),
             'enviador_por' => $mensagem->getUsuario()->getId(),
             'tipo' => $tipo,
-            'texto' => $conteudo['text'] ?? null,
+            'texto' => $conteudo['text'] ?? $conteudo['texto'] ?? null,
             'referencia' => $referencia,
             'arquivo' => $arquivo,
             'enviado_em' => $mensagem->getEnvioEm()->format('d/m/Y às H:i'),

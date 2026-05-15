@@ -15,15 +15,16 @@ class MensagemArquivoFactory
         Sala $sala,
         Usuario $usuario
     ): Mensagem {
-        $mensagem = new Mensagem();
-        $mensagem->setUsuario($usuario);
-        $mensagem->setSala($sala);
+        $mensagem = new Mensagem(
+            $usuario,
+            $sala,
+        );
 
         $arquivo = new Arquivo();
         $arquivo->setMensagem($mensagem);
         $arquivo->setMimeType($file->getMimeType());
         $arquivo->setTamanho($file->getSize());
-        
+
         $mensagem->setArquivo($arquivo);
 
         $mensagem->setConteudo([
