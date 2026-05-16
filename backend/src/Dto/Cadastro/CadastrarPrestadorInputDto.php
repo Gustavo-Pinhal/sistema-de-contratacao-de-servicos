@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Request\CadastroUsuario;
+namespace App\Dto\Cadastro;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,9 +14,6 @@ readonly class CadastrarPrestadorInputDto
         #[Assert\NotBlank]
         #[Assert\Email]
         public ?string $email,
-
-        #[Assert\Length(max: 11)]
-        public ?string $telefone,
 
         #[Assert\NotBlank]
         public ?int $profissao,

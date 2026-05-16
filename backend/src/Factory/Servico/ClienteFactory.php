@@ -2,7 +2,7 @@
 
 namespace App\Factory\Servico;
 
-use App\Dto\Request\CadastroUsuario\CadastrarClienteInputDto;
+use App\Dto\Cadastro\CadastrarClienteInputDto;
 use App\Entity\Servico\Cliente;
 use App\Factory\Auth\UsuarioFactory;
 

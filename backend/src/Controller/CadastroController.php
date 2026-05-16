@@ -2,11 +2,10 @@
 
 namespace App\Controller;
 
-use App\Dto\Request\CadastroUsuario\CadastrarClienteInputDto;
-use App\Dto\Request\CadastroUsuario\CadastrarPrestadorInputDto;
+use App\Dto\Cadastro\CadastrarClienteInputDto;
+use App\Dto\Cadastro\CadastrarPrestadorInputDto;
 use App\Entity\Servico\Profissao;
 use App\Exception\UsuarioJaExisteException;
-use App\Factory\Auth\UsuarioFactory;
 use App\Factory\Servico\ClienteFactory;
 use App\Factory\Servico\PrestadorFactory;
 use App\Repository\Auth\UsuarioRepository;
@@ -17,19 +16,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/cadastro-usuario')]
-final class CadastroUsuarioController extends AbstractController
+#[Route('/cadastro')]
+final class CadastroController extends AbstractController
 {
     public function __construct(
         private UsuarioRepository $usuarioRepository,
-        private UsuarioFactory $usuarioFactory,
         private EntityManagerInterface $manager,
     ) {}
 
-    #[Route('/cliente', methods: ['POST'], name: 'app_cadastro_usuario_cliente')]
-    public function cadastroCliente(
-        #[MapRequestPayload]
-        CadastrarClienteInputDto $dto,
+    #[Route('/cliente', methods: ['POST'], name: 'app_cadastro_cliente')]
+    public function criarCliente(
+        #[MapRequestPayload] CadastrarClienteInputDto $dto,
         ClienteFactory $factory,
     ): JsonResponse {
         $usuarioExistente = $this->usuarioRepository->findOneBy(['email' => $dto->email]);
@@ -39,17 +36,15 @@ final class CadastroUsuarioController extends AbstractController
 
         $cliente = $factory->criar($dto);
 
-        $this->manager->persist($cliente->getUsuario());
         $this->manager->persist($cliente);
         $this->manager->flush();
 
         return $this->json(['success' => true]);
     }
 
-    #[Route('/prestador', methods: ['POST'], name: 'app_cadastro_usuario_prestador')]
+    #[Route('/prestador', methods: ['POST'], name: 'app_cadastro_prestador')]
     public function cadastroPrestador(
-        #[MapRequestPayload]
-        CadastrarPrestadorInputDto $dto,
+        #[MapRequestPayload] CadastrarPrestadorInputDto $dto,
         CepService $cepService,
         PrestadorFactory $factory,
     ): JsonResponse {
@@ -73,7 +68,6 @@ final class CadastroUsuarioController extends AbstractController
 
         $prestador = $factory->criar($dto, $profissao, $cep);
 
-        $this->manager->persist($prestador->getUsuario());
         $this->manager->persist($prestador);
         $this->manager->flush();
 
