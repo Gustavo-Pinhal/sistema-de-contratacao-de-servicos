@@ -10,7 +10,7 @@ class Orcamento
     private Servico $servico;
     private string $descricao;
     private float $valor;
-    private string $observacoes;
+    private ?string $observacoes = null;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 

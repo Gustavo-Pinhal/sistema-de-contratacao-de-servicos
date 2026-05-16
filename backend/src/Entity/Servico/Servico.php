@@ -65,7 +65,7 @@ class Servico
         return $this->status;
     }
 
-    public function getEndereco(): ?Endereco
+    public function getEndereco(): Endereco
     {
         return $this->endereco;
     }
@@ -98,9 +98,18 @@ class Servico
         );
     }
 
-    public function getSala(): ?Sala
+    public function getSala(): Sala
     {
         return $this->sala;
+    }
+
+    public function addAgendamento(Agendamento $agendamento): self
+    {
+        if (!$this->agendamentos->contains($agendamento)) {
+            $this->agendamentos->add($agendamento);
+        }
+
+        return $this;
     }
 
     public function getEncerramento(): ?\DateTimeImmutable

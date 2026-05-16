@@ -41,7 +41,7 @@
 
         <one-to-many field="orcamentos" target-entity="App\Entity\Servico\Orcamento" mapped-by="servico">
             <order-by>
-                <order-by-field name="sequencia" direction="ASC" />
+                <order-by-field name="criadoEm" direction="DESC" />
             </order-by>
         </one-to-many>
 
