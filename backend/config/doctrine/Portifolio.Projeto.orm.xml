@@ -24,6 +24,10 @@
             <join-column name="id_portifolio" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
+        <one-to-one field="servico" target-entity="App\Entity\Servico\Servico" inversed-by="projeto">
+            <join-column name="id_servico" referenced-column-name="id" nullable="false" />
+        </one-to-one>
+
         <one-to-many field="fotos" target-entity="App\Entity\Portifolio\Foto" mapped-by="projeto" orphan-removal="true">
             <order-by>
                 <order-by-field name="ordem" direction="ASC" />

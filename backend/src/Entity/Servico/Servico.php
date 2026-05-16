@@ -9,6 +9,7 @@ use App\Enum\StatusServico;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
+use App\Entity\Portifolio\Projeto;
 
 class Servico
 {
@@ -23,6 +24,7 @@ class Servico
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
     private ?\DateTimeImmutable $excluidoEm = null;
+    private ?Projeto $projeto = null;
 
     public function __construct(
         Usuario $cliente,
@@ -139,6 +141,22 @@ class Servico
     {
         $this->status = StatusServico::Expirado;
         $this->encerramento = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function getProjeto(): ?Projeto
+    {
+        return $this->projeto;
+    }
+
+    public function setProjeto(?Projeto $projeto): self
+    {
+        $this->projeto = $projeto;
+
+        if ($projeto && $projeto->getServico() !== $this) {
+            $projeto->setServico($this);
+        }
+
         return $this;
     }
 

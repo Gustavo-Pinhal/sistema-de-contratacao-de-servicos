@@ -33,6 +33,8 @@
             </cascade>
         </one-to-one>
 
+        <one-to-one field="projeto" target-entity="App\Entity\Portifolio\Projeto" mapped-by="servico" />
+
         <one-to-many field="agendamentos" target-entity="App\Entity\Servico\Agendamento" mapped-by="servico">
             <order-by>
                 <order-by-field name="data" direction="DESC" />
