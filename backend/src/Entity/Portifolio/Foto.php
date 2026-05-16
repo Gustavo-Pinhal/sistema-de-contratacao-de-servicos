@@ -2,20 +2,13 @@
 
 namespace App\Entity\Portifolio;
 
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Foto
 {
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?Uuid $id = null;
-
     private ?Projeto $projeto = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $urlFoto = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?int $ordem = null;
 
     public function __construct()

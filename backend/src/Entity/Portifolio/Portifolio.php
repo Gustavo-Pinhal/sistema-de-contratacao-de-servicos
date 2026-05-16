@@ -4,21 +4,15 @@ namespace App\Entity\Portifolio;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Attribute\Groups;
+use App\Entity\Servico\Prestador;
 
 class Portifolio
 {
-    #[Groups(['portifolio:read'])]
     private ?string $id = null;
-
-    #[Groups(['portifolio:read'])]
     private ?string $biografia = null;
-
-    #[Groups(['portifolio:read'])]
     private int $servicosConcluidos = 0;
-
-    #[Groups(['portifolio:read'])]
     private Collection $projetos;
+    private ?Prestador $prestador = null;
 
     public function __construct()
     {
@@ -61,5 +55,22 @@ class Portifolio
     public function getProjetos(): Collection
     {
         return $this->projetos;
+    }
+
+    public function getPrestador(): ?Prestador
+    {
+        return $this->prestador;
+    }
+
+    public function setPrestador(?Prestador $prestador): self
+    {
+        $this->prestador = $prestador;
+
+        if ($prestador !== null && $this->id === null) {
+            $id = $prestador->getId();
+            $this->id = $id !== null ? (string) $id : null;
+        }
+
+        return $this;
     }
 }

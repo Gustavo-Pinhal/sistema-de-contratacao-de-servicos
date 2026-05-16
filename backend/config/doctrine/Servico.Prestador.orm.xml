@@ -35,5 +35,7 @@
             </join-table>
         </many-to-many>
 
+        <one-to-one field="portifolio" target-entity="App\Entity\Portifolio\Portifolio" mapped-by="prestador" />
+
     </entity>
 </doctrine-mapping>

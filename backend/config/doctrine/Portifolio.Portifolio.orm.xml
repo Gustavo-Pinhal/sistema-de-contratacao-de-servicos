@@ -6,6 +6,10 @@
     <entity name="App\Entity\Portifolio\Portifolio" table="portifolios" schema="portifolio">
         <id name="id" type="guid" column="id" />
 
+        <one-to-one field="prestador" target-entity="App\Entity\Servico\Prestador">
+            <join-column name="id" referenced-column-name="id" on-delete="CASCADE" />
+        </one-to-one>
+
         <field name="biografia" type="text" nullable="true" />
 
         <field name="servicosConcluidos" type="integer" column="servicos_concluidos" />

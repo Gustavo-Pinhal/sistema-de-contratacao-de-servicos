@@ -4,38 +4,19 @@ namespace App\Entity\Portifolio;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Projeto
 {
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?Uuid $id = null;
-
     private ?Portifolio $portifolio = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $titulo = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $descricao = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $regiao = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $valor = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private bool $exibirValor = true;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?\DateTimeInterface $concluidoEm = null;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private bool $exibirConcluidoEm = true;
-
-    #[Groups(['portifolio:read', 'projeto:read'])]
     private Collection $fotos;
 
     public function __construct()

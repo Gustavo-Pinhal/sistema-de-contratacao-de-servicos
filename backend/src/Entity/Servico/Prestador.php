@@ -3,6 +3,7 @@
 namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
+use App\Entity\Portifolio\Portifolio;
 use App\Entity\Localizacao\Cep;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,6 +18,7 @@ class Prestador
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
     private Collection $profissoes;
+    private ?Portifolio $portifolio = null;
 
     public function __construct(
         Usuario $usuario,
@@ -96,6 +98,22 @@ class Prestador
     public function getProfissoes(): Collection
     {
         return $this->profissoes;
+    }
+
+    public function getPortifolio(): ?Portifolio
+    {
+        return $this->portifolio;
+    }
+
+    public function setPortifolio(?Portifolio $portifolio): self
+    {
+        $this->portifolio = $portifolio;
+
+        if ($portifolio) {
+            $portifolio->setPrestador($this);
+        }
+
+        return $this;
     }
 
     public function addProfissao(Profissao $profissao): self
