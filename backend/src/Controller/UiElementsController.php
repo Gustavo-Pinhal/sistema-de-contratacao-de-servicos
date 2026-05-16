@@ -22,7 +22,7 @@ final class UiElementsController extends AbstractController
         ProfissoesOutputMapper $mapper,
     ): JsonResponse {
         $profissoes = $repositorio->obterTodos();
-        return $this->json($mapper->map($profissoes));
+        return $this->json($mapper->mapCollection($profissoes));
     }
 
     #[IsGranted('IS_AUTHENTICATED_FULLY')]

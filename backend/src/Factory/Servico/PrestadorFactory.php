@@ -2,7 +2,7 @@
 
 namespace App\Factory\Servico;
 
-use App\Dto\Request\CadastroUsuario\CadastrarPrestadorInputDto;
+use App\Dto\Cadastro\CadastrarPrestadorInputDto;
 use App\Entity\Localizacao\Cep;
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Profissao;
