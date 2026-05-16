@@ -22,7 +22,7 @@ use Symfony\Component\Mercure\Update;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/api/servico/{id}/chat')]
+#[Route('/servico/{id}/chat')]
 final class ChatController extends AbstractController
 {
     private const TOPICO = 'chat-servico-';

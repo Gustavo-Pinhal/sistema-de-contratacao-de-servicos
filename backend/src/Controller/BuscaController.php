@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/busca')]
+#[Route('/busca')]
 final class BuscaController extends AbstractController
 {
     #[Route('', methods: ['GET'], name: 'app_api_busca')]

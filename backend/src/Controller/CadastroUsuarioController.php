@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/cadastro-usuario')]
+#[Route('/cadastro-usuario')]
 final class CadastroUsuarioController extends AbstractController
 {
     public function __construct(
