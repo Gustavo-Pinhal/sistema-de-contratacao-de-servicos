@@ -3,12 +3,11 @@
 Este endpoint permite o registro de um novo usuário com o perfil de Cliente no sistema.
 
 ```bash
-curl -k -X POST https://localhost/api/cadastro-usuario/cliente \
+curl -k -X POST https://localhost/api/cadastro/cliente \
      -H "Content-Type: application/json" \
      -d '{
         "nome": "João Silva",
         "email": "joao@email.com",
-        "telefone": "11999999999",
         "senha": "password123"
      }'
 ```
@@ -57,12 +56,11 @@ curl -k -X POST https://localhost/api/cadastro-usuario/cliente \
 Este endpoint permite o registro de um novo usuário com o perfil de Prestador, vinculando-o a uma profissão e a um CEP.
 
 ```json
-curl -k -X POST https://localhost/api/cadastro-usuario/prestador \
+curl -k -X POST https://localhost/api/cadastro/prestador \
      -H "Content-Type: application/json" \
      -d '{
         "nome": "Carlos Marceneiro",
         "email": "carlos@prestador.com",
-        "telefone": "11988887777",
         "profissao": 1,
         "cep": "01001000",
         "senha": "securepassword"

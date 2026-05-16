@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Request\CadastroUsuario;
+namespace App\Dto\Cadastro;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
