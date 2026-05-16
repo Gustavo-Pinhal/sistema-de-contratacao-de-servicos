@@ -3,15 +3,12 @@
 namespace App\Mapper\Cliente;
 
 use App\Entity\Localizacao\Endereco;
+use App\Mapper\AbstractMapper;
 
-class EnderecosDoClienteOutputMapper
+class EnderecosDoClienteOutputMapper extends AbstractMapper
 {
-    public function map(array $enderecos): array
-    {
-        return array_map([$this, 'endereco'], $enderecos);
-    }
-
-    private function endereco(Endereco $endereco): array
+    /** @param Endereco $endereco */
+    public function map(mixed $endereco): array
     {
         $cep = $endereco->getCep();
 

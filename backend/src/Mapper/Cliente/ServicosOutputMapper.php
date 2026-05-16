@@ -4,18 +4,12 @@ namespace App\Mapper\Cliente;
 
 use App\Entity\Servico\Servico;
 use App\Enum\StatusServico;
+use App\Mapper\AbstractMapper;
 
-class ServicosOutputMapper
+class ServicosOutputMapper extends AbstractMapper
 {
-    /**
-     * @param Servicos[] $servicos;
-     */
-    public function map(array $servicos): array
-    {
-        return array_map([$this, 'servico'], $servicos);
-    }
-
-    private function servico(Servico $servico): array
+    /** @param Servico $servico; */
+    public function map(mixed $servico): array
     {
         $prestador = $servico->getPrestador();
 

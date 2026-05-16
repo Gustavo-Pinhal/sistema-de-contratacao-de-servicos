@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ClienteController extends AbstractController
 {
     #[IsGranted('ROLE_CLIENTE')]
-    #[Route('/servicos', methods: ['GET'], name: 'app_api_cliente_servicos')]
+    #[Route('/servicos', methods: ['GET'], name: 'app_cliente_servicos')]
     public function servicos(
         Request $request,
         ServicoRepository $repositorio,
@@ -28,7 +28,7 @@ final class ClienteController extends AbstractController
 
         $servicos = $repositorio->buscarPorCliente($usuario, $ativos);
 
-        return $this->json($mapper->map($servicos));
+        return $this->json($mapper->mapCollection($servicos));
     }
 
     #[Route('/enderecos', methods: ['GET'], name: 'app_api_cliente_enderecos')]
@@ -41,6 +41,6 @@ final class ClienteController extends AbstractController
 
         $enderecos = $repositorio->buscarEnderecoCompletoPorUsuario($usuario);
 
-        return $this->json($mapper->map($enderecos));
+        return $this->json($mapper->mapCollection($enderecos));
     }
 }
