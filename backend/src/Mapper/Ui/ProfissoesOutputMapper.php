@@ -3,17 +3,16 @@
 namespace App\Mapper\Ui;
 
 use App\Entity\Servico\Profissao;
+use App\Mapper\AbstractMapper;
 
-class ProfissoesOutputMapper
+class ProfissoesOutputMapper extends AbstractMapper
 {
-    /**
-     * @param Profissao[] $profissoes;
-     */
-    public function map(array $profissoes): array
+    /** @param Profissao $profissao;*/
+    public function map(mixed $profissao): array
     {
-        return array_map(fn(Profissao $profissao) => [
+        return [
             'id' => $profissao->getId(),
             'descricao' => $profissao->getDescricao(),
-        ], $profissoes);
+        ];
     }
 }
