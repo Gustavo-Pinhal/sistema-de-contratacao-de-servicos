@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import ChatRoom from "@/app/components/ChatRoom";
+import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
 
 interface ChatMetadata {

@@ -9,6 +9,7 @@ import {
   Download,
   FileText,
 } from "lucide-react";
+import { EventSourcePolyfill } from "event-source-polyfill";
 import { useUser } from "@/context/UserContext";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://localhost";
@@ -61,9 +62,11 @@ export default function ChatRoom({
     const hubUrl = new URL(`${API_BASE_URL}/.well-known/mercure`);
     hubUrl.searchParams.append("topic", topic);
 
-    const eventSource = new EventSource(hubUrl.toString());
+    const eventSource = new EventSourcePolyfill(hubUrl.toString(), {
+      headers: { Authorization: `Bearer ${mercureToken}` },
+    });
 
-    eventSource.onmessage = (event) => {
+    eventSource.onmessage = (event: MessageEvent) => {
       try {
         const newMessage: Message = JSON.parse(event.data);
         setMessages((prev) => {
@@ -78,7 +81,7 @@ export default function ChatRoom({
     return () => {
       eventSource.close();
     };
-  }, [topic]);
+  }, [topic, mercureToken]);
 
   // 2. Pre-fetch automático de links assinados exclusivo para Imagens
   useEffect(() => {
@@ -88,8 +91,8 @@ export default function ChatRoom({
         msg.arquivo &&
         msg.arquivo.mime_type.startsWith("image/")
       ) {
-        if (!resolvedUrls[msg.id]) {
-          fetchPresignedUrl(msg.id);
+        if (!resolvedUrls[msg.arquivo.id]) {
+          fetchPresignedUrl(msg.arquivo.id);
         }
       }
     });
@@ -97,11 +100,11 @@ export default function ChatRoom({
   }, [messages]);
 
   const fetchPresignedUrl = async (
-    messageId: string,
+    arquivoId: string,
   ): Promise<string | null> => {
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/servico/${serviceId}/chat/${messageId}/download`,
+        `${API_BASE_URL}/api/servico/${serviceId}/chat/${arquivoId}/download`,
         {
           headers: { Authorization: `Bearer ${user?.token}` },
         },
@@ -109,7 +112,7 @@ export default function ChatRoom({
       if (!res.ok) return null;
       const data = await res.json();
 
-      setResolvedUrls((prev) => ({ ...prev, [messageId]: data.url }));
+      setResolvedUrls((prev) => ({ ...prev, [arquivoId]: data.url }));
       return data.url;
     } catch (err) {
       console.error("Erro ao obter URL assinada:", err);
@@ -117,10 +120,10 @@ export default function ChatRoom({
     }
   };
 
-  const handleDownload = async (messageId: string) => {
-    let url = resolvedUrls[messageId];
+  const handleDownload = async (arquivoId: string) => {
+    let url = resolvedUrls[arquivoId];
     if (!url) {
-      url = (await fetchPresignedUrl(messageId)) || "";
+      url = (await fetchPresignedUrl(arquivoId)) || "";
     }
     if (url) {
       window.open(url, "_blank");
@@ -216,12 +219,12 @@ export default function ChatRoom({
                   <div className="space-y-2">
                     {isImage ? (
                       <div className="rounded-xl overflow-hidden min-w-[200px] min-h-[120px] bg-slate-100/50 flex items-center justify-center border border-slate-200/40">
-                        {resolvedUrls[msg.id] ? (
+                        {msg.arquivo && resolvedUrls[msg.arquivo.id] ? (
                           <img
-                            src={resolvedUrls[msg.id]}
+                            src={resolvedUrls[msg.arquivo.id]}
                             alt="Mídia"
                             className="w-full h-auto max-h-64 object-cover cursor-pointer"
-                            onClick={() => handleDownload(msg.id)}
+                            onClick={() => msg.arquivo && handleDownload(msg.arquivo.id)}
                           />
                         ) : (
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
@@ -232,7 +235,7 @@ export default function ChatRoom({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleDownload(msg.id)}
+                        onClick={() => msg.arquivo && handleDownload(msg.arquivo.id)}
                         className={`flex items-center gap-3 p-3 rounded-xl text-left border transition-all w-full ${
                           isMe
                             ? "bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
