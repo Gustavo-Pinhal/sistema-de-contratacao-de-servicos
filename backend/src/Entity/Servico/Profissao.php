@@ -9,9 +9,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 class Profissao
 {
-    #[Groups(['profissao:read', 'listagem_prestadores:read'])]
+    #[Groups('profissao:read')]
     private ?int $id = null;
-    #[Groups(['profissao:read', 'listagem_prestadores:read'])]
+    #[Groups('profissao:read')]
     private string $descricao;
     #[Groups(['profissao:read'])]
     private \DateTimeImmutable $criadoEm;
