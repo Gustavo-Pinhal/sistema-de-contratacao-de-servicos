@@ -8,14 +8,11 @@ use App\Entity\Localizacao\Endereco;
 use App\Enum\StatusServico;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Servico
 {
-    #[Groups('servico_dashboard:read')]
     private Uuid $id;
-    #[Groups('servico_dashboard:read')]
     private Usuario $cliente;
     private Usuario $prestador;
     private StatusServico $status;

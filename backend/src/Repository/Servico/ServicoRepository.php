@@ -38,28 +38,25 @@ class ServicoRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /** @return Servico[] */
     public function buscarDashboardPrestador(Usuario $prestador): array
     {
-        $trintaDiasAtras = new \DateTimeImmutable('-30 days');
+        $limite = new \DateTimeImmutable('-30 days');
 
         return $this->createQueryBuilder('s')
             ->where('s.prestador = :prestador')
-            ->andWhere('s.excluidoEm IS NULL')
             ->andWhere(
-                '(s.status IN (:statusImediato)) OR 
-                 (s.status IN (:statusRecentes) AND s.encerramento >= :dataLimite)'
+                '(s.status IN (:statusAbertos) AND s.excluidoEm IS NULL) OR '
+                    . '(s.status = :statusConcluido AND s.encerramento >= :dataLimite) OR '
+                    . '(s.excluidoEm >= :dataLimite)'
             )
             ->setParameter('prestador', $prestador)
-            ->setParameter('statusImediato', [
+            ->setParameter('statusAbertos', [
                 StatusServico::EmDecorrencia,
                 StatusServico::SolicitacaoDeOrcamento,
             ])
-            ->setParameter('statusRecentes', [
-                StatusServico::Concluido,
-                StatusServico::CanceladoPeloCliente,
-                StatusServico::CanceladoPeloPrestador
-            ])
-            ->setParameter('dataLimite', $trintaDiasAtras)
+            ->setParameter('statusConcluido', StatusServico::Concluido)
+            ->setParameter('dataLimite', $limite)
             ->orderBy('s.inicio', 'DESC')
             ->getQuery()
             ->getResult();
