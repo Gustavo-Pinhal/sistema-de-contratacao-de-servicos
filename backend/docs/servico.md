@@ -62,6 +62,28 @@ A requisição responde com um objeto contendo os detalhes do serviço no seguin
 }
 ```
 
+#### Status de agendamento:
+
+Um agendamento assumir os seguintes status:
+
+- `proposta`
+
+- `confirmado`
+
+- `recusado`
+
+#### Status do serviço
+
+O serviço assumir os seguintes status:
+
+- `Orçamento`
+
+- `Ativo`
+
+- `Finalizado`
+
+- `Cancelado`
+
 #### Respostas possíveis:
 
 - **Sucesso (200 OK):** Retorna os detalhes completos do serviço com agendamentos, orçamentos e valor total.
