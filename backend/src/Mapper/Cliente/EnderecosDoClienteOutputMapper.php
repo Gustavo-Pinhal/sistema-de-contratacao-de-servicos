@@ -8,7 +8,7 @@ use App\Mapper\AbstractMapper;
 class EnderecosDoClienteOutputMapper extends AbstractMapper
 {
     /** @param Endereco $endereco */
-    public function map(mixed $endereco): array
+    public function map(mixed $endereco, array $options = []): array
     {
         $cep = $endereco->getCep();
 

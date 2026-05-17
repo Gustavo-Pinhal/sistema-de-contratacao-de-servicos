@@ -15,7 +15,7 @@ class BuscaPrestadorOutputMapper extends AbstractMapper
     ) {}
 
     /** @param Prestador $prestador; */
-    public function map(mixed $prestador): array
+    public function map(mixed $prestador, array $options = []): array
     {
         $usuario = ['id' => $prestador->getUsuario()->getId()];
         $profissoes = $this->profissaoMapper->mapCollection($prestador->getProfissoes()->toArray());

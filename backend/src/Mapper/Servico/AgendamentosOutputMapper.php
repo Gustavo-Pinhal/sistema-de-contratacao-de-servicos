@@ -9,7 +9,7 @@ use App\Enum\StatusAgendamento;
 class AgendamentosOutputMapper extends AbstractMapper
 {
     /** @param Agendamento $agendamento */
-    public function map(mixed $agendamento): array
+    public function map(mixed $agendamento, array $options = []): array
     {
         $status = match ($agendamento->getStatus()) {
             StatusAgendamento::Proposta => 'proposta',

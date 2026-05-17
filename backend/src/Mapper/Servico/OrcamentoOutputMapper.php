@@ -8,7 +8,7 @@ use App\Entity\Servico\Orcamento;
 class OrcamentoOutputMapper extends AbstractMapper
 {
     /** @param Orcamento $orcamento */
-    public function map(mixed $orcamento): array
+    public function map(mixed $orcamento, array $options = []): array
     {
         return [
             'criadoEm' => $orcamento->getCriadoEm()->format('Y-m-d H:i'),
