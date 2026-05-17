@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Auth\Usuario;
 use App\Mapper\Cliente\EnderecosDoClienteOutputMapper;
-use App\Mapper\Cliente\ServicosOutputMapper;
+use App\Mapper\Servico\ServicosOutputMapper;
 use App\Repository\Localizacao\EnderecoRepository;
 use App\Repository\Servico\ServicoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

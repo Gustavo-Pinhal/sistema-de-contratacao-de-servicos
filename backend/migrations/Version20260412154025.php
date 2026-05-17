@@ -83,7 +83,7 @@ final class Version20260412154025 extends AbstractMigration
             id_servico      UUID            NOT NULL,
             data            TIMESTAMP       NOT NULL,
             observacoes     TEXT            ,
-            id_status       INTEGER         NOT NULL DEFAULT 1,
+            status       INTEGER         NOT NULL DEFAULT 1,
             criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_servico)    REFERENCES servico.servicos             (id)

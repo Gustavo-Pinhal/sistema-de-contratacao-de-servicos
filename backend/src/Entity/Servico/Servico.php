@@ -169,4 +169,10 @@ class Servico
     {
         $this->excluidoEm = new \DateTimeImmutable();
     }
+
+    public function eParticipante(Usuario $usuario): bool
+    {
+        return $this->cliente->getId()->equals($usuario->getId())
+            || $this->prestador->getId()->equals($usuario->getId());
+    }
 }
