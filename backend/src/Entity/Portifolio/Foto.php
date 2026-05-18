@@ -6,19 +6,25 @@ use Symfony\Component\Uid\Uuid;
 
 class Foto
 {
-    private ?Uuid $id = null;
+    private Uuid $id;
     private ?Projeto $projeto = null;
     private ?string $urlFoto = null;
-    private ?int $ordem = null;
+    private ?int $posicao = null;
 
     public function __construct()
     {
         $this->id = Uuid::v7();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
+    }
+
+    public function setId(Uuid $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getProjeto(): ?Projeto
@@ -43,14 +49,14 @@ class Foto
         return $this;
     }
 
-    public function getOrdem(): ?int
+    public function getPosicao(): ?int
     {
-        return $this->ordem;
+        return $this->posicao;
     }
 
-    public function setOrdem(int $ordem): self
+    public function setPosicao(int $posicao): self
     {
-        $this->ordem = $ordem;
+        $this->posicao = $posicao;
         return $this;
     }
 }

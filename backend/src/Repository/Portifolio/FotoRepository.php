@@ -3,6 +3,7 @@
 namespace App\Repository\Portifolio;
 
 use App\Entity\Portifolio\Foto;
+use App\Entity\Portifolio\Projeto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,13 @@ class FotoRepository extends ServiceEntityRepository
         parent::__construct($registry, Foto::class);
     }
 
-    //    /**
-    //     * @return Foto[] Returns an array of Foto objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('f.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Foto
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function buscarMaiorPosicaoPorProjeto(Projeto $projeto): int
+    {
+        return (int) $this->createQueryBuilder('f')
+            ->select('MAX(f.posicao)')
+            ->where('f.projeto = :projeto')
+            ->setParameter('projeto', $projeto)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

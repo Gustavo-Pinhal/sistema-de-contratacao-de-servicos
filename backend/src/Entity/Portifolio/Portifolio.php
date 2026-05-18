@@ -9,6 +9,7 @@ use Symfony\Component\Uid\Uuid;
 
 class Portifolio
 {
+    private Uuid $id;
     private Prestador $prestador;
     private ?string $biografia = null;
     private int $servicosConcluidos = 0;
@@ -17,13 +18,14 @@ class Portifolio
     public function __construct(
         Prestador $prestador,
     ) {
+        $this->id = $prestador->getId();
         $this->prestador = $prestador;
         $this->projetos = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
     {
-        return $this->prestador->getId();
+        return $this->id;
     }
 
     public function getBiografia(): ?string

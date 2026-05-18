@@ -5,7 +5,7 @@
 
     <entity name="App\Entity\Portifolio\Portifolio" table="portifolios" schema="portifolio" repository-class="App\Repository\Portifolio\PortifolioRepository">
 
-        <id name="prestador" association-key="true" />
+        <id name="id" type="uuid" column="id" />
 
         <field name="biografia" type="text" column="biografia" nullable="true" />
 
