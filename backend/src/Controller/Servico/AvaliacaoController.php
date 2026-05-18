@@ -34,7 +34,10 @@ final class AvaliacaoController extends AbstractController
             return $this->json(['error' => 'Este serviço ainda não foi avaliado.'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($mapper->map($avaliacao));
+        return $this->json(
+            $mapper->map($avaliacao),
+            context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]
+        );
     }
 
     #[Route('', methods: ['POST'], name: 'app_servico_avaliacao_criar')]

@@ -11,7 +11,6 @@ use Symfony\Component\Uid\Uuid;
 
 class Avaliacao
 {
-    private Uuid $idServico;
     private Servico $servico;
     private float $nota;
     private ?string $comentario = null;
@@ -25,7 +24,6 @@ class Avaliacao
         ?string $comentario = null
     ) {
         $this->servico = $servico;
-        $this->idServico = $servico->getId();
         $this->nota = $nota;
         $this->comentario = $comentario;
         $this->imagens = new ArrayCollection();
@@ -34,7 +32,7 @@ class Avaliacao
 
     public function getId(): Uuid
     {
-        return $this->idServico;
+        return $this->servico->getId();
     }
 
     public function getServico(): Servico
