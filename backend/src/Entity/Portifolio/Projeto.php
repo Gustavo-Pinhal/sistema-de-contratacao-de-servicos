@@ -38,6 +38,8 @@ class Projeto
         $this->servico = $servico;
         $this->titulo = $titulo;
         $this->descricao = $descricao;
+        $cidade = $servico->getEndereco()->getCep()->getMunicipio()->getNome();
+        $this->regiao = "$cidade";
         $this->valor = $valor;
         $this->exibirValor = $exibirValor;
         $this->concluidoEm = $concluidoEm;
