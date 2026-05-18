@@ -5,29 +5,25 @@ namespace App\Entity\Portifolio;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Servico\Prestador;
+use Symfony\Component\Uid\Uuid;
 
 class Portifolio
 {
-    private ?string $id = null;
+    private Prestador $prestador;
     private ?string $biografia = null;
     private int $servicosConcluidos = 0;
     private Collection $projetos;
-    private ?Prestador $prestador = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        Prestador $prestador,
+    ) {
+        $this->prestador = $prestador;
         $this->projetos = new ArrayCollection();
     }
 
-    public function getId(): ?string
+    public function getId(): ?Uuid
     {
-        return $this->id;
-    }
-
-    public function setId(string $id): self
-    {
-        $this->id = $id;
-        return $this;
+        return $this->prestador->getId();
     }
 
     public function getBiografia(): ?string
@@ -60,17 +56,5 @@ class Portifolio
     public function getPrestador(): ?Prestador
     {
         return $this->prestador;
-    }
-
-    public function setPrestador(?Prestador $prestador): self
-    {
-        $this->prestador = $prestador;
-
-        if ($prestador !== null && $this->id === null) {
-            $id = $prestador->getId();
-            $this->id = $id !== null ? (string) $id : null;
-        }
-
-        return $this;
     }
 }

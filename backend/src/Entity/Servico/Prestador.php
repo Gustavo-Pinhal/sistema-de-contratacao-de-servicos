@@ -108,11 +108,6 @@ class Prestador
     public function setPortifolio(?Portifolio $portifolio): self
     {
         $this->portifolio = $portifolio;
-
-        if ($portifolio) {
-            $portifolio->setPrestador($this);
-        }
-
         return $this;
     }
 

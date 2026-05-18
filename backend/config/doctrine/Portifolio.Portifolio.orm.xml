@@ -4,6 +4,7 @@
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
     <entity name="App\Entity\Portifolio\Portifolio" table="portifolios" schema="portifolio">
+
         <id name="id" type="guid" column="id" />
 
         <one-to-one field="prestador" target-entity="App\Entity\Servico\Prestador">
