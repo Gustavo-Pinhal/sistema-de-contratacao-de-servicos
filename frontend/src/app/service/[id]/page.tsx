@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
+import { ConfirmAgendamentoDialog } from "@/components/ConfirmAgendamentoDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -103,6 +104,61 @@ export default function ServiceTrackingPage() {
   const [chatData, setChatData] = useState<ChatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDialogState, setConfirmDialogState] = useState<{
+    isOpen: boolean;
+    agendamentoId: string;
+    data: string;
+    action: "confirm" | "decline";
+  }>({
+    isOpen: false,
+    agendamentoId: "",
+    data: "",
+    action: "confirm",
+  });
+
+  const loadData = async (token: string) => {
+    try {
+      const [serviceRes, chatRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (serviceRes.status === 403 || chatRes.status === 403) {
+        setError("Você não tem permissão para acessar este serviço.");
+        return;
+      }
+
+      if (serviceRes.status === 404) {
+        setError("Serviço não encontrado.");
+        return;
+      }
+
+      if (!serviceRes.ok) {
+        throw new Error("Erro ao carregar dados do serviço.");
+      }
+
+      if (!chatRes.ok) {
+        throw new Error("Erro ao carregar dados do chat.");
+      }
+
+      const [serviceJson, chatJson] = (await Promise.all([
+        serviceRes.json(),
+        chatRes.json(),
+      ])) as [ServiceResponse, ChatResponse];
+
+      setServiceData(serviceJson);
+      setChatData(chatJson);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Falha na conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (userLoading) return;
@@ -114,50 +170,7 @@ export default function ServiceTrackingPage() {
       return;
     }
 
-    async function loadData() {
-      try {
-        const [serviceRes, chatRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        if (serviceRes.status === 403 || chatRes.status === 403) {
-          setError("Você não tem permissão para acessar este serviço.");
-          return;
-        }
-
-        if (serviceRes.status === 404) {
-          setError("Serviço não encontrado.");
-          return;
-        }
-
-        if (!serviceRes.ok) {
-          throw new Error("Erro ao carregar dados do serviço.");
-        }
-
-        if (!chatRes.ok) {
-          throw new Error("Erro ao carregar dados do chat.");
-        }
-
-        const [serviceJson, chatJson] = (await Promise.all([
-          serviceRes.json(),
-          chatRes.json(),
-        ])) as [ServiceResponse, ChatResponse];
-
-        setServiceData(serviceJson);
-        setChatData(chatJson);
-      } catch (err: any) {
-        setError(err.message || "Falha na conexão.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
+    loadData(token);
   }, [serviceId, user?.token, userLoading]);
 
   const formatCurrency = (value: number) =>
@@ -192,16 +205,30 @@ export default function ServiceTrackingPage() {
     }
   };
 
-  const handleConfirmAgendamento = (agendamentoId: string) => {
-    alert(
-      `O endpoint de confirmação do agendamento ${agendamentoId} ainda não foi implementado.`,
-    );
+  const handleConfirmAgendamento = (agendamentoId: string, data: string) => {
+    setConfirmDialogState({
+      isOpen: true,
+      agendamentoId,
+      data,
+      action: "confirm",
+    });
   };
 
-  const handleRecusarAgendamento = (agendamentoId: string) => {
-    alert(
-      `O endpoint de recusa do agendamento ${agendamentoId} ainda não foi implementado.`,
-    );
+  const handleRecusarAgendamento = (agendamentoId: string, data: string) => {
+    setConfirmDialogState({
+      isOpen: true,
+      agendamentoId,
+      data,
+      action: "decline",
+    });
+  };
+
+  const handleSuccessConfirmDialog = () => {
+    const token = user?.token;
+    if (token) {
+      setLoading(true);
+      loadData(token);
+    }
   };
 
   if (loading) {
@@ -398,7 +425,10 @@ export default function ServiceTrackingPage() {
                           <button
                             type="button"
                             onClick={() =>
-                              handleConfirmAgendamento(agendamento.id)
+                              handleConfirmAgendamento(
+                                agendamento.id,
+                                agendamento.data,
+                              )
                             }
                             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
                           >
@@ -408,7 +438,10 @@ export default function ServiceTrackingPage() {
                           <button
                             type="button"
                             onClick={() =>
-                              handleRecusarAgendamento(agendamento.id)
+                              handleRecusarAgendamento(
+                                agendamento.id,
+                                agendamento.data,
+                              )
                             }
                             className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-rose-700"
                           >
@@ -496,6 +529,19 @@ export default function ServiceTrackingPage() {
           </aside>
         </div>
       </div>
+
+      <ConfirmAgendamentoDialog
+        isOpen={confirmDialogState.isOpen}
+        onClose={() =>
+          setConfirmDialogState((prev) => ({ ...prev, isOpen: false }))
+        }
+        serviceId={serviceId}
+        agendamentoId={confirmDialogState.agendamentoId}
+        data={confirmDialogState.data}
+        action={confirmDialogState.action}
+        onSuccess={handleSuccessConfirmDialog}
+        token={user?.token || ""}
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
+import { CreateAgendamentoDialog } from "@/components/CreateAgendamentoDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -101,6 +102,52 @@ export default function ProviderServicePage() {
   const [chatData, setChatData] = useState<ChatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateAgendamentoDialogOpen, setIsCreateAgendamentoDialogOpen] =
+    useState(false);
+
+  const loadData = async (token: string) => {
+    try {
+      const [serviceRes, chatRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (serviceRes.status === 403 || chatRes.status === 403) {
+        setError("Você não tem permissão para acessar este serviço.");
+        return;
+      }
+
+      if (serviceRes.status === 404) {
+        setError("Serviço não encontrado.");
+        return;
+      }
+
+      if (!serviceRes.ok) {
+        throw new Error("Erro ao carregar dados do serviço.");
+      }
+
+      if (!chatRes.ok) {
+        throw new Error("Erro ao carregar dados do chat.");
+      }
+
+      const [serviceJson, chatJson] = (await Promise.all([
+        serviceRes.json(),
+        chatRes.json(),
+      ])) as [ServiceResponse, ChatResponse];
+
+      setServiceData(serviceJson);
+      setChatData(chatJson);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Falha na conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (userLoading) return;
@@ -112,50 +159,7 @@ export default function ProviderServicePage() {
       return;
     }
 
-    async function loadData() {
-      try {
-        const [serviceRes, chatRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        if (serviceRes.status === 403 || chatRes.status === 403) {
-          setError("Você não tem permissão para acessar este serviço.");
-          return;
-        }
-
-        if (serviceRes.status === 404) {
-          setError("Serviço não encontrado.");
-          return;
-        }
-
-        if (!serviceRes.ok) {
-          throw new Error("Erro ao carregar dados do serviço.");
-        }
-
-        if (!chatRes.ok) {
-          throw new Error("Erro ao carregar dados do chat.");
-        }
-
-        const [serviceJson, chatJson] = (await Promise.all([
-          serviceRes.json(),
-          chatRes.json(),
-        ])) as [ServiceResponse, ChatResponse];
-
-        setServiceData(serviceJson);
-        setChatData(chatJson);
-      } catch (err: any) {
-        setError(err.message || "Falha na conexão.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
+    loadData(token);
   }, [serviceId, user?.token, userLoading]);
 
   const formatCurrency = (value: number) =>
@@ -191,7 +195,15 @@ export default function ProviderServicePage() {
   };
 
   const handleCriarAgendamento = () => {
-    alert("A funcionalidade de criar agendamento ainda não foi implementada.");
+    setIsCreateAgendamentoDialogOpen(true);
+  };
+
+  const handleSuccessAgendamento = () => {
+    const token = user?.token;
+    if (token) {
+      setLoading(true);
+      loadData(token);
+    }
   };
 
   const handleCriarOrcamento = () => {
@@ -472,6 +484,14 @@ export default function ProviderServicePage() {
           </aside>
         </div>
       </div>
+
+      <CreateAgendamentoDialog
+        isOpen={isCreateAgendamentoDialogOpen}
+        onClose={() => setIsCreateAgendamentoDialogOpen(false)}
+        serviceId={serviceId}
+        onSuccess={handleSuccessAgendamento}
+        token={user?.token || ""}
+      />
     </div>
   );
 }
