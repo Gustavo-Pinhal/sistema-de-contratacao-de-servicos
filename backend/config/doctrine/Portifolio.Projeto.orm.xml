@@ -16,9 +16,11 @@
 
         <field name="exibirValor" type="boolean" column="exibir_valor" />
 
-        <field name="concluidoEm" type="date" column="concluido_em" />
+        <field name="concluidoEm" type="date_immutable" column="concluido_em" />
 
         <field name="exibirConcluidoEm" type="boolean" column="exibir_concluido_em" />
+
+        <field name="posicao" type="integer" column="posicao" />
 
         <many-to-one field="portifolio" target-entity="App\Entity\Portifolio\Portifolio" inversed-by="projetos">
             <join-column name="id_portifolio" referenced-column-name="id" nullable="false" />
@@ -30,7 +32,7 @@
 
         <one-to-many field="fotos" target-entity="App\Entity\Portifolio\Foto" mapped-by="projeto" orphan-removal="true">
             <order-by>
-                <order-by-field name="ordem" direction="ASC" />
+                <order-by-field name="posicao" direction="ASC" />
             </order-by>
         </one-to-many>
     </entity>

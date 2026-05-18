@@ -6,7 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 use App\Entity\Servico\Servico;
-use DateTimeInterface;
 
 class Projeto
 {
@@ -18,27 +17,32 @@ class Projeto
     private ?string $regiao = null;
     private string $valor;
     private bool $exibirValor;
-    private DateTimeInterface $concluidoEm;
+    private \DateTimeImmutable $concluidoEm;
     private bool $exibirConcluidoEm;
+    private int $posicao;
     private Collection $fotos;
 
     public function __construct(
         Portifolio $portifolio,
         Servico $servico,
         string $titulo,
-        string $descricao,
+        ?string $descricao,
+        string $valor,
         bool $exibirValor,
+        \DateTimeImmutable $concluidoEm,
         bool $exibirConcluidoEm,
+        int $posicao
     ) {
         $this->id = Uuid::v7();
         $this->portifolio = $portifolio;
         $this->servico = $servico;
         $this->titulo = $titulo;
         $this->descricao = $descricao;
-        $this->valor = $this->servico->getValorTotal();
+        $this->valor = $valor;
         $this->exibirValor = $exibirValor;
+        $this->concluidoEm = $concluidoEm;
         $this->exibirConcluidoEm = $exibirConcluidoEm;
-        $this->concluidoEm = $this->servico->getEncerramento();
+        $this->posicao = $posicao;
         $this->fotos = new ArrayCollection();
     }
 
@@ -52,25 +56,9 @@ class Projeto
         return $this->portifolio;
     }
 
-    public function setPortifolio(Portifolio $portifolio): self
-    {
-        $this->portifolio = $portifolio;
-        return $this;
-    }
-
     public function getServico(): Servico
     {
         return $this->servico;
-    }
-
-    public function setServico(Servico $servico): self
-    {
-        $this->servico = $servico;
-        if ($servico->getProjeto() !== $this) {
-            $servico->setProjeto($this);
-        }
-
-        return $this;
     }
 
     public function getTitulo(): string
@@ -100,7 +88,7 @@ class Projeto
         return $this->regiao;
     }
 
-    public function setRegiao(string $regiao): self
+    public function setRegiao(?string $regiao): self
     {
         $this->regiao = $regiao;
         return $this;
@@ -128,28 +116,40 @@ class Projeto
         return $this;
     }
 
-    public function getConcluidoEm(): DateTimeInterface
+    public function getConcluidoEm(): \DateTimeImmutable
     {
         return $this->concluidoEm;
     }
 
-    public function setConcluidoEm(DateTimeInterface $concluidoEm): self
+    public function setConcluidoEm(\DateTimeImmutable $concluidoEm): self
     {
         $this->concluidoEm = $concluidoEm;
         return $this;
     }
 
-    public function getExibirConcluidoEm(): bool
+    public function isExibirConcluidoEm(): bool
     {
         return $this->exibirConcluidoEm;
     }
 
-    public function setExibirConcluidoEm(bool $concluidoEm): self
+    public function setExibirConcluidoEm(bool $exibirConcluidoEm): self
     {
-        $this->exibirConcluidoEm = $concluidoEm;
+        $this->exibirConcluidoEm = $exibirConcluidoEm;
         return $this;
     }
 
+    public function getPosicao(): int
+    {
+        return $this->posicao;
+    }
+
+    public function setPosicao(int $posicao): self
+    {
+        $this->posicao = $posicao;
+        return $this;
+    }
+
+    /** @return Collection<int, Foto> */
     public function getFotos(): Collection
     {
         return $this->fotos;
