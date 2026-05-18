@@ -71,6 +71,7 @@ final class Version20260412154025 extends AbstractMigration
             id_endereco     UUID            NOT NULL,
             inicio          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
             encerramento    TIMESTAMP       ,
+            avaliado_em     TIMESTAMP       ,
             excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_cliente)    REFERENCES servico.clientes         (id),
             FOREIGN KEY (id_prestador)  REFERENCES servico.prestadores      (id)

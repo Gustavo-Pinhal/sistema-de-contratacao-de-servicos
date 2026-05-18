@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 use App\Entity\Portifolio\Projeto;
 use App\Exception\Servico\StatusInvalidoParaAcao;
+use App\Entity\Avaliacao\Avaliacao;
 
 class Servico
 {
@@ -24,8 +25,10 @@ class Servico
     private Sala $sala;
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
+    private ?\DateTimeImmutable $avaliadoEm = null;
     private ?\DateTimeImmutable $excluidoEm = null;
     private ?Projeto $projeto = null;
+    private ?Avaliacao $avaliacao = null;
 
     public function __construct(
         Usuario $cliente,
@@ -186,6 +189,11 @@ class Servico
         return $this;
     }
 
+    public function getAvaliadoEm(): ?\DateTimeImmutable
+    {
+        return $this->avaliadoEm;
+    }
+
     public function getExcluidoEm(): ?\DateTimeImmutable
     {
         return $this->excluidoEm;
@@ -200,5 +208,17 @@ class Servico
     {
         return $this->cliente->getId()->equals($usuario->getId())
             || $this->prestador->getId()->equals($usuario->getId());
+    }
+
+    public function getAvaliacao(): ?Avaliacao
+    {
+        return $this->avaliacao;
+    }
+
+    public function setAvaliacao(?Avaliacao $avaliacao): self
+    {
+        $this->avaliacao = $avaliacao;
+        $this->avaliadoEm = new \DateTimeImmutable();
+        return $this;
     }
 }
