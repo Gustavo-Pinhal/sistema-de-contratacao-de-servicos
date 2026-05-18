@@ -46,6 +46,7 @@ class ServicosOutputMapper extends AbstractMapper
                 StatusServico::CanceladoPeloPrestador => 'Cancelado',
                 default => '',
             },
+            'encerradoEm' => $servico->getEncerramento(),
         ];
 
         if (array_key_exists('completo', $options) && $options['completo']) {

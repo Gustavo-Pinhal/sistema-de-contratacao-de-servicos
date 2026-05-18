@@ -18,6 +18,38 @@ class ServicoRepository extends ServiceEntityRepository
         parent::__construct($registry, Servico::class);
     }
 
+    /** @return Servico[] */
+    public function buscarServicosRecentesDoCliente(Usuario $cliente): array
+    {
+        $limiteTrintaDias = new \DateTimeImmutable('-30 days');
+
+        return $this->createQueryBuilder('s')
+            ->addSelect('c', 'p', 'e')
+            ->innerJoin('s.cliente', 'c')
+            ->innerJoin('s.prestador', 'p')
+            ->innerJoin('s.endereco', 'e')
+            ->where('s.cliente = :cliente')
+            ->andWhere('s.excluidoEm IS NULL')
+            ->andWhere(
+                '(s.status IN (:statusAtivos)) OR ' .
+                    '(s.status IN (:statusTerminais) AND s.encerramento >= :dataLimite)'
+            )
+            ->setParameter('cliente', $cliente)
+            ->setParameter('dataLimite', $limiteTrintaDias)
+            ->setParameter('statusAtivos', [
+                StatusServico::SolicitacaoDeOrcamento,
+                StatusServico::EmDecorrencia
+            ])
+            ->setParameter('statusTerminais', [
+                StatusServico::Concluido,
+                StatusServico::CanceladoPeloCliente,
+                StatusServico::CanceladoPeloPrestador
+            ])
+            ->orderBy('s.inicio', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function buscarPorCliente(Usuario $cliente, bool $apenasAtivos = false): array
     {
         $qb = $this->createQueryBuilder('s')
