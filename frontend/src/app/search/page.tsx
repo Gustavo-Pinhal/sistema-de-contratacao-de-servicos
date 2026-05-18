@@ -13,6 +13,7 @@ interface ServicoAtivo {
   endereco: string;
   data: string;
   status: string;
+  encerradoEm?: string | null;
 }
 
 interface Profissao {
@@ -112,17 +113,31 @@ export default function SearchProviders() {
                 <Link
                   key={serv.id}
                   href={`/service/${serv.id}`}
-                  className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-500 transition-all flex items-center justify-between group"
+                  className={`bg-white p-4 rounded-2xl shadow-sm transition-all flex items-center justify-between group ${
+                    serv.encerradoEm
+                      ? "border border-red-200 hover:border-red-300"
+                      : "border border-slate-200 hover:border-blue-500"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                        serv.encerradoEm
+                          ? "bg-red-50 text-red-600 group-hover:bg-red-100"
+                          : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
+                      }`}
+                    >
                       <User size={18} />
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-900 text-sm">
                         {serv.prestador.nome}
                       </h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">
+                      <p
+                        className={`text-[10px] font-bold uppercase ${
+                          serv.encerradoEm ? "text-red-500" : "text-slate-400"
+                        }`}
+                      >
                         {serv.status}
                       </p>
                     </div>
