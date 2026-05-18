@@ -2,8 +2,7 @@
 
 namespace App\Factory\Portifolio;
 
-use App\Dto\Request\Servico\CriarProjetoInputDto;
-use App\Entity\Portifolio\Portifolio;
+use App\Dto\Request\Portifolio\ProjetoInputDto;
 use App\Entity\Portifolio\Projeto;
 use App\Entity\Servico\Servico;
 use App\Repository\Portifolio\PortifolioRepository;
@@ -16,7 +15,7 @@ class ProjetoFactory
         private PortifolioRepository $portifolioRepository
     ) {}
 
-    public function fromDto(CriarProjetoInputDto $dto, Servico $servico): Projeto
+    public function fromDto(ProjetoInputDto $dto, Servico $servico): Projeto
     {
         $portifolio = $this->portifolioRepository->find($servico->getPrestador()->getId());
 

@@ -57,4 +57,12 @@ class ProjetoMediaService
 
         return $this->s3Client->getObjectUrl($this->publicBucket, $caminho);
     }
+
+    public function deletarFotoProjeto(string $caminho): void
+    {
+        $this->s3Client->deleteObject([
+            'Bucket' => $this->publicBucket,
+            'Key'    => $caminho,
+        ]);
+    }
 }

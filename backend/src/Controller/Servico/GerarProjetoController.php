@@ -2,7 +2,7 @@
 
 namespace App\Controller\Servico;
 
-use App\Dto\Request\Servico\CriarProjetoInputDto;
+use App\Dto\Request\Portifolio\ProjetoInputDto;
 use App\Entity\Servico\Servico;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,7 +44,7 @@ final class GerarProjetoController extends AbstractController
     #[Route('', methods: ['POST'], name: 'app_servico_projeto_criar')]
     public function criar(
         Servico $servico,
-        #[MapRequestPayload] CriarProjetoInputDto $dto,
+        #[MapRequestPayload] ProjetoInputDto $dto,
         ProjetoFactory $factory,
         EntityManagerInterface $manager,
     ): JsonResponse {

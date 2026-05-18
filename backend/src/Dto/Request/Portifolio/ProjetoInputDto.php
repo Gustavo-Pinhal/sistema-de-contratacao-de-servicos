@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Request\Servico;
+namespace App\Dto\Request\Portifolio;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class CriarProjetoInputDto
+readonly class ProjetoInputDto
 {
     public function __construct(
         #[Assert\NotBlank(message: 'O título do projeto é obrigatório.')]
