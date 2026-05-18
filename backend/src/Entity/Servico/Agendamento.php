@@ -20,6 +20,7 @@ class Agendamento
         $this->id = Uuid::v7();
         $this->status = StatusAgendamento::Proposta;
         $this->servico = $servico;
+        $this->servico->addAgendamento($this);
         $this->data = $data;
         $this->observacoes = $observacoes;
         $this->criadoEm = new \DateTimeImmutable();
