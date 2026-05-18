@@ -18,6 +18,7 @@ import {
 import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
 import { ConfirmAgendamentoDialog } from "@/components/ConfirmAgendamentoDialog";
+import { ServiceActionDialog } from "@/components/ServiceActionDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -115,6 +116,7 @@ export default function ServiceTrackingPage() {
     data: "",
     action: "confirm",
   });
+  const [serviceActionDialogOpen, setServiceActionDialogOpen] = useState(false);
 
   const loadData = async (token: string) => {
     try {
@@ -224,6 +226,18 @@ export default function ServiceTrackingPage() {
   };
 
   const handleSuccessConfirmDialog = () => {
+    const token = user?.token;
+    if (token) {
+      setLoading(true);
+      loadData(token);
+    }
+  };
+
+  const handleCancelarServico = () => {
+    setServiceActionDialogOpen(true);
+  };
+
+  const handleSuccessServiceAction = () => {
     const token = user?.token;
     if (token) {
       setLoading(true);
@@ -526,6 +540,20 @@ export default function ServiceTrackingPage() {
                 </p>
               </div>
             </div>
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
+                  Ações do serviço
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCancelarServico}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
+                >
+                  Cancelar Serviço
+                </button>
+              </div>
+            </div>
           </aside>
         </div>
       </div>
@@ -541,6 +569,15 @@ export default function ServiceTrackingPage() {
         action={confirmDialogState.action}
         onSuccess={handleSuccessConfirmDialog}
         token={user?.token || ""}
+      />
+
+      <ServiceActionDialog
+        isOpen={serviceActionDialogOpen}
+        onClose={() => setServiceActionDialogOpen(false)}
+        serviceId={serviceId}
+        token={user?.token || ""}
+        action="cancel"
+        onSuccess={handleSuccessServiceAction}
       />
     </div>
   );

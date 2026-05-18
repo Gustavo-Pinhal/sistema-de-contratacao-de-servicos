@@ -17,6 +17,7 @@ import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
 import { CreateAgendamentoDialog } from "@/components/CreateAgendamentoDialog";
 import { CreateOrcamentoDialog } from "@/components/CreateOrcamentoDialog";
+import { ServiceActionDialog } from "@/components/ServiceActionDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -107,6 +108,13 @@ export default function ProviderServicePage() {
     useState(false);
   const [isCreateOrcamentoDialogOpen, setIsCreateOrcamentoDialogOpen] =
     useState(false);
+  const [serviceActionDialogState, setServiceActionDialogState] = useState<{
+    isOpen: boolean;
+    action: "finalize" | "cancel";
+  }>({
+    isOpen: false,
+    action: "finalize",
+  });
 
   const loadData = async (token: string) => {
     try {
@@ -214,6 +222,22 @@ export default function ProviderServicePage() {
   };
 
   const handleSuccessOrcamento = () => {
+    const token = user?.token;
+    if (token) {
+      setLoading(true);
+      loadData(token);
+    }
+  };
+
+  const handleFinalizarServico = () => {
+    setServiceActionDialogState({ isOpen: true, action: "finalize" });
+  };
+
+  const handleCancelarServico = () => {
+    setServiceActionDialogState({ isOpen: true, action: "cancel" });
+  };
+
+  const handleSuccessServiceAction = () => {
     const token = user?.token;
     if (token) {
       setLoading(true);
@@ -492,6 +516,30 @@ export default function ProviderServicePage() {
                 </p>
               </div>
             </div>
+
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
+                  Ações do serviço
+                </p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={handleFinalizarServico}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
+                  >
+                    Concluir Serviço
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelarServico}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
+                  >
+                    Cancelar Serviço
+                  </button>
+                </div>
+              </div>
+            </div>
           </aside>
         </div>
       </div>
@@ -510,6 +558,17 @@ export default function ProviderServicePage() {
         serviceId={serviceId}
         onSuccess={handleSuccessOrcamento}
         token={user?.token || ""}
+      />
+
+      <ServiceActionDialog
+        isOpen={serviceActionDialogState.isOpen}
+        onClose={() =>
+          setServiceActionDialogState((prev) => ({ ...prev, isOpen: false }))
+        }
+        serviceId={serviceId}
+        token={user?.token || ""}
+        action={serviceActionDialogState.action}
+        onSuccess={handleSuccessServiceAction}
       />
     </div>
   );
