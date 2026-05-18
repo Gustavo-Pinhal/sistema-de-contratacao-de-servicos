@@ -245,7 +245,7 @@ function ProviderCard({ provider }: { provider: Prestador }) {
       : `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.nome)}&background=random`;
 
   return (
-    <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
+    <div className="bg-white p-4 rounded-3l border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
       <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
         <Image
           src={imageUrl}
