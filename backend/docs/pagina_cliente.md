@@ -53,6 +53,8 @@ A requisição responde com um array de objetos no seguinte formato:
 ]
 ```
 
+O campo `status` pode assumir os seguintes valores: `Orçamento`, `Ativo`, `Finalizado`, `Cancelado`
+
 #### Respostas possíveis:
 
 - **Sucesso (200 OK):** Retorna a lista de serviços. Caso o cliente não possua registros, retorna um array vazio `[]`.

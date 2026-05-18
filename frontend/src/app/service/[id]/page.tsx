@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -104,6 +104,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function ServiceTrackingPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const serviceId = params.id as string;
   const { user, loading: userLoading } = useUser();
 
@@ -113,6 +114,8 @@ export default function ServiceTrackingPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasReview, setHasReview] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [hasAutoOpenedReviewDialog, setHasAutoOpenedReviewDialog] =
+    useState(false);
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean;
     agendamentoId: string;
@@ -133,6 +136,7 @@ export default function ServiceTrackingPage() {
     serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const canReviewService =
     serviceStatus === "Finalizado" || serviceStatus === "Cancelado";
+  const shouldOpenReviewDialog = searchParams.get("review") === "1";
   const reviewScore = servico?.avaliacao?.nota
     ? `${(servico.avaliacao.nota / 2).toFixed(1)}/5`
     : null;
@@ -203,6 +207,28 @@ export default function ServiceTrackingPage() {
 
     loadData(token);
   }, [serviceId, user?.token, userLoading]);
+
+  useEffect(() => {
+    if (
+      !shouldOpenReviewDialog ||
+      loading ||
+      error ||
+      hasAutoOpenedReviewDialog
+    )
+      return;
+
+    if (canReviewService && !hasReview) {
+      setReviewDialogOpen(true);
+      setHasAutoOpenedReviewDialog(true);
+    }
+  }, [
+    shouldOpenReviewDialog,
+    loading,
+    error,
+    canReviewService,
+    hasReview,
+    hasAutoOpenedReviewDialog,
+  ]);
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("pt-BR", {

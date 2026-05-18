@@ -112,6 +112,10 @@ export default function SearchProviders() {
     p.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  const canReviewService = (servico: ServicoAtivo) =>
+    (servico.status === "Finalizado" || servico.status === "Cancelado") &&
+    servico.avaliacao == null;
+
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
       <div className="max-w-7xl mx-auto px-4">
@@ -123,53 +127,75 @@ export default function SearchProviders() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {servicos.map((serv) => (
-                <Link
+                <div
                   key={serv.id}
-                  href={`/service/${serv.id}`}
-                  className={`bg-white p-4 rounded-2xl shadow-sm transition-all flex items-center justify-between group ${
-                    serv.encerradoEm
-                      ? "border border-red-200 hover:border-red-300"
-                      : "border border-slate-200 hover:border-blue-500"
+                  className={`bg-white p-4 rounded-2xl shadow-sm transition-all flex flex-col gap-4 group ${
+                    canReviewService(serv)
+                      ? "border border-amber-200 hover:border-amber-300"
+                      : serv.encerradoEm
+                        ? "border border-red-200 hover:border-red-300"
+                        : "border border-slate-200 hover:border-blue-500"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                        serv.encerradoEm
-                          ? "bg-red-50 text-red-600 group-hover:bg-red-100"
-                          : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                      }`}
-                    >
-                      <User size={18} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">
-                        {serv.prestador.nome}
-                      </h4>
-                      <p
-                        className={`text-[10px] font-bold uppercase ${
-                          serv.encerradoEm ? "text-red-500" : "text-slate-400"
+                  <Link
+                    href={`/service/${serv.id}`}
+                    className="flex items-center justify-between gap-3 text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                          canReviewService(serv)
+                            ? "bg-amber-50 text-amber-600 group-hover:bg-amber-100"
+                            : serv.encerradoEm
+                              ? "bg-red-50 text-red-600 group-hover:bg-red-100"
+                              : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
                         }`}
                       >
-                        {serv.status}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold mb-1">
-                      <Calendar size={12} /> {serv.data}
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
-                      <MapPin size={12} /> {serv.endereco.split("-")[0]}
-                    </div>
-                    {serv.avaliacao?.nota !== undefined && (
-                      <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-amber-600 font-black">
-                        <Star size={12} className="fill-current" />
-                        {formatarNotaCincoPontos(serv.avaliacao.nota)}/5
+                        <User size={18} />
                       </div>
-                    )}
-                  </div>
-                </Link>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">
+                          {serv.prestador.nome}
+                        </h4>
+                        <p
+                          className={`text-[10px] font-bold uppercase ${
+                            canReviewService(serv)
+                              ? "text-amber-600"
+                              : serv.encerradoEm
+                                ? "text-red-500"
+                                : "text-slate-400"
+                          }`}
+                        >
+                          {serv.status}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold mb-1 justify-end">
+                        <Calendar size={12} /> {serv.data}
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold justify-end">
+                        <MapPin size={12} /> {serv.endereco.split("-")[0]}
+                      </div>
+                      {serv.avaliacao?.nota !== undefined && (
+                        <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-amber-600 font-black">
+                          <Star size={12} className="fill-current" />
+                          {formatarNotaCincoPontos(serv.avaliacao.nota)}/5
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+
+                  {canReviewService(serv) && (
+                    <Link
+                      href={`/service/${serv.id}?review=1`}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-amber-700 transition-colors hover:bg-amber-100"
+                    >
+                      <Star size={16} />
+                      Avaliar
+                    </Link>
+                  )}
+                </div>
               ))}
             </div>
           </div>
