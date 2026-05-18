@@ -29,7 +29,7 @@ class Prestador
         $this->nome = $nome;
         $this->cep = $cep;
         $this->criadoEm = new \DateTimeImmutable();
-        $this->ativo = true;
+        $this->ativo = false;
         $this->profissoes = new ArrayCollection();
     }
 

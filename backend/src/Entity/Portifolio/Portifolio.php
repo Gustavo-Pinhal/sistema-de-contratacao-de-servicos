@@ -20,6 +20,7 @@ class Portifolio
     ) {
         $this->id = $prestador->getId();
         $this->prestador = $prestador;
+        $this->prestador->setPortifolio($this);
         $this->projetos = new ArrayCollection();
     }
 
