@@ -190,3 +190,49 @@ curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b11
 - **Acesso Negado (403 Forbidden):** Se o usuário autenticado for o Cliente do serviço ou qualquer outro usuário que não seja o prestador contratado.
 
 - **Não Encontrado (404 Not Found):** Se o ID do serviço informado na rota não existir.
+
+## Finalizar Serviço
+
+Encerra oficialmente a execução do serviço e consolida os valores para faturamento. Esta ação é de uso exclusivo do **Prestador** do serviço.
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/finalizar \
+     -H "Authorization: Bearer $TOKEN"
+```
+
+#### Regras de Negócio:
+
+O serviço precisa estar obrigatoriamente com o status `Ativo` (em decorrência) para que possa ser finalizado.
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`. O status do serviço é alterado para Finalizado.
+
+- **Transição de Estado Inválida (422 Unprocessable Content):** Retornado se o serviço não estiver em andamento (por exemplo, se ainda estiver em fase de `Orçamento`, se já estiver `Cancelado` ou `Finalizado`).
+
+- **Acesso Negado (403 Forbidden):** Se o usuário autenticado for o Cliente do serviço ou um terceiro não participante.
+
+- **Não Encontrado (404 Not Found):** Se o ID do serviço informado na rota não existir.
+
+## Cancelar Serviço
+
+Interrompe o fluxo do serviço definitivamente. Esta ação pode ser realizada por qualquer um dos participantes (Cliente ou Prestador).
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/cancelar \
+     -H "Authorization: Bearer $TOKEN"
+```
+
+#### Regras de Negócio:
+
+Não é permitido cancelar um serviço que já atingiu um estado terminal. O cancelamento será bloqueado se o status atual for `Finalizado`, `Cancelado` ou `Expirado`.
+
+Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`. O status do serviço é atualizado para `Cancelado`.
+
+- **Transição de Estado Inválida (422 Unprocessable Content):** Retornado se o serviço já estiver concluído, expirado ou previamente cancelado.
+
+- **Acesso Negado (403 Forbidden):** Se o usuário autenticado na requisição não fizer parte do serviço.
+
+- **Não Encontrado (404 Not Found):** Se o ID do serviço informado na rota não existir.

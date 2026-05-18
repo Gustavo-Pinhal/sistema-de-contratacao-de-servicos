@@ -18,6 +18,7 @@ class Orcamento
     {
         $this->id = Uuid::v7();
         $this->servico = $servico;
+        $servico->addOrcamento($this);
         $this->descricao = $descricao;
         $this->valor = $valor;
         $this->observacoes = $observacoes;
