@@ -275,6 +275,9 @@ export default function ServiceTrackingPage() {
   const servico = serviceData?.servico;
   const agendamentos = serviceData?.agendamentos ?? [];
   const orcamentos = serviceData?.orcamentos ?? [];
+  const serviceStatus = servico?.status;
+  const canCancelService =
+    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const chatHeaderAddress = servico?.enderecoCompleto
     ? `${servico.enderecoCompleto.endereco} • CEP ${servico.enderecoCompleto.cep} • ${servico.enderecoCompleto.municipio}`
     : servico?.endereco || "-";
@@ -540,20 +543,22 @@ export default function ServiceTrackingPage() {
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
-                  Ações do serviço
-                </p>
-                <button
-                  type="button"
-                  onClick={handleCancelarServico}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
-                >
-                  Cancelar Serviço
-                </button>
+            {canCancelService && (
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
+                    Ações do serviço
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCancelarServico}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
+                  >
+                    Cancelar Serviço
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </aside>
         </div>
       </div>

@@ -275,6 +275,11 @@ export default function ProviderServicePage() {
   const servico = serviceData?.servico;
   const agendamentos = serviceData?.agendamentos ?? [];
   const orcamentos = serviceData?.orcamentos ?? [];
+  const serviceStatus = servico?.status;
+  const canManageFinancials =
+    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
+  const canCancelService = canManageFinancials;
+  const canFinalizeService = serviceStatus === "Ativo";
   const chatHeaderAddress = servico?.enderecoCompleto
     ? `${servico.enderecoCompleto.endereco} • CEP ${servico.enderecoCompleto.cep} • ${servico.enderecoCompleto.municipio}`
     : servico?.endereco || "-";
@@ -376,14 +381,16 @@ export default function ProviderServicePage() {
                 <button
                   type="button"
                   onClick={handleCriarAgendamento}
-                  className="flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
+                  disabled={!canManageFinancials}
+                  className="flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
                 >
                   <CalendarPlus size={18} /> Criar Agendamento
                 </button>
                 <button
                   type="button"
                   onClick={handleCriarOrcamento}
-                  className="flex items-center justify-center gap-3 bg-white text-slate-900 border-2 border-slate-200 p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-all"
+                  disabled={!canManageFinancials}
+                  className="flex items-center justify-center gap-3 bg-white text-slate-900 border-2 border-slate-200 p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-all disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200"
                 >
                   <CircleDollarSign size={18} /> Criar Orçamento
                 </button>
@@ -518,27 +525,33 @@ export default function ProviderServicePage() {
             </div>
 
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
-                  Ações do serviço
-                </p>
-                <div className="flex flex-col gap-3">
-                  <button
-                    type="button"
-                    onClick={handleFinalizarServico}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
-                  >
-                    Concluir Serviço
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelarServico}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
-                  >
-                    Cancelar Serviço
-                  </button>
+              {(canFinalizeService || canCancelService) && (
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
+                    Ações do serviço
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    {canFinalizeService && (
+                      <button
+                        type="button"
+                        onClick={handleFinalizarServico}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
+                      >
+                        Concluir Serviço
+                      </button>
+                    )}
+                    {canCancelService && (
+                      <button
+                        type="button"
+                        onClick={handleCancelarServico}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition-colors hover:bg-rose-50"
+                      >
+                        Cancelar Serviço
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </aside>
         </div>
