@@ -62,6 +62,10 @@ interface ServicoDetalhado {
   };
   data: string;
   status: ServiceStatus;
+  avaliacao?: {
+    nota: number;
+    data: string;
+  } | null;
 }
 
 interface ServiceResponse {
@@ -129,6 +133,9 @@ export default function ServiceTrackingPage() {
     serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const canReviewService =
     serviceStatus === "Finalizado" || serviceStatus === "Cancelado";
+  const reviewScore = servico?.avaliacao?.nota
+    ? `${(servico.avaliacao.nota / 2).toFixed(1)}/5`
+    : null;
 
   const loadData = async (token: string) => {
     try {
@@ -404,7 +411,7 @@ export default function ServiceTrackingPage() {
                     className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-blue-700 transition-colors hover:bg-blue-100"
                   >
                     <Star size={16} />
-                    Ver Avaliação
+                    Ver Avaliação{reviewScore ? ` ${reviewScore}` : ""}
                   </Link>
                 ) : (
                   <button
