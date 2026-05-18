@@ -10,7 +10,7 @@
 
         <field name="observacoes" type="text" column="observacoes" nullable="true" />
 
-        <field name="status" type="integer" column="status" nullable="false" />
+        <field name="status" type="integer" column="status" nullable="false" enum-type="App\Enum\StatusAgendamento" />
 
         <field name="criadoEm" type="datetime_immutable" column="criado_em" />
 
