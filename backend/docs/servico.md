@@ -153,3 +153,40 @@ curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b11
 - **Acesso Negado (403 Forbidden):** Caso o usuário autenticado na requisição seja o cliente ou um terceiro.
 
 - **Não Encontrado (404 Not Found):** Caso o ID do serviço ou do agendamento informado não exista.
+
+## Adicionar Orçamento ou Desconto
+
+Adiciona um novo lançamento financeiro (orçamento de custos ou concessão de desconto) ao serviço. Esta ação é de uso exclusivo do Prestador do serviço.
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/orcamento \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "descricao": "Instalação de disjuntor adicional",
+         "valor": 150.00,
+         "observacoes": "Material incluso no valor."
+     }'
+```
+
+#### Regras de Payload:
+
+- `descricao` (obrigatório): String que descreve o item do orçamento. Máximo de 255 caracteres.
+
+- `valor` (obrigatório): Numérico (ponto flutuante). Representa o impacto financeiro no serviço.
+
+- **Valores positivos:** Incrementam o custo total do serviço (mão de obra, materiais, etc).
+
+- **Valores negativos:** São processados e computados pelo sistema como um desconto sobre o valor final do serviço.
+
+- `observacoes` (opcional): Texto livre para detalhes adicionais com limite de 1000 caracteres.
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`. O lançamento é inserido e o cálculo do valor total do serviço é atualizado.
+
+- **Erro de Validação (422 Unprocessable Content):** Retornado se os campos obrigatórios estiverem ausentes, se o formato do campo `valor` não for estritamente numérico, ou se os limites de caracteres de `descricao` (255) e `observacoes` (1000) forem ultrapassados.
+
+- **Acesso Negado (403 Forbidden):** Se o usuário autenticado for o Cliente do serviço ou qualquer outro usuário que não seja o prestador contratado.
+
+- **Não Encontrado (404 Not Found):** Se o ID do serviço informado na rota não existir.

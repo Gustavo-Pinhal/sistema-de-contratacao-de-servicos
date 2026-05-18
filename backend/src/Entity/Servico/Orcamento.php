@@ -14,12 +14,13 @@ class Orcamento
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct(Servico $servico, string $descricao, float $valor)
+    public function __construct(Servico $servico, string $descricao, float $valor, ?string $observacoes)
     {
         $this->id = Uuid::v7();
         $this->servico = $servico;
         $this->descricao = $descricao;
         $this->valor = $valor;
+        $this->observacoes = $observacoes;
         $this->criadoEm = new \DateTimeImmutable();
     }
 

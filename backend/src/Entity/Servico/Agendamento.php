@@ -15,7 +15,7 @@ class Agendamento
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct(Servico $servico, \DateTimeInterface $data, string $observacoes)
+    public function __construct(Servico $servico, \DateTimeInterface $data, ?string $observacoes)
     {
         $this->id = Uuid::v7();
         $this->status = StatusAgendamento::Proposta;
