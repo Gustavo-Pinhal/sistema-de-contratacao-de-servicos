@@ -115,6 +115,14 @@ export default function ProviderServicePage() {
     isOpen: false,
     action: "finalize",
   });
+  const servico = serviceData?.servico;
+  const agendamentos = serviceData?.agendamentos ?? [];
+  const orcamentos = serviceData?.orcamentos ?? [];
+  const serviceStatus = servico?.status;
+  const canManageFinancials =
+    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
+  const canCancelService = canManageFinancials;
+  const canFinalizeService = serviceStatus === "Ativo";
 
   const loadData = async (token: string) => {
     try {
@@ -272,14 +280,6 @@ export default function ProviderServicePage() {
     );
   }
 
-  const servico = serviceData?.servico;
-  const agendamentos = serviceData?.agendamentos ?? [];
-  const orcamentos = serviceData?.orcamentos ?? [];
-  const serviceStatus = servico?.status;
-  const canManageFinancials =
-    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
-  const canCancelService = canManageFinancials;
-  const canFinalizeService = serviceStatus === "Ativo";
   const chatHeaderAddress = servico?.enderecoCompleto
     ? `${servico.enderecoCompleto.endereco} • CEP ${servico.enderecoCompleto.cep} • ${servico.enderecoCompleto.municipio}`
     : servico?.endereco || "-";

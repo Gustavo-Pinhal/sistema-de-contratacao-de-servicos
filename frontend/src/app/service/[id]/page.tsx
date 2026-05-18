@@ -117,6 +117,12 @@ export default function ServiceTrackingPage() {
     action: "confirm",
   });
   const [serviceActionDialogOpen, setServiceActionDialogOpen] = useState(false);
+  const servico = serviceData?.servico;
+  const agendamentos = serviceData?.agendamentos ?? [];
+  const orcamentos = serviceData?.orcamentos ?? [];
+  const serviceStatus = servico?.status;
+  const canCancelService =
+    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
 
   const loadData = async (token: string) => {
     try {
@@ -272,12 +278,6 @@ export default function ServiceTrackingPage() {
     );
   }
 
-  const servico = serviceData?.servico;
-  const agendamentos = serviceData?.agendamentos ?? [];
-  const orcamentos = serviceData?.orcamentos ?? [];
-  const serviceStatus = servico?.status;
-  const canCancelService =
-    serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const chatHeaderAddress = servico?.enderecoCompleto
     ? `${servico.enderecoCompleto.endereco} • CEP ${servico.enderecoCompleto.cep} • ${servico.enderecoCompleto.municipio}`
     : servico?.endereco || "-";
