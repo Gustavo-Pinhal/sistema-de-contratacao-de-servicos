@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, User, Calendar, MapPin, Loader2 } from "lucide-react";
+import { Search, User, Calendar, MapPin, Star } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import Image from "next/image";
@@ -14,6 +14,10 @@ interface ServicoAtivo {
   data: string;
   status: string;
   encerradoEm?: string | null;
+  avaliacao?: {
+    nota: number;
+    data: string;
+  } | null;
 }
 
 interface Profissao {
@@ -26,6 +30,18 @@ interface Prestador {
   nome: string;
   profissoes: Profissao[];
   urlPerfil?: string; // Alterado de avatar para urlPerfil
+}
+
+function convertNotaParaCincoPontos(nota: number): number {
+  const notaConvertida = nota / 2;
+  return Math.max(0, Math.min(5, notaConvertida));
+}
+
+function formatarNotaCincoPontos(nota: number): string {
+  const notaConvertida = convertNotaParaCincoPontos(nota);
+  return Number.isInteger(notaConvertida)
+    ? `${notaConvertida}`
+    : notaConvertida.toFixed(1);
 }
 
 export default function SearchProviders() {
@@ -49,12 +65,9 @@ export default function SearchProviders() {
         setProfissoes(await resProf.json());
 
         if (user?.token) {
-          const resServ = await fetch(
-            "/api/cliente/servicos?apenasAtivos=true",
-            {
-              headers: { Authorization: `Bearer ${user.token}` },
-            },
-          );
+          const resServ = await fetch("/api/cliente/servicos", {
+            headers: { Authorization: `Bearer ${user.token}` },
+          });
           if (resServ.ok) setServicos(await resServ.json());
         }
       } catch (e) {
@@ -149,6 +162,12 @@ export default function SearchProviders() {
                     <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
                       <MapPin size={12} /> {serv.endereco.split("-")[0]}
                     </div>
+                    {serv.avaliacao?.nota !== undefined && (
+                      <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-amber-600 font-black">
+                        <Star size={12} className="fill-current" />
+                        {formatarNotaCincoPontos(serv.avaliacao.nota)}/5
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
