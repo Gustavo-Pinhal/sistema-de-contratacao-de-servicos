@@ -16,6 +16,7 @@ import {
 import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
 import { CreateAgendamentoDialog } from "@/components/CreateAgendamentoDialog";
+import { CreateOrcamentoDialog } from "@/components/CreateOrcamentoDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -103,6 +104,8 @@ export default function ProviderServicePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateAgendamentoDialogOpen, setIsCreateAgendamentoDialogOpen] =
+    useState(false);
+  const [isCreateOrcamentoDialogOpen, setIsCreateOrcamentoDialogOpen] =
     useState(false);
 
   const loadData = async (token: string) => {
@@ -207,7 +210,15 @@ export default function ProviderServicePage() {
   };
 
   const handleCriarOrcamento = () => {
-    alert("A funcionalidade de criar orçamento ainda não foi implementada.");
+    setIsCreateOrcamentoDialogOpen(true);
+  };
+
+  const handleSuccessOrcamento = () => {
+    const token = user?.token;
+    if (token) {
+      setLoading(true);
+      loadData(token);
+    }
   };
 
   if (loading) {
@@ -490,6 +501,14 @@ export default function ProviderServicePage() {
         onClose={() => setIsCreateAgendamentoDialogOpen(false)}
         serviceId={serviceId}
         onSuccess={handleSuccessAgendamento}
+        token={user?.token || ""}
+      />
+
+      <CreateOrcamentoDialog
+        isOpen={isCreateOrcamentoDialogOpen}
+        onClose={() => setIsCreateOrcamentoDialogOpen(false)}
+        serviceId={serviceId}
+        onSuccess={handleSuccessOrcamento}
         token={user?.token || ""}
       />
     </div>
