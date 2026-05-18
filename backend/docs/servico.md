@@ -91,3 +91,65 @@ O serviço assumir os seguintes status:
 - **Não Encontrado (404 Not Found):** Se o ID do serviço informado não existir.
 
 - **Acesso Negado (403 Forbidden):** Se o usuário autenticado não for o cliente nem o prestador deste serviço.
+
+## Criar Proposta de Agendamento
+
+Envia uma nova proposta de data e hora para a realização do serviço. Esta ação é de uso exclusivo do Prestador vinculado ao respectivo serviço.
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/agendamento \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "data": "2026-05-20T14:30:00Z",
+         "observacoes": "Disponibilidade no período da tarde."
+     }'
+```
+
+#### Regras de Payload:
+
+- `data` (obrigatório): Deve ser uma string contendo uma estrutura de data e hora válida baseada no padrão ISO 8601 (Ex: `YYYY-MM-DDTHH:mm:ssZ`). Não são aceitas datas retroativas (anteriores ao dia atual).
+
+- `observacoes` (opcional): Texto com limite de no máximo 1000 caracteres.
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`.
+
+- **Erro de Validação (422 Unprocessable Content):** Retornado quando a data está ausente, em formato inválido, no passado ou se as observações excederem 1000 caracteres.
+
+- **Acesso Negado (403 Forbidden):** Se a tentativa de envio partir do Cliente do serviço.
+
+## Confirmar Agendamento
+
+Aprova uma proposta de agendamento em aberto recebida do Prestador. Esta ação é de uso exclusivo do Cliente do serviço.
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/agendamento/019e1234-e21c-78a0-a004-a772f82b114c/confirmar \
+     -H "Authorization: Bearer $TOKEN"
+```
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`. O status interno da proposta é alterado para confirmado.
+
+- **Acesso Negado (403 Forbidden):** Caso o usuário autenticado na requisição seja o prestador.
+
+- **Não Encontrado (404 Not Found):** Caso o ID do serviço ou do agendamento informado não exista.
+
+## Declinar Agendamento
+
+Recusa uma proposta de agendamento em aberto recebida do Prestador. Esta ação é de uso exclusivo do Cliente do serviço.
+
+```bash
+curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b114a/agendamento/019e1234-e21c-78a0-a004-a772f82b114c/declinar \
+     -H "Authorization: Bearer $TOKEN"
+```
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** `{"success": true}`. O status interno da proposta é alterado para recusado.
+
+- **Acesso Negado (403 Forbidden):** Caso o usuário autenticado na requisição seja o cliente ou um terceiro.
+
+- **Não Encontrado (404 Not Found):** Caso o ID do serviço ou do agendamento informado não exista.

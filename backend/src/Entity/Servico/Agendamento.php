@@ -15,12 +15,13 @@ class Agendamento
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct(Servico $servico, \DateTimeInterface $data)
+    public function __construct(Servico $servico, \DateTimeInterface $data, string $observacoes)
     {
         $this->id = Uuid::v7();
         $this->status = StatusAgendamento::Proposta;
         $this->servico = $servico;
         $this->data = $data;
+        $this->observacoes = $observacoes;
         $this->criadoEm = new \DateTimeImmutable();
     }
 
