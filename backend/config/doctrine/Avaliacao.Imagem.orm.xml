@@ -13,6 +13,10 @@
 
         <field name="tamanho" type="integer" column="tamanho" />
 
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
         <many-to-one field="avaliacao" target-entity="App\Entity\Avaliacao\Avaliacao" inversed-by="imagens">
             <join-column name="id_avaliacao" referenced-column-name="id_servico" nullable="false" />
         </many-to-one>

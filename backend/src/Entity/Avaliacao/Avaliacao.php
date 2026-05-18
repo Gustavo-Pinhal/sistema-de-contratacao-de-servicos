@@ -16,6 +16,8 @@ class Avaliacao
     private float $nota;
     private ?string $comentario = null;
     private Collection $imagens;
+    private \DateTimeImmutable $criadoEm;
+    private ?\DateTimeImmutable $excluidoEm = null;
 
     public function __construct(
         Servico $servico,
@@ -27,6 +29,7 @@ class Avaliacao
         $this->nota = $nota;
         $this->comentario = $comentario;
         $this->imagens = new ArrayCollection();
+        $this->criadoEm = new \DateTimeImmutable();
     }
 
     public function getId(): Uuid
@@ -73,5 +76,20 @@ class Avaliacao
             $this->imagens->add($imagem);
         }
         return $this;
+    }
+
+    public function getCriadoEm(): \DateTimeImmutable
+    {
+        return $this->criadoEm;
+    }
+
+    public function getExcluidoEm(): ?\DateTimeImmutable
+    {
+        return $this->excluidoEm;
+    }
+
+    public function excluir(): void
+    {
+        $this->excluidoEm = new \DateTimeImmutable();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Repository\Avaliacao;
 
 use App\Entity\Avaliacao\Avaliacao;
+use App\Entity\Servico\Servico;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,14 @@ class AvaliacaoRepository extends ServiceEntityRepository
         parent::__construct($registry, Avaliacao::class);
     }
 
-    //    /**
-    //     * @return Avaliacao[] Returns an array of Avaliacao objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Avaliacao
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function buscarAvaliacaoComImagens(Servico $servico): ?Avaliacao
+    {
+        return $this->createQueryBuilder('a')
+            ->addSelect('i')
+            ->leftJoin('a.imagens', 'i')
+            ->where('a.servico = :servico')
+            ->setParameter('servico', $servico)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

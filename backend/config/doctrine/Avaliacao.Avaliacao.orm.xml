@@ -11,6 +11,10 @@
 
         <field name="comentario" type="text" column="comentario" nullable="true" />
 
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
         <one-to-one field="servico" target-entity="App\Entity\Servico\Servico">
             <join-column name="id_servico" referenced-column-name="id" nullable="false" />
         </one-to-one>

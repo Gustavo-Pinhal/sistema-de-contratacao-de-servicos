@@ -23,6 +23,8 @@ final class Version20260508163428 extends AbstractMigration
             id_servico      UUID            PRIMARY KEY,
             nota            DOUBLE PRECISION NOT NULL,
             comentario      TEXT,
+            criado_em       TIMESTAMP       NOT NULL,
+            excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_servico) REFERENCES servico.servicos (id)
         );
         SQL);
@@ -34,6 +36,8 @@ final class Version20260508163428 extends AbstractMigration
             caminho         VARCHAR(512)    NOT NULL,
             mime_type       VARCHAR(100)    NOT NULL,
             tamanho         INTEGER         NOT NULL,
+            criado_em       TIMESTAMP       NOT NULL,
+            excluido_em     TIMESTAMP       ,
             FOREIGN KEY (id_avaliacao) REFERENCES avaliacao.avaliacoes (id_servico)
         );
         SQL);
