@@ -3,6 +3,7 @@
 namespace App\Repository\Avaliacao;
 
 use App\Entity\Avaliacao\Avaliacao;
+use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -26,5 +27,18 @@ class AvaliacaoRepository extends ServiceEntityRepository
             ->setParameter('servico', $servico)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function buscarAvaliacoesPorPrestador(Prestador $prestador): array
+    {
+        return $this->createQueryBuilder('a')
+            ->innerJoin('a.servico', 's')
+            ->where('s.prestador = :prestadorId')
+            ->andWhere('a.excluidoEm IS NULL')
+            ->andWhere('s.excluidoEm IS NULL')
+            ->orderBy('a.criadoEm', 'DESC')
+            ->setParameter('prestadorId', $prestador->getUsuario()->getId())
+            ->getQuery()
+            ->getResult();
     }
 }

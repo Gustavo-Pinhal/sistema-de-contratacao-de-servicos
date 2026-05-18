@@ -182,10 +182,6 @@ class Servico
     {
         $this->projeto = $projeto;
 
-        if ($projeto && $projeto->getServico() !== $this) {
-            $projeto->setServico($this);
-        }
-
         return $this;
     }
 
