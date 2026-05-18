@@ -71,11 +71,25 @@ export default function ChatRoom({
         const newMessage: Message = JSON.parse(event.data);
         setMessages((prev) => {
           if (prev.some((m) => m.id === newMessage.id)) return prev;
-          return [...prev, newMessage];
+
+          // Remove optimistic temp messages that match by content and sender
+          const filtered = prev.filter(
+            (m) =>
+              !(
+                m.id.startsWith("temp-") &&
+                m.enviado_por === newMessage.enviado_por &&
+                m.texto === newMessage.texto
+              ),
+          );
+
+          return [...filtered, newMessage];
         });
       } catch (err) {
         console.error("Erro no parse SSE:", err);
       }
+    };
+    eventSource.onerror = (err: any) => {
+      console.warn("SSE connection error", err);
     };
 
     return () => {
@@ -137,6 +151,18 @@ export default function ChatRoom({
 
     setSending(true);
     try {
+      // Optimistic UI: append a temp message so user sees instant feedback
+      const tempId = `temp-${Date.now()}`;
+      const tempMessage: Message = {
+        id: tempId,
+        enviado_por: user?.id || "",
+        tipo: "texto",
+        texto: inputText,
+        enviado_em: new Date().toLocaleString(),
+        arquivo: null,
+      };
+      setMessages((prev) => [...prev, tempMessage]);
+
       const res = await fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
         method: "POST",
         headers: {
@@ -148,6 +174,12 @@ export default function ChatRoom({
 
       if (res.ok) {
         setInputText("");
+        // success — real message will arrive via SSE and replace temp
+      } else {
+        // remove temp message on failure
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        const text = await res.text();
+        throw new Error(text || "Erro ao enviar mensagem.");
       }
     } catch (err) {
       console.error("Erro ao transmitir texto:", err);
@@ -193,9 +225,12 @@ export default function ChatRoom({
       {/* Timeline de Conversa */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((msg) => {
-          // Correção da checagem: Garante que ambos os IDs existem e são válidos antes de testar igualdade
+          // Correção da checagem: normaliza e compara IDs (evita problemas de casing)
           const isMe = Boolean(
-            user?.id && msg.enviado_por && msg.enviado_por === user.id,
+            user?.id &&
+            msg.enviado_por &&
+            String(msg.enviado_por).toLowerCase() ===
+              String(user.id).toLowerCase(),
           );
           const isImage = msg.arquivo?.mime_type.startsWith("image/");
 
@@ -224,7 +259,9 @@ export default function ChatRoom({
                             src={resolvedUrls[msg.arquivo.id]}
                             alt="Mídia"
                             className="w-full h-auto max-h-64 object-cover cursor-pointer"
-                            onClick={() => msg.arquivo && handleDownload(msg.arquivo.id)}
+                            onClick={() =>
+                              msg.arquivo && handleDownload(msg.arquivo.id)
+                            }
                           />
                         ) : (
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
@@ -235,7 +272,9 @@ export default function ChatRoom({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => msg.arquivo && handleDownload(msg.arquivo.id)}
+                        onClick={() =>
+                          msg.arquivo && handleDownload(msg.arquivo.id)
+                        }
                         className={`flex items-center gap-3 p-3 rounded-xl text-left border transition-all w-full ${
                           isMe
                             ? "bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
