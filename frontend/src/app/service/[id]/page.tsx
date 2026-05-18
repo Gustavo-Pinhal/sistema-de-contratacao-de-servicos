@@ -12,6 +12,7 @@ import {
   Loader2,
   MapPin,
   MessageSquare,
+  Star,
   User,
   XCircle,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
 import { ConfirmAgendamentoDialog } from "@/components/ConfirmAgendamentoDialog";
 import { ServiceActionDialog } from "@/components/ServiceActionDialog";
+import { CreateAvaliacaoDialog } from "@/components/CreateAvaliacaoDialog";
 
 type ServiceStatus =
   | "Orçamento"
@@ -105,6 +107,8 @@ export default function ServiceTrackingPage() {
   const [chatData, setChatData] = useState<ChatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasReview, setHasReview] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [confirmDialogState, setConfirmDialogState] = useState<{
     isOpen: boolean;
     agendamentoId: string;
@@ -123,14 +127,19 @@ export default function ServiceTrackingPage() {
   const serviceStatus = servico?.status;
   const canCancelService =
     serviceStatus === "Orçamento" || serviceStatus === "Ativo";
+  const canReviewService =
+    serviceStatus === "Finalizado" || serviceStatus === "Cancelado";
 
   const loadData = async (token: string) => {
     try {
-      const [serviceRes, chatRes] = await Promise.all([
+      const [serviceRes, chatRes, reviewRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE_URL}/api/servico/${serviceId}/avaliacao`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -157,6 +166,13 @@ export default function ServiceTrackingPage() {
         serviceRes.json(),
         chatRes.json(),
       ])) as [ServiceResponse, ChatResponse];
+
+      if (reviewRes.ok) {
+        await reviewRes.json();
+        setHasReview(true);
+      } else {
+        setHasReview(false);
+      }
 
       setServiceData(serviceJson);
       setChatData(chatJson);
@@ -380,6 +396,29 @@ export default function ServiceTrackingPage() {
           </section>
 
           <aside className="space-y-6 xl:sticky xl:top-24">
+            {canReviewService && (
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                {hasReview ? (
+                  <Link
+                    href={`/service/${serviceId}/avaliacao`}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-blue-700 transition-colors hover:bg-blue-100"
+                  >
+                    <Star size={16} />
+                    Ver Avaliação
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setReviewDialogOpen(true)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-amber-700 transition-colors hover:bg-amber-100"
+                  >
+                    <Star size={16} />
+                    Avaliar Serviço
+                  </button>
+                )}
+              </div>
+            )}
+
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
@@ -582,6 +621,14 @@ export default function ServiceTrackingPage() {
         serviceId={serviceId}
         token={user?.token || ""}
         action="cancel"
+        onSuccess={handleSuccessServiceAction}
+      />
+
+      <CreateAvaliacaoDialog
+        isOpen={reviewDialogOpen}
+        onClose={() => setReviewDialogOpen(false)}
+        serviceId={serviceId}
+        token={user?.token || ""}
         onSuccess={handleSuccessServiceAction}
       />
     </div>
