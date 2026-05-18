@@ -21,7 +21,8 @@ A requisição responde com um array de objetos no seguinte formato:
         "endereco": "Rua das Flores, 123 - Centro",
         "data": "13/05/2026",
         "status": "Orçamento",
-        "encerradoEm": null
+        "encerradoEm": null,
+        "avaliacao": null
     },
     {
         "id": "019e39a4-0b14-763e-80a1-bec1699cc602",
@@ -33,7 +34,8 @@ A requisição responde com um array de objetos no seguinte formato:
         "endereco": "28 out, 12 - ",
         "data": "18\/05\/2026",
         "status": "Finalizado",
-        "encerradoEm": "2026-05-18T05:06:56+00:00"
+        "encerradoEm": "2026-05-18T05:06:56+00:00",
+        "avaliacao": null
     },
     {
         "id": "019e3990-7684-71c7-96d0-23cdc62697d6",
@@ -45,7 +47,8 @@ A requisição responde com um array de objetos no seguinte formato:
         "endereco": "28 out, 12 - ",
         "data": "18\/05\/2026",
         "status": "Finalizado",
-        "encerradoEm": "2026-05-18T05:06:56+00:00"
+        "encerradoEm": "2026-05-18T05:06:56+00:00",
+        "avaliacao": { "nota": 8.5, "data": "2026-05-18T11:00:58+00:00" }
     }
 ]
 ```

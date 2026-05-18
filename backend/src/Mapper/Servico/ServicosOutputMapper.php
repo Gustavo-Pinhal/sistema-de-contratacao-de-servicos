@@ -29,6 +29,8 @@ class ServicosOutputMapper extends AbstractMapper
             ->find($prestador->getId())
             ?->getNome();
 
+        $avaliacao = $servico->getAvaliacao();
+
         $servico = [
             'id' => $servico->getId(),
             'prestador' => [
@@ -48,6 +50,11 @@ class ServicosOutputMapper extends AbstractMapper
             },
             'encerradoEm' => $servico->getEncerramento(),
         ];
+
+        $servico['avaliacao'] = !is_null($avaliacao) ? [
+            'nota' => $avaliacao->getNota(),
+            'data' => $avaliacao->getCriadoEm(),
+        ] : null;
 
         if (array_key_exists('completo', $options) && $options['completo']) {
             $servico['cliente'] = [
