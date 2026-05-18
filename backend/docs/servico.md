@@ -30,7 +30,8 @@ A requisição responde com um objeto contendo os detalhes do serviço no seguin
             "endereco": "Rua das Flores, 123 - Mirassol",
             "cep": "14801-100",
             "municipio": "Araraquara"
-        }
+        },
+        "avaliacao": { "nota": 8.5, "data": "2026-05-18T11:00:58+00:00" }
     },
     "agendamentos": [
         {
@@ -61,6 +62,8 @@ A requisição responde com um objeto contendo os detalhes do serviço no seguin
     "total": 750.0
 }
 ```
+
+o campo `servico.avaliacao` possui valor `nulo` caso o serviço não esteja finalizado ou ainda não possua avaliação.
 
 #### Status de agendamento:
 

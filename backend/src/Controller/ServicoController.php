@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Servico\Servico;
-use App\Enum\StatusServico;
 use App\Mapper\Servico\AgendamentosOutputMapper;
 use App\Mapper\Servico\OrcamentoOutputMapper;
 use App\Mapper\Servico\ServicosOutputMapper;
