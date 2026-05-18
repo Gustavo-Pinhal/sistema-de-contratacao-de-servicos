@@ -237,6 +237,14 @@ export default function ServiceTrackingPage() {
     }).format(value);
 
   const getServiceStatusClass = (status: ServiceStatus) => {
+    // If waiting for review (Finalizado/Cancelado without evaluation), show yellow
+    if (
+      (status === "Finalizado" || status === "Cancelado") &&
+      !servico?.avaliacao
+    ) {
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    }
+
     switch (status) {
       case "Ativo":
         return "bg-blue-50 text-blue-700 border-blue-200";
