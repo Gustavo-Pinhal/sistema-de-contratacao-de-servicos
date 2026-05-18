@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 use App\Entity\Portifolio\Projeto;
+use App\Exception\Servico\StatusInvalidoParaAcao;
 
 class Servico
 {
@@ -86,6 +87,13 @@ class Servico
 
     public function addOrcamento(Orcamento $orcamento): self
     {
+        if (
+            $this->status !== StatusServico::EmDecorrencia
+            && $this->status !== StatusServico::EmDecorrencia
+        ) {
+            throw new StatusInvalidoParaAcao($this->status);
+        }
+
         $this->status = StatusServico::EmDecorrencia;
         $this->orcamentos->add($orcamento);
         return $this;
@@ -107,6 +115,13 @@ class Servico
 
     public function addAgendamento(Agendamento $agendamento): self
     {
+        if (
+            $this->status !== StatusServico::SolicitacaoDeOrcamento
+            && $this->status !== StatusServico::EmDecorrencia
+        ) {
+            throw new StatusInvalidoParaAcao($this->status);
+        }
+
         if (!$this->agendamentos->contains($agendamento)) {
             $this->agendamentos->add($agendamento);
         }
@@ -121,6 +136,13 @@ class Servico
 
     public function cancelar(Usuario $cancelante): self
     {
+        if (
+            $this->status !== StatusServico::SolicitacaoDeOrcamento
+            && $this->status !== StatusServico::EmDecorrencia
+        ) {
+            throw new StatusInvalidoParaAcao($this->status);
+        }
+
         $this->encerramento = new \DateTimeImmutable();
 
         $this->status = $cancelante->getId()->equals($this->cliente->getId())
@@ -132,6 +154,10 @@ class Servico
 
     public function concluir(): self
     {
+        if ($this->status !== StatusServico::EmDecorrencia) {
+            throw new StatusInvalidoParaAcao($this->status);
+        }
+
         $this->status = StatusServico::Concluido;
         $this->encerramento = new \DateTimeImmutable();
         return $this;

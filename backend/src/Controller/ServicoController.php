@@ -53,13 +53,6 @@ final class ServicoController extends AbstractController
             return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
         }
 
-        if ($servico->getStatus() !== StatusServico::EmDecorrencia) {
-            return $this->json(
-                ['error' => 'Transição de status inválida'],
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
-        }
-
         $servico->concluir();
         $manager->flush();
 
@@ -75,22 +68,6 @@ final class ServicoController extends AbstractController
         $usuario = $this->getUser();
         if (!$servico->eParticipante($usuario)) {
             return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
-        }
-
-        $statusAtual = $servico->getStatus();
-
-        $statusProibidosParaCancelamento = [
-            StatusServico::Concluido,
-            StatusServico::Expirado,
-            StatusServico::CanceladoPeloCliente,
-            StatusServico::CanceladoPeloPrestador,
-        ];
-
-        if (in_array($statusAtual, $statusProibidosParaCancelamento, true)) {
-            return $this->json(
-                ['error' => 'Transição de status inválida'],
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
         }
 
         $servico->cancelar($usuario);
