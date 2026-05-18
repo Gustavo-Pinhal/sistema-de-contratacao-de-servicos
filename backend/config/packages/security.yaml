@@ -40,6 +40,7 @@ security:
         - { path: ^/api/busca, roles: PUBLIC_ACCESS }
         - { path: ^/api/ui, roles: PUBLIC_ACCESS }
         - { path: ^/api/metrics/prometheus, roles: PUBLIC_ACCESS }
+        - { path: ^/api/prestador/[a-zA-Z0-9\-]+/portifolio, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/areaprestador, roles: ROLE_PRESTADOR }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
