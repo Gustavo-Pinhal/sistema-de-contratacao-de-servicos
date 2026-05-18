@@ -59,7 +59,7 @@ function LoginContent() {
       const success = await login(formData.email, formData.password);
       if (success) {
         // Redireciona conforme a role após login real
-        router.push(role === "client" ? "/search" : "/dashboard");
+        router.push(role === "client" ? "/search" : "/affiliate/dashboard");
       } else {
         setError("E-mail ou senha incorretos.");
         setLoading(false);
@@ -75,7 +75,9 @@ function LoginContent() {
       const result = await register({ ...formData, role });
       if (result.success) {
         const logged = await login(formData.email, formData.password);
-        if (logged) router.push(role === "client" ? "/search" : "/dashboard");
+        if (logged) {
+          router.push(role === "client" ? "/search" : "/affiliate/dashboard");
+        }
       } else {
         setError(result.error || "Falha ao realizar cadastro.");
         setLoading(false);

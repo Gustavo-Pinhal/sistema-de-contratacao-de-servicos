@@ -112,8 +112,8 @@ export function Navbar() {
                   {(role === "provider" || role === "ROLE_PRESTADOR") && (
                     <>
                       <NavLink
-                        href="/dashboard"
-                        active={pathname === "/dashboard"}
+                        href="/affiliate/dashboard"
+                        active={pathname === "/affiliate/dashboard"}
                         icon={<HomeIcon className="w-4 h-4" />}
                       >
                         Painel
@@ -182,7 +182,7 @@ export function Navbar() {
                       href={
                         role === "client"
                           ? "/client/profile"
-                          : "/provider/dashboard"
+                          : "/affiliate/dashboard"
                       }
                       className="group"
                     >

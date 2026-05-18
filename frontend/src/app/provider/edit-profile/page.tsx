@@ -144,7 +144,7 @@ export default function EditProviderProfile() {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        router.push("/affiliate/dashboard");
       } else {
         const errData = await res.json();
         setError(errData.detail || "Erro ao validar dados.");
@@ -176,7 +176,7 @@ export default function EditProviderProfile() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
         <Link
-          href="/dashboard"
+          href="/affiliate/dashboard"
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 font-bold text-xs uppercase tracking-widest"
         >
           <ArrowLeft size={16} /> Voltar ao Painel
@@ -352,7 +352,7 @@ export default function EditProviderProfile() {
 
           <div className="flex justify-end gap-4 pt-4">
             <Link
-              href="/dashboard"
+              href="/affiliate/dashboard"
               className="px-8 py-4 text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900"
             >
               Cancelar

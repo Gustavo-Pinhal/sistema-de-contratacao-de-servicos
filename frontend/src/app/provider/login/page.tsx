@@ -60,7 +60,7 @@ export default function ProviderLoginPage() {
       setLoading(true);
       const success = await login(formData.email, formData.password);
       if (success) {
-        router.push("/provider/dashboard");
+        router.push("/affiliate/dashboard");
       } else {
         setError("Credenciais inválidas para prestador.");
         setLoading(false);
@@ -73,14 +73,14 @@ export default function ProviderLoginPage() {
         if (selectedPlan === "free") {
           // Aqui você chamaria seu endpoint de registro real
           alert("Cadastro gratuito enviado!");
-          router.push("/dashboard");
+          router.push("/affiliate/dashboard");
         } else {
           setStep(3);
         }
       } else {
         // Finalização com pagamento (Premium)
         alert("Assinatura Premium processada!");
-        router.push("/dashboard");
+        router.push("/affiliate/dashboard");
       }
     }
   };

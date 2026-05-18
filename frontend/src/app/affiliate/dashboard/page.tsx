@@ -1,31 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Calendar,
-  DollarSign,
-  MapPin,
-  User,
-  Crown,
-  Star,
-  Loader2,
-  AlertCircle,
-  MessageSquare,
   ChevronRight,
+  Loader2,
+  MapPin,
+  MessageSquare,
+  Star,
+  User,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 
-// Tipagem baseada no retorno da sua API
 interface ServiceAPI {
   id: string;
   cliente: {
     nome: string;
   };
-  serviceType?: string; // Campos opcionais caso a API expanda
-  description?: string;
-  address?: string;
-  proposedValue?: string;
 }
 
 interface DashboardData {
@@ -35,21 +26,24 @@ interface DashboardData {
   cancelados: ServiceAPI[];
 }
 
-export default function ProviderDashboard() {
-  const { user, userPlan } = useUser();
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://localhost";
+
+export default function AffiliateDashboardPage() {
+  const { user } = useUser();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<keyof DashboardData>("pendentes");
 
-  const isPremium = userPlan === "premium" || true; // Mock para UI
+  const isPremium = false;
 
   useEffect(() => {
     async function fetchDashboard() {
       try {
         setLoading(true);
+
         const response = await fetch(
-          "https://localhost/api/areaprestador/dashboard",
+          `${API_BASE_URL}/api/areaprestador/dashboard`,
           {
             headers: {
               Authorization: `Bearer ${user?.token}`,
@@ -57,19 +51,22 @@ export default function ProviderDashboard() {
           },
         );
 
-        if (!response.ok)
+        if (!response.ok) {
           throw new Error("Falha ao carregar dados do servidor");
+        }
 
-        const result = await response.json();
+        const result = (await response.json()) as DashboardData;
         setData(result);
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || "Erro ao carregar dashboard");
       } finally {
         setLoading(false);
       }
     }
 
-    if (user?.token) fetchDashboard();
+    if (user?.token) {
+      fetchDashboard();
+    }
   }, [user?.token]);
 
   const getCurrentList = () => {
@@ -77,21 +74,33 @@ export default function ProviderDashboard() {
     return data[activeTab] || [];
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="bg-white rounded-2xl border border-red-100 p-6 text-center max-w-md w-full">
+          <p className="text-red-600 font-bold text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header - Identidade do Profissional */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${isPremium ? "bg-slate-900 shadow-slate-200" : "bg-gray-400"}`}
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
+                isPremium ? "bg-slate-900 shadow-slate-200" : "bg-gray-400"
+              }`}
             >
               <User className="w-8 h-8 text-white" />
             </div>
@@ -115,6 +124,7 @@ export default function ProviderDashboard() {
               </p>
             </div>
           </div>
+
           <div className="flex gap-3">
             <Link
               href="/provider/edit-profile"
@@ -131,32 +141,27 @@ export default function ProviderDashboard() {
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           {[
             {
               label: "Pendentes",
               val: data?.pendentes.length,
               color: "text-amber-600",
-              bg: "bg-amber-50",
             },
             {
               label: "Ativos",
               val: data?.ativos.length,
               color: "text-blue-600",
-              bg: "bg-blue-50",
             },
             {
               label: "Concluídos",
               val: data?.concluidos.length,
               color: "text-green-600",
-              bg: "bg-green-50",
             },
             {
               label: "Cancelados",
               val: data?.cancelados.length,
               color: "text-gray-400",
-              bg: "bg-gray-50",
             },
           ].map((stat, i) => (
             <div
@@ -171,7 +176,6 @@ export default function ProviderDashboard() {
           ))}
         </div>
 
-        {/* Navigation Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {(["pendentes", "ativos", "concluidos", "cancelados"] as const).map(
             (tab) => (
@@ -190,12 +194,11 @@ export default function ProviderDashboard() {
           )}
         </div>
 
-        {/* Listagem */}
         <div className="space-y-4">
           {getCurrentList().map((service) => (
             <Link
               key={service.id}
-              href={`/provider/dashboard/${service.id}`}
+              href={`/affiliate/service/${service.id}`}
               className="group flex flex-col md:flex-row md:items-center justify-between bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-slate-900 transition-all"
             >
               <div className="flex items-center gap-5">
