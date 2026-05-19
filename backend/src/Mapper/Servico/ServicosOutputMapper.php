@@ -24,6 +24,7 @@ class ServicosOutputMapper extends AbstractMapper
         $prestador = $servico->getPrestador();
         $cliente = $servico->getCliente();
         $endereco = $servico->getEndereco();
+        $possuiProjeto = !is_null($servico->getProjeto());
 
         $nomeComercial = $this->prestadorRepository
             ->find($prestador->getId())
@@ -62,6 +63,7 @@ class ServicosOutputMapper extends AbstractMapper
                 'nome' => $cliente->getNome(),
             ];
             $servico['enderecoCompleto'] = $this->enderecoMapper->map($endereco);
+            $servico['projeto'] = $possuiProjeto;
         }
 
         return $servico;
