@@ -300,14 +300,16 @@ function FilterButton({
 }
 
 function ProviderCard({ provider }: { provider: Prestador }) {
-  // Lógica para definir a imagem: prioriza urlPerfil, se vazio usa ui-avatars
   const imageUrl =
     provider.urlPerfil && provider.urlPerfil !== ""
       ? provider.urlPerfil
       : `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.nome)}&background=random`;
 
   return (
-    <div className="bg-white p-4 rounded-3l border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
+    <Link
+      href={`/provider/${provider.usuario.id}`}
+      className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group"
+    >
       <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
         <Image
           src={imageUrl}
@@ -315,7 +317,7 @@ function ProviderCard({ provider }: { provider: Prestador }) {
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          unoptimized={imageUrl.includes("localhost")} // Útil para evitar erros de SSL em dev
+          unoptimized={imageUrl.includes("localhost")}
         />
       </div>
 
@@ -331,14 +333,10 @@ function ProviderCard({ provider }: { provider: Prestador }) {
             </span>
           ))}
         </div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+          Ver perfil do prestador
+        </p>
       </div>
-
-      <Link
-        href={`/provider/${provider.usuario.id}/request`}
-        className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-tighter hover:bg-blue-600 transition-colors text-center block"
-      >
-        Solicitar Orçamento
-      </Link>
-    </div>
+    </Link>
   );
 }
