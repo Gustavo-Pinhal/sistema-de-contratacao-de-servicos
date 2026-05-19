@@ -28,8 +28,7 @@ class PrestadorRepository extends ServiceEntityRepository
             ->addSelect('u')
             ->leftJoin('p.profissoes', 'pr_lista')
             ->addSelect('pr_lista')
-            ->where('p.excluidoEm IS NULL')
-            ->andWhere('p.ativo = true');
+            ->where('p.excluidoEm IS NULL');
 
         if (!empty($profissoes)) {
             $qb->innerJoin('p.profissoes', 'pr_filtro')

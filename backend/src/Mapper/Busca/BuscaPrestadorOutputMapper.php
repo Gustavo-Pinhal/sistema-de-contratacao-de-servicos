@@ -24,6 +24,7 @@ class BuscaPrestadorOutputMapper extends AbstractMapper
             'nome' => $prestador->getNome(),
             'urlPerfil' => $this->mediaService->obterUrlFotoPerfil($prestador->getUsuario()),
             'profissoes' => $profissoes,
+            'premium' => $prestador->isAtivo(),
         ];
     }
 }
