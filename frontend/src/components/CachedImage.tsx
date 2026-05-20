@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 export interface ChatMessage {
   id: string;
   enviadoPor: string;
-  tipo: "texto" | "arquivo";
-  text: string | null; // suporta variações de propriedades do payload
+  tipo: "texto" | "arquivo" | "foto";
   texto: string | null;
   arquivo: { id: string; mime_type?: string; mimeType?: string } | null;
   enviadoEm: string;

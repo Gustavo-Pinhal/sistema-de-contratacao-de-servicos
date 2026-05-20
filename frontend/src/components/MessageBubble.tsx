@@ -11,11 +11,13 @@ export default function MessageBubble({
   serviceId,
   token,
 }: MessageBubbleProps) {
-  // Tratamento preventivo para blindar contra variações do backend ou do Mercure Hub
   const mimeType =
     message.arquivo?.mimeType || message.arquivo?.mime_type || "";
+
+  // 💡 Correção aqui: Aceita se o tipo for explicitamente "foto" OU se for "arquivo" com mime de imagem
   const isImage =
-    message.tipo === "arquivo" && mimeType.toLowerCase().startsWith("image/");
+    message.tipo === "foto" ||
+    (message.tipo === "arquivo" && mimeType.toLowerCase().startsWith("image/"));
 
   return (
     <div
