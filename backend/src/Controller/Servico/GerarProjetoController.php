@@ -62,9 +62,10 @@ final class GerarProjetoController extends AbstractController
             return $this->json(['error' => 'Serviço já gerou um projeto'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $manager->persist($factory->fromDto($dto, $servico));
+        $projeto = $factory->fromDto($dto, $servico);
+        $manager->persist($projeto);
         $manager->flush();
 
-        return $this->json(['success' => true], Response::HTTP_CREATED);
+        return $this->json(['success' => true, 'id' => $projeto->getId()], Response::HTTP_CREATED);
     }
 }

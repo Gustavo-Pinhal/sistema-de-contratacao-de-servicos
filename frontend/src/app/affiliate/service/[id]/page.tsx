@@ -12,6 +12,8 @@ import {
   Loader2,
   MessageSquare,
   User,
+  FolderHeart,
+  CheckCircle2,
 } from "lucide-react";
 import ChatRoom from "@/components/ChatRoom";
 import { useUser } from "@/context/UserContext";
@@ -59,6 +61,7 @@ interface ServicoDetalhado {
   };
   data: string;
   status: ServiceStatus;
+  projeto: boolean; // Mapeado conforme endpoint do backend
 }
 
 interface ServiceResponse {
@@ -119,10 +122,15 @@ export default function ProviderServicePage() {
   const agendamentos = serviceData?.agendamentos ?? [];
   const orcamentos = serviceData?.orcamentos ?? [];
   const serviceStatus = servico?.status;
+
   const canManageFinancials =
     serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const canCancelService = canManageFinancials;
   const canFinalizeService = serviceStatus === "Ativo";
+
+  // Regra para exibição do botão de Portfólio / Caso de Sucesso
+  const isFinished = serviceStatus === "Finalizado";
+  const hasPublishedProject = servico?.projeto === true;
 
   const loadData = async (token: string) => {
     try {
@@ -192,7 +200,7 @@ export default function ProviderServicePage() {
       case "Ativo":
         return "bg-blue-50 text-blue-700 border-blue-200";
       case "Finalizado":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-green-50 text-green-700 border-green-200";
       case "Cancelado":
         return "bg-rose-50 text-rose-700 border-rose-200";
       case "Orçamento":
@@ -204,7 +212,7 @@ export default function ProviderServicePage() {
   const getAgendamentoStatusClass = (status: Agendamento["status"]) => {
     switch (status) {
       case "confirmado":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-green-50 text-green-700 border-green-200";
       case "recusado":
         return "bg-rose-50 text-rose-700 border-rose-200";
       case "proposta":
@@ -256,7 +264,7 @@ export default function ProviderServicePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
-        <Loader2 className="animate-spin text-blue-600 w-8 h-8" />
+        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
         <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
           Carregando Serviço...
         </p>
@@ -285,12 +293,12 @@ export default function ProviderServicePage() {
     : servico?.endereco || "-";
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 selection:bg-green-500 selection:text-white">
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/affiliate/dashboard"
-            className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
+            className="flex items-center gap-2 text-slate-500 font-bold hover:text-green-600 transition-colors"
           >
             <ChevronLeft size={20} />
             <span className="text-xs uppercase tracking-widest">Voltar</span>
@@ -373,6 +381,29 @@ export default function ProviderServicePage() {
           </section>
 
           <aside className="space-y-6 xl:sticky xl:top-24">
+            {/* Bloco Dinâmico: Criar Caso de Sucesso / Portfólio (Apenas Serviços Concluídos) */}
+            {isFinished && (
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                  Portfólio Profissional
+                </h2>
+                {hasPublishedProject ? (
+                  <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-green-700 transition-colors">
+                    <CheckCircle2 size={16} />
+                    Caso de Sucesso Publicado
+                  </div>
+                ) : (
+                  <Link
+                    href={`/affiliate/portifolio/criar?servico=${serviceId}`}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-purple-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-purple-700 transition-all hover:bg-purple-100 shadow-md shadow-purple-50"
+                  >
+                    <FolderHeart size={16} />
+                    Transformar em Projeto
+                  </Link>
+                )}
+              </div>
+            )}
+
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
               <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">
                 Ações do Prestador
@@ -382,7 +413,7 @@ export default function ProviderServicePage() {
                   type="button"
                   onClick={handleCriarAgendamento}
                   disabled={!canManageFinancials}
-                  className="flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                  className="flex items-center justify-center gap-3 bg-green-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-green-700 shadow-lg shadow-green-100 transition-all disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
                 >
                   <CalendarPlus size={18} /> Criar Agendamento
                 </button>
@@ -399,8 +430,8 @@ export default function ProviderServicePage() {
 
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
-                  <Clock className="text-blue-600" size={20} />
+                <div className="w-10 h-10 bg-green-50 rounded-2xl flex items-center justify-center">
+                  <Clock className="text-green-600" size={20} />
                 </div>
                 <div>
                   <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">
@@ -535,7 +566,7 @@ export default function ProviderServicePage() {
                       <button
                         type="button"
                         onClick={handleFinalizarServico}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-green-700"
                       >
                         Concluir Serviço
                       </button>

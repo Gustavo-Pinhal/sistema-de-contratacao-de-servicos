@@ -108,7 +108,7 @@ curl -k -X POST https://localhost/api/servico/019e134d-e21c-78a0-a004-a772f82b11
 
 #### Respostas possíveis:
 
-- **Sucesso (201 Created):** `{"success": true}`.
+- **Sucesso (201 Created):** `{"success": true, "id": "019e3ba3-01a7-7cf9-9361-248e590b0c8f"}`.
 
 - **Acesso Negado (403 Forbidden):** Se o usuário não for o prestador do serviço.
 
