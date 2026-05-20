@@ -4,6 +4,7 @@ namespace App\Controller\Chat;
 
 use App\Dto\Request\Chat\MensagemInputDto;
 use App\Entity\Servico\Servico;
+use App\Entity\Auth\Usuario;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Factory\Chat\MensagemFactory;
 use App\Mapper\Chat\MensagemOutputMapper;
@@ -34,6 +35,7 @@ final class ChatController extends AbstractController
         MensagemOutputMapper $mapper,
         ChatMercureTokenService $mercure,
     ): JsonResponse {
+        /** @var Usuario $usuario */
         $usuario = $this->getUser();
         $sala = $repositorio->buscarSalaComMensagensPorServico($servico);
 
@@ -48,6 +50,7 @@ final class ChatController extends AbstractController
         $topico = self::TOPICO . $servico->getId();
 
         return $this->json([
+            'idUsuario' => $usuario->getId(),
             'idServico' => $servico->getId(),
             'mercureToken' => $token,
             'topico' => $topico,
@@ -61,7 +64,7 @@ final class ChatController extends AbstractController
                     'nome' => $prestador->getNome(),
                 ],
             ],
-            'messagens' => $mapper->mensagens($mensagens->toArray()),
+            'messagens' => $mapper->mapCollection($mensagens->toArray()),
         ]);
     }
 
@@ -87,7 +90,7 @@ final class ChatController extends AbstractController
         $manager->persist($mensagem);
         $manager->flush();
 
-        $outputDto = $mapper->mensagem($mensagem);
+        $outputDto = $mapper->map($mensagem);
         $update = new Update(
             self::TOPICO . $servico->getId(),
             $serializer->serialize($outputDto, 'json'),
@@ -157,7 +160,7 @@ final class ChatController extends AbstractController
             $manager->persist($mensagem);
             $manager->flush();
 
-            $dto = $mapper->mensagem($mensagem);
+            $dto = $mapper->map($mensagem);
 
             try {
                 $update = new Update(

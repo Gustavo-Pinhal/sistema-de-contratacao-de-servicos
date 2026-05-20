@@ -11,6 +11,7 @@ A requisição responde com um objeto contendo o histórico e os metadados de co
 
 ```json
 {
+    "idUsuario": "019e128a-09c5-7c17-a15c-1bfb45382083",
     "idServico": "019e134d-e21c-78a0-a004-a772f82b114a",
     "mercureToken": "eyJ0eXAi...",
     "topico": "http://chat/com/servico/019e134d-e21c-78a0-a004-a772f82b114a",
@@ -27,16 +28,16 @@ A requisição responde com um objeto contendo o histórico e os metadados de co
     "messagens": [
         {
             "id": "019e13eb-450c-7bb6-9060-9abf55d0c276",
-            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "enviadoPor": "019e128a-09c5-7c17-a15c-1bfb45382083",
             "tipo": "texto",
             "texto": "Olá, tudo bem?",
             "referencia": "",
             "arquivo": null,
-            "enviado_em": "10/05/2026 às 22:04"
+            "enviadoEm": "10/05/2026 às 22:04"
         },
         {
             "id": "019e13ec-450c-7bb6-9060-9abf55d0c277",
-            "enviado_por": "019e128a-09c5-7c17-a15c-1bfb45382083",
+            "enviadoPor": "019e128a-09c5-7c17-a15c-1bfb45382083",
             "tipo": "arquivo",
             "texto": null,
             "referencia": "",
@@ -44,13 +45,13 @@ A requisição responde com um objeto contendo o histórico e os metadados de co
                 "id": "019e13ec-450c-7bb6-9060-9abf55d0c277",
                 "mime_type": "image/jpeg"
             },
-            "enviado_em": "10/05/2026 às 22:04"
+            "enviadoEm": "10/05/2026 às 22:04"
         }
     ]
 }
 ```
 
-A estrutura do campo `arquivo` agora contém apenas os metadados necessários para solicitar a URL de download.
+A estrutura do campo `arquivo` os metadados necessários para solicitar a URL de download, e o campo `idUsuario` possui o metadado do ID do usuário solicitante da abertura do chat.
 
 #### Respostas possíveis:
 
@@ -123,12 +124,12 @@ O Hub enviará eventos `data` no formato JSON sempre que uma nova mensagem (text
 ```json
 {
     "id": "019e13eb-82b4-7d79-a96e-940f704e469d",
-    "enviado_por": "019e128a-09c5",
+    "enviadoPor": "019e128a-09c5",
     "tipo": "texto",
     "texto": "Mensagem recebida em tempo real!",
     "referencia": "",
     "arquivo": null,
-    "enviado_em": "10/05/2026 às 22:04"
+    "enviadoEm": "10/05/2026 às 22:04"
 }
 ```
 
