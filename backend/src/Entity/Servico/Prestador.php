@@ -11,6 +11,7 @@ use Symfony\Component\Uid\Uuid;
 
 class Prestador
 {
+    private Uuid $id;
     private Usuario $usuario;
     private string $nome;
     private Cep $cep;
@@ -25,6 +26,7 @@ class Prestador
         string $nome,
         Cep $cep,
     ) {
+        $this->id = $usuario->getId();
         $this->usuario = $usuario;
         $this->nome = $nome;
         $this->cep = $cep;
@@ -35,7 +37,7 @@ class Prestador
 
     public function getId(): ?Uuid
     {
-        return $this->usuario->getId();
+        return $this->id;
     }
 
     public function getUsuario(): Usuario

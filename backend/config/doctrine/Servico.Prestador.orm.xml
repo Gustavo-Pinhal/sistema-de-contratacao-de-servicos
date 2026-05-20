@@ -5,10 +5,10 @@
 
     <entity name="App\Entity\Servico\Prestador" table="prestadores" schema="servico" repository-class="App\Repository\Servico\PrestadorRepository">
 
-        <id name="usuario" association-key="true" />
+        <id name="id" type="uuid" column="id" />
 
         <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
-            <join-column name="id" referenced-column-name="id" />
+            <join-column name="id" referenced-column-name="id" nullable="false" unique="true" />
             <cascade>
                 <cascade-persist/>
             </cascade>
