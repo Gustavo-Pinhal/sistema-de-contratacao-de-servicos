@@ -4,8 +4,9 @@ export interface ChatMessage {
   id: string;
   enviadoPor: string;
   tipo: "texto" | "arquivo";
+  text: string | null; // suporta variações de propriedades do payload
   texto: string | null;
-  arquivo: { id: string; mime_type: string } | null;
+  arquivo: { id: string; mime_type?: string; mimeType?: string } | null;
   enviadoEm: string;
   isMe?: boolean;
 }
@@ -25,6 +26,7 @@ export default function CachedImage({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     let objectUrl: string | null = null;
 
     const loadImage = async () => {
@@ -33,41 +35,64 @@ export default function CachedImage({
         const cacheKey = `/api/media/${messageId}`;
         const cachedResponse = await cache.match(cacheKey);
 
+        // Se já estiver no cache local do navegador
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
-          objectUrl = URL.createObjectURL(blob);
-          setImgSrc(objectUrl);
-          setLoading(false);
+          if (isMounted) {
+            objectUrl = URL.createObjectURL(blob);
+            setImgSrc(objectUrl);
+            setLoading(false);
+          }
           return;
         }
 
-        // 1. Busca a Presigned URL
+        // 1. Busca a Presigned URL gerada sob demanda
         const presignedRes = await fetch(
           `https://localhost/api/servico/${serviceId}/chat/${messageId}/download`,
           { headers: { Authorization: `Bearer ${token}` } },
         );
+
+        if (!presignedRes.ok) throw new Error("Erro ao obter URL assinada");
         const { url } = await presignedRes.json();
 
-        // 2. Faz o download do Blob
-        const imageRes = await fetch(url);
-        const blob = await imageRes.blob();
+        if (!isMounted) return;
 
-        // 3. Salva no Cache API do navegador
-        await cache.put(cacheKey, new Response(blob));
+        try {
+          // 2. Tenta baixar o Blob para guardar no cache
+          const imageRes = await fetch(url);
+          if (!imageRes.ok) throw new Error("Erro no download do arquivo");
+          const blob = await imageRes.blob();
 
-        objectUrl = URL.createObjectURL(blob);
-        setImgSrc(objectUrl);
+          // 3. Salva no Cache API
+          await cache.put(cacheKey, new Response(blob));
+
+          if (isMounted) {
+            objectUrl = URL.createObjectURL(blob);
+            setImgSrc(objectUrl);
+          }
+        } catch (corsError) {
+          // 💡 FALLBACK SE HOUVER ERRO DE CORS NO STORAGE:
+          // Se o fetch do blob falhar por regras de CORS do S3/SeaweedFS,
+          // injetamos a URL diretamente no src, ignorando o cache para salvar a renderização.
+          console.warn(
+            "Falha de CORS/Rede ao processar blob. Usando URL assinada diretamente:",
+            corsError,
+          );
+          if (isMounted) {
+            setImgSrc(url);
+          }
+        }
       } catch (error) {
         console.error("Erro ao carregar imagem:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadImage();
 
-    // Limpeza de memória
     return () => {
+      isMounted = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [serviceId, messageId, token]);
@@ -78,6 +103,7 @@ export default function CachedImage({
         Carregando...
       </div>
     );
+
   if (!imgSrc)
     return <div className="text-red-500 text-sm">Falha ao carregar imagem</div>;
 
@@ -85,7 +111,10 @@ export default function CachedImage({
     <img
       src={imgSrc}
       alt="Anexo do chat"
-      className="max-w-[250px] rounded-xl border border-slate-200"
+      className="max-w-[250px] max-h-[300px] rounded-xl border border-slate-200 object-cover"
+      onError={() =>
+        console.error("Erro na renderização do elemento IMG src:", imgSrc)
+      }
     />
   );
 }

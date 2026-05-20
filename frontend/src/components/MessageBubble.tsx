@@ -11,9 +11,11 @@ export default function MessageBubble({
   serviceId,
   token,
 }: MessageBubbleProps) {
+  // Tratamento preventivo para blindar contra variações do backend ou do Mercure Hub
+  const mimeType =
+    message.arquivo?.mimeType || message.arquivo?.mime_type || "";
   const isImage =
-    message.tipo === "arquivo" &&
-    message.arquivo?.mime_type.startsWith("image/");
+    message.tipo === "arquivo" && mimeType.toLowerCase().startsWith("image/");
 
   return (
     <div
@@ -30,7 +32,7 @@ export default function MessageBubble({
           }`}
         >
           {message.tipo === "texto" && (
-            <p className="text-sm">{message.texto}</p>
+            <p className="text-sm whitespace-pre-wrap">{message.texto}</p>
           )}
 
           {isImage && message.arquivo && (
