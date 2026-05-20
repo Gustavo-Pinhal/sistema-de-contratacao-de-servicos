@@ -32,7 +32,7 @@ export function Root() {
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      text: "Bem-vindo ao Marido de Aluguel!",
+      text: "Bem-vindo ao ServiçoFácil!",
       date: "Hoje",
       read: false,
     },
@@ -52,11 +52,11 @@ export function Root() {
             <Link href="/" className="flex items-center gap-2">
               <img
                 src={logo}
-                alt="Marido de Aluguel Logo"
+                alt="ServiçoFácil Logo"
                 className="w-16 h-16 rounded-lg object-contain"
               />
               <span className="text-xl font-bold text-gray-900 hidden sm:inline">
-                Marido de Aluguel
+                ServiçoFácil
               </span>
             </Link>
 
@@ -488,11 +488,11 @@ export function Root() {
               <div className="flex items-center gap-2">
                 <img
                   src={logo}
-                  alt="Marido de Aluguel Logo"
+                  alt="ServiçoFácil Logo"
                   className="w-12 h-12 rounded-xl object-contain shadow-sm border border-slate-100"
                 />
                 <span className="font-bold text-xl tracking-tight text-slate-900">
-                  Marido de Aluguel
+                  ServiçoFácil
                 </span>
               </div>
               <p className="text-sm text-slate-500 max-w-sm leading-relaxed">
@@ -539,7 +539,7 @@ export function Root() {
 
           <div className="border-t border-slate-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
             <p>
-              &copy; 2026 Marido de Aluguel Inc. Todos os direitos reservados.
+              &copy; 2026 ServiçoFácil. Todos os direitos reservados.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
               <a href="#" className="hover:text-indigo-600 transition-colors">

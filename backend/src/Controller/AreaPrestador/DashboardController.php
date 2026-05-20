@@ -2,51 +2,68 @@
 
 namespace App\Controller\AreaPrestador;
 
+use App\Entity\Auth\Usuario;
 use App\Enum\StatusServico;
-use App\Mapper\Servico\ServicosOutputMapper;
 use App\Repository\Servico\ServicoRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_PRESTADOR')]
-#[Route('/areaprestador')]
+#[Route('/api/areaprestador')]
 final class DashboardController extends AbstractController
 {
+    #[Route('/assinar-premium', methods: ['POST'], name: 'app_area_prestador_assinar_premium')]
+    public function assinarPremium(EntityManagerInterface $em): JsonResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = $this->getUser();
+        $roles = $usuario->getRoles();
+        if (!in_array('ROLE_PREMIUM', $roles)) {
+            $roles[] = 'ROLE_PREMIUM';
+            $usuario->setRoles(array_values(array_unique($roles)));
+            $em->flush();
+        }
+        return $this->json(['success' => true, 'roles' => $usuario->getRoles()]);
+    }
+    #[Route('/servicos', name: 'app_area_prestador_servicos')]
+    public function servicos(
+        ServicoRepository $repositorio,
+    ): JsonResponse {
+        $usuario = $this->getUser();
+        $servicos = $repositorio->buscarDashboardPrestador($usuario);
+        return $this->json($servicos, context: ['groups' => ['servico_dashboard:read']]);
+    }
+
     #[Route('/dashboard', name: 'app_area_prestador_home')]
     public function index(
         ServicoRepository $repositorio,
-        ServicosOutputMapper $mapper,
     ): JsonResponse {
         $usuario = $this->getUser();
         $servicos = $repositorio->buscarDashboardPrestador($usuario);
 
-        $ativos = [];
-        $pendentes = [];
-        $concluidos = [];
-        $cancelados = [];
+        $data = [
+            'ativos' => [],
+            'pendentes' => [],
+            'concluidos' => [],
+            'cancelados' => [],
+        ];
 
         foreach ($servicos as $servico) {
-            $status = $servico->getStatus();
-            if ($status === StatusServico::Expirado) {
-                continue;
-            }
-            match ($status) {
-                StatusServico::EmDecorrencia => $ativos[] = $servico,
-                StatusServico::SolicitacaoDeOrcamento => $pendentes[] = $servico,
-                StatusServico::Concluido => $concluidos[] = $servico,
+            match ($servico->getStatus()) {
+                StatusServico::EmDecorrencia => $data['ativos'][] = $servico,
+                StatusServico::SolicitacaoDeOrcamento => $data['pendentes'][] = $servico,
+                StatusServico::Concluido => $data['concluidos'][] = $servico,
                 StatusServico::CanceladoPeloCliente,
-                StatusServico::CanceladoPeloPrestador => $cancelados[] = $servico,
-                default => null,
+                StatusServico::CanceladoPeloPrestador => $data['cancelados'][] = $servico,
+                default => null
             };
         }
 
-        return $this->json([
-            'ativos' => $mapper->mapCollection($ativos, ['completo' => true]),
-            'pendentes' => $mapper->mapCollection($pendentes, ['completo' => true]),
-            'concluidos' => $mapper->mapCollection($concluidos, ['completo' => true]),
-            'cancelados' => $mapper->mapCollection($cancelados, ['completo' => true]),
+        return $this->json($data, context: [
+            'groups' => ['servico_dashboard:read']
         ]);
     }
 }

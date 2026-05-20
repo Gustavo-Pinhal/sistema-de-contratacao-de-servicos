@@ -4,7 +4,6 @@ namespace App\Controller\Chat;
 
 use App\Dto\Request\Chat\MensagemInputDto;
 use App\Entity\Servico\Servico;
-use App\Entity\Auth\Usuario;
 use App\Factory\Chat\MensagemArquivoFactory;
 use App\Factory\Chat\MensagemFactory;
 use App\Mapper\Chat\MensagemOutputMapper;
@@ -23,7 +22,7 @@ use Symfony\Component\Mercure\Update;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/servico/{id}/chat')]
+#[Route('/api/servico/{id}/chat')]
 final class ChatController extends AbstractController
 {
     private const TOPICO = 'chat-servico-';
@@ -35,7 +34,6 @@ final class ChatController extends AbstractController
         MensagemOutputMapper $mapper,
         ChatMercureTokenService $mercure,
     ): JsonResponse {
-        /** @var Usuario $usuario */
         $usuario = $this->getUser();
         $sala = $repositorio->buscarSalaComMensagensPorServico($servico);
 
@@ -50,7 +48,6 @@ final class ChatController extends AbstractController
         $topico = self::TOPICO . $servico->getId();
 
         return $this->json([
-            'idUsuario' => $usuario->getId(),
             'idServico' => $servico->getId(),
             'mercureToken' => $token,
             'topico' => $topico,
@@ -64,7 +61,7 @@ final class ChatController extends AbstractController
                     'nome' => $prestador->getNome(),
                 ],
             ],
-            'messagens' => $mapper->mapCollection($mensagens->toArray()),
+            'messagens' => $mapper->mensagens($mensagens->toArray()),
         ]);
     }
 
@@ -90,7 +87,7 @@ final class ChatController extends AbstractController
         $manager->persist($mensagem);
         $manager->flush();
 
-        $outputDto = $mapper->map($mensagem);
+        $outputDto = $mapper->mensagem($mensagem);
         $update = new Update(
             self::TOPICO . $servico->getId(),
             $serializer->serialize($outputDto, 'json'),
@@ -160,7 +157,7 @@ final class ChatController extends AbstractController
             $manager->persist($mensagem);
             $manager->flush();
 
-            $dto = $mapper->map($mensagem);
+            $dto = $mapper->mensagem($mensagem);
 
             try {
                 $update = new Update(

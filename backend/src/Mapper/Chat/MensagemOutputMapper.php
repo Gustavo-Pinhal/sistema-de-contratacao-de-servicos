@@ -3,12 +3,10 @@
 namespace App\Mapper\Chat;
 
 use App\Entity\Chat\Mensagem;
-use App\Mapper\AbstractMapper;
 
-class MensagemOutputMapper extends AbstractMapper
+class MensagemOutputMapper
 {
-    /** @param Mensagem $mensagem; */
-    public function map(mixed $mensagem, array $options = []): array
+    public function mensagem(Mensagem $mensagem): array
     {
         $conteudo = $mensagem->getConteudo();
         $tipo = $conteudo['tipo'] ?? 'texto';
@@ -25,12 +23,20 @@ class MensagemOutputMapper extends AbstractMapper
 
         return [
             'id' => $mensagem->getId()->toString(),
-            'enviadoPor' => $mensagem->getUsuario()->getId(),
+            'enviador_por' => $mensagem->getUsuario()->getId(),
             'tipo' => $tipo,
             'texto' => $conteudo['text'] ?? $conteudo['texto'] ?? null,
             'referencia' => $referencia,
             'arquivo' => $arquivo,
-            'enviadoEm' => $mensagem->getEnvioEm()->format('d/m/Y \à\s H:i'),
+            'enviado_em' => $mensagem->getEnvioEm()->format('d/m/Y às H:i'),
         ];
+    }
+
+    /**
+     *  @param Mensagem[] $mensagens 
+     */
+    public function mensagens(array $mensagens): array
+    {
+        return array_map([$this, 'mensagem'], $mensagens);
     }
 }

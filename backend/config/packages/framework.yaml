@@ -13,10 +13,6 @@ framework:
             log_level: notice
             status_code: 409
 
-        App\Exception\Servico\StatusInvalidoParaAcao:
-            log_level: notice
-            status_code: 422
-
 when@test:
     framework:
         test: true

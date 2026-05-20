@@ -2,29 +2,30 @@
 
 namespace App\Entity\Portifolio;
 
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Foto
 {
-    private Uuid $id;
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?Uuid $id = null;
+
     private ?Projeto $projeto = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $urlFoto = null;
-    private ?int $posicao = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?int $ordem = null;
 
     public function __construct()
     {
         $this->id = Uuid::v7();
     }
 
-    public function getId(): Uuid
+    public function getId(): ?Uuid
     {
         return $this->id;
-    }
-
-    public function setId(Uuid $id): self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function getProjeto(): ?Projeto
@@ -49,14 +50,14 @@ class Foto
         return $this;
     }
 
-    public function getPosicao(): ?int
+    public function getOrdem(): ?int
     {
-        return $this->posicao;
+        return $this->ordem;
     }
 
-    public function setPosicao(int $posicao): self
+    public function setOrdem(int $ordem): self
     {
-        $this->posicao = $posicao;
+        $this->ordem = $ordem;
         return $this;
     }
 }

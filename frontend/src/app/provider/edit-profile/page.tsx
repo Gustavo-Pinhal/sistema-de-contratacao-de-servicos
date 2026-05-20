@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,7 +10,6 @@ import {
   MapPin,
   Camera,
   Loader2,
-  CheckCircle2,
   AlertCircle,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
@@ -33,13 +32,10 @@ export default function EditProviderProfile() {
     nome: "",
     nomeProfissional: "",
     email: "",
-    cep: "",
-    numero: "",
+    cidade: "",
     profissoesIds: [] as number[],
     urlPerfil: "",
   });
-
-  const [addressPreview, setAddressPreview] = useState("");
 
   // 1. Carregar dados iniciais (Profissões e Perfil)
   useEffect(() => {
@@ -48,7 +44,7 @@ export default function EditProviderProfile() {
       try {
         const [resProf, resPerfil] = await Promise.all([
           fetch("/api/ui/profissoes"),
-          fetch("https://localhost/api/prestador/perfil/editar", {
+          fetch("/api/prestador/perfil/editar", {
             headers: { Authorization: `Bearer ${user.token}` },
           }),
         ]);
@@ -61,13 +57,10 @@ export default function EditProviderProfile() {
           nome: perfil.nome || "",
           nomeProfissional: perfil.nomeProfissional || "",
           email: perfil.email || "",
-          cep: perfil.cep || "",
-          numero: perfil.numero || "",
+          cidade: perfil.cidade || "",
           profissoesIds: perfil.profissoes || [],
           urlPerfil: perfil.urlPerfil || "",
         });
-
-        if (perfil.cep) fetchAddress(perfil.cep);
       } catch (err) {
         setError("Falha ao carregar dados do perfil.");
       } finally {
@@ -76,26 +69,6 @@ export default function EditProviderProfile() {
     }
     init();
   }, [user?.token]);
-
-  // 2. Busca de CEP
-  const fetchAddress = async (cep: string) => {
-    if (cep.length !== 8 || !user?.token) return;
-    try {
-      const res = await fetch(`https://localhost/api/ui/endereco?cep=${cep}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setAddressPreview(
-          `${data.rua}, ${data.bairro} - ${data.municipio.nome}/${data.municipio.uf}`,
-        );
-      } else {
-        setAddressPreview("CEP não encontrado");
-      }
-    } catch (err) {
-      setAddressPreview("");
-    }
-  };
 
   // 3. Upload de Foto
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +80,7 @@ export default function EditProviderProfile() {
 
     try {
       setSaving(true);
-      const res = await fetch("https://localhost/api/prestador/perfil/foto", {
+      const res = await fetch("/api/prestador/perfil/foto", {
         method: "POST",
         headers: { Authorization: `Bearer ${user.token}` },
         body,
@@ -129,7 +102,7 @@ export default function EditProviderProfile() {
     setError(null);
 
     try {
-      const res = await fetch("https://localhost/api/prestador/perfil/editar", {
+      const res = await fetch("/api/prestador/perfil/editar", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${user.token}`,
@@ -138,13 +111,13 @@ export default function EditProviderProfile() {
         body: JSON.stringify({
           nome: formData.nome,
           nomeProfissional: formData.nomeProfissional,
-          cep: formData.cep,
+          cidade: formData.cidade,
           profissoes: formData.profissoesIds,
         }),
       });
 
       if (res.ok) {
-        router.push("/affiliate/dashboard");
+        router.push("/dashboard");
       } else {
         const errData = await res.json();
         setError(errData.detail || "Erro ao validar dados.");
@@ -176,7 +149,7 @@ export default function EditProviderProfile() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
         <Link
-          href="/affiliate/dashboard"
+          href="/dashboard"
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 font-bold text-xs uppercase tracking-widest"
         >
           <ArrowLeft size={16} /> Voltar ao Painel
@@ -321,38 +294,24 @@ export default function EditProviderProfile() {
                 Localização
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
-                  CEP
-                </label>
-                <input
-                  type="text"
-                  maxLength={8}
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-600/10 outline-none font-bold"
-                  value={formData.cep}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    setFormData({ ...formData, cep: val });
-                    if (val.length === 8) fetchAddress(val);
-                  }}
-                  required
-                />
-              </div>
-              <div className="flex items-end pb-4 text-xs font-bold text-slate-500">
-                {addressPreview && (
-                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-4 rounded-2xl w-full border border-slate-100">
-                    <CheckCircle2 size={14} className="text-green-500" />{" "}
-                    {addressPreview}
-                  </span>
-                )}
-              </div>
+            <div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
+                Cidade
+              </label>
+              <input
+                type="text"
+                placeholder="Ex: São Paulo, SP"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-600/10 outline-none font-bold"
+                value={formData.cidade}
+                onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                required
+              />
             </div>
           </section>
 
           <div className="flex justify-end gap-4 pt-4">
             <Link
-              href="/affiliate/dashboard"
+              href="/dashboard"
               className="px-8 py-4 text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900"
             >
               Cancelar

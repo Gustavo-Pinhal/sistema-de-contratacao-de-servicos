@@ -10,18 +10,16 @@ class Orcamento
     private Servico $servico;
     private string $descricao;
     private float $valor;
-    private ?string $observacoes = null;
+    private string $observacoes;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
 
-    public function __construct(Servico $servico, string $descricao, float $valor, ?string $observacoes)
+    public function __construct(Servico $servico, string $descricao, float $valor)
     {
         $this->id = Uuid::v7();
         $this->servico = $servico;
-        $servico->addOrcamento($this);
         $this->descricao = $descricao;
         $this->valor = $valor;
-        $this->observacoes = $observacoes;
         $this->criadoEm = new \DateTimeImmutable();
     }
 

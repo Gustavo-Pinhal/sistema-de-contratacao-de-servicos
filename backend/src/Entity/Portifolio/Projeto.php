@@ -4,66 +4,63 @@ namespace App\Entity\Portifolio;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
-use App\Entity\Servico\Servico;
 
 class Projeto
 {
-    private Uuid $id;
-    private Portifolio $portifolio;
-    private Servico $servico;
-    private string $titulo;
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?Uuid $id = null;
+
+    private ?Portifolio $portifolio = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?string $titulo = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $descricao = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
     private ?string $regiao = null;
-    private string $valor;
-    private bool $exibirValor;
-    private \DateTimeImmutable $concluidoEm;
-    private bool $exibirConcluidoEm;
-    private int $posicao;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?string $valor = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private bool $exibirValor = true;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private ?\DateTimeInterface $concluidoEm = null;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
+    private bool $exibirConcluidoEm = true;
+
+    #[Groups(['portifolio:read', 'projeto:read'])]
     private Collection $fotos;
 
-    public function __construct(
-        Portifolio $portifolio,
-        Servico $servico,
-        string $titulo,
-        ?string $descricao,
-        string $valor,
-        bool $exibirValor,
-        \DateTimeImmutable $concluidoEm,
-        bool $exibirConcluidoEm,
-        int $posicao
-    ) {
+    public function __construct()
+    {
         $this->id = Uuid::v7();
-        $this->portifolio = $portifolio;
-        $this->servico = $servico;
-        $this->titulo = $titulo;
-        $this->descricao = $descricao;
-        $cidade = $servico->getEndereco()->getCep()->getMunicipio()->getNome();
-        $this->regiao = "$cidade";
-        $this->valor = $valor;
-        $this->exibirValor = $exibirValor;
-        $this->concluidoEm = $concluidoEm;
-        $this->exibirConcluidoEm = $exibirConcluidoEm;
-        $this->posicao = $posicao;
         $this->fotos = new ArrayCollection();
     }
 
-    public function getId(): Uuid
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
 
-    public function getPortifolio(): Portifolio
+    public function getPortifolio(): ?Portifolio
     {
         return $this->portifolio;
     }
 
-    public function getServico(): Servico
+    public function setPortifolio(?Portifolio $portifolio): self
     {
-        return $this->servico;
+        $this->portifolio = $portifolio;
+        return $this;
     }
 
-    public function getTitulo(): string
+    public function getTitulo(): ?string
     {
         return $this->titulo;
     }
@@ -79,7 +76,7 @@ class Projeto
         return $this->descricao;
     }
 
-    public function setDescricao(?string $descricao): self
+    public function setDescricao(string $descricao): self
     {
         $this->descricao = $descricao;
         return $this;
@@ -90,13 +87,13 @@ class Projeto
         return $this->regiao;
     }
 
-    public function setRegiao(?string $regiao): self
+    public function setRegiao(string $regiao): self
     {
         $this->regiao = $regiao;
         return $this;
     }
 
-    public function getValor(): string
+    public function getValor(): ?string
     {
         return $this->valor;
     }
@@ -118,40 +115,28 @@ class Projeto
         return $this;
     }
 
-    public function getConcluidoEm(): \DateTimeImmutable
+    public function getConcluidoEm(): ?\DateTimeInterface
     {
         return $this->concluidoEm;
     }
 
-    public function setConcluidoEm(\DateTimeImmutable $concluidoEm): self
+    public function setConcluidoEm(\DateTimeInterface $concluidoEm): self
     {
         $this->concluidoEm = $concluidoEm;
         return $this;
     }
 
-    public function isExibirConcluidoEm(): bool
+    public function getExibirConcluidoEm(): ?bool
     {
         return $this->exibirConcluidoEm;
     }
 
-    public function setExibirConcluidoEm(bool $exibirConcluidoEm): self
+    public function setExibirConcluidoEm(bool $concluidoEm): self
     {
-        $this->exibirConcluidoEm = $exibirConcluidoEm;
+        $this->exibirConcluidoEm = $concluidoEm;
         return $this;
     }
 
-    public function getPosicao(): int
-    {
-        return $this->posicao;
-    }
-
-    public function setPosicao(int $posicao): self
-    {
-        $this->posicao = $posicao;
-        return $this;
-    }
-
-    /** @return Collection<int, Foto> */
     public function getFotos(): Collection
     {
         return $this->fotos;

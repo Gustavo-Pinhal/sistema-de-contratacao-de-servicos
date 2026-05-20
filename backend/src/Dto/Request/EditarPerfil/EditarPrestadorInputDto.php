@@ -12,8 +12,8 @@ final class EditarPrestadorInputDto
 
         public readonly ?string $nomeProfissional,
 
-        #[Assert\NotBlank(message: 'O CEP é obrigatório.')]
-        public readonly string $cep,
+        #[Assert\NotBlank(message: 'A cidade é obrigatória.')]
+        public readonly string $cidade,
 
         #[Assert\Count(min: 1, minMessage: 'Selecione ao menos uma profissão.')]
         /** @var int[] */

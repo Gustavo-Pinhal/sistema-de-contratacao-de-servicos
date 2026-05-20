@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/ui')]
+#[Route('/api/ui')]
 final class UiElementsController extends AbstractController
 {
     #[Route('/profissoes', name: 'app_ui_profissoes')]
@@ -22,10 +22,9 @@ final class UiElementsController extends AbstractController
         ProfissoesOutputMapper $mapper,
     ): JsonResponse {
         $profissoes = $repositorio->obterTodos();
-        return $this->json($mapper->mapCollection($profissoes));
+        return $this->json($mapper->map($profissoes));
     }
 
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/endereco', methods: ['GET'], name: 'app_ui_endereco')]
     #[Cache(public: true, maxage: 3600, mustRevalidate: true)]
     public function porCep(

@@ -25,8 +25,7 @@ class PrestadorEditarPerfilOutputMapper
                 fn(Profissao $profissao) => $profissao->getId(),
                 $pretador->getProfissoes()->toArray()
             ),
-            'cep' => $pretador->getCep()->getNumero(),
-            'numero' => '',
+            'cidade' => $pretador->getCidade(),
         ];
     }
 }

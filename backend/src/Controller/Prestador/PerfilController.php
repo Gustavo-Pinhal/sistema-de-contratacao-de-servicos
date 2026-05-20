@@ -8,7 +8,6 @@ use App\Entity\Auth\Usuario;
 use App\Mapper\EditarPerfil\PrestadorEditarPerfilOutputMapper;
 use App\Repository\Servico\PrestadorRepository;
 use App\Repository\Servico\ProfissaoRepository;
-use App\Service\Localizacao\CepService;
 use App\Service\PerfilMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,7 +18,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/prestador/perfil')]
+#[Route('/api/prestador/perfil')]
 final class PerfilController extends AbstractController
 {
     #[IsGranted('ROLE_PRESTADOR')]
@@ -40,7 +39,6 @@ final class PerfilController extends AbstractController
     public function editar(
         #[MapRequestPayload] EditarPrestadorInputDto $dto,
         PrestadorRepository $repositorio,
-        CepService $cepService,
         ProfissaoRepository $profissaoRepository,
         EntityManagerInterface $manager,
     ): JsonResponse {
@@ -55,7 +53,7 @@ final class PerfilController extends AbstractController
         try {
             $usuario->setNome($dto->nome);
             $prestador->setNome($dto->nomeProfissional ?: $dto->nome);
-            $prestador->setCep($cepService->buscarOuCadastrar($dto->cep));
+            $prestador->setCidade($dto->cidade);
 
             $prestador->getProfissoes()->clear();
             foreach ($dto->profissoes as $id) {

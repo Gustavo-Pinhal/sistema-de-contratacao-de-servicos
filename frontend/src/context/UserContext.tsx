@@ -13,6 +13,7 @@ export type UserRole =
   | "ROLE_ADMIN"
   | "ROLE_CLIENTE"
   | "ROLE_PRESTADOR"
+  | "ROLE_PREMIUM"
   | "admin"
   | "client"
   | "provider"
@@ -31,7 +32,7 @@ interface UserContextType {
   user: UserProfile | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<boolean>;
+  login: (email: string, pass: string) => Promise<UserRole | false>;
   register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -96,20 +97,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ username: email, password: pass }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) return false as false;
 
       const { token } = await response.json();
       const decoded = parseJwt(token);
 
       if (decoded) {
+        const role: UserRole = decoded.roles?.[0] || "client";
         setUser({
           id: decoded.id || decoded.sub,
           email,
           token,
-          role: decoded.roles?.[0] || "client",
+          role,
           name: decoded.nome || decoded.name,
         });
-        return true;
+        return role;
       }
       return false;
     } catch (error) {

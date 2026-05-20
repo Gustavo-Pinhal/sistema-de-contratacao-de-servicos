@@ -10,11 +10,7 @@
 controllers:
     resource: routing.controllers
 
-api_controllers:
-    type: attribute
-    resource: ../src/Controller/
-    prefix: /api
-
+# Rota necessária para o LexikJWT interceptar o login
 api_login_check:
     path: /api/login_check
     methods: [POST]

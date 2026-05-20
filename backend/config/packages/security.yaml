@@ -24,7 +24,20 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        # 2. Firewall para a API
+        # 2. Rotas públicas sem autenticação
+        public_ui:
+            pattern: ^/api/ui
+            security: false
+
+        public_cadastro:
+            pattern: ^/api/cadastro-usuario
+            security: false
+
+        public_busca:
+            pattern: ^/api/busca
+            security: false
+
+        # 3. Firewall para a API
         api:
             pattern: ^/api
             stateless: true
@@ -36,13 +49,9 @@ security:
 
     access_control:
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
-        - { path: ^/api/cadastro, roles: PUBLIC_ACCESS }
+        - { path: ^/api/cadastro-usuario, roles: PUBLIC_ACCESS }
         - { path: ^/api/busca, roles: PUBLIC_ACCESS }
         - { path: ^/api/ui, roles: PUBLIC_ACCESS }
-        - { path: ^/api/metrics/prometheus, roles: PUBLIC_ACCESS }
-        - { path: ^/api/prestador/[a-zA-Z0-9\-]+/avaliacoes$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/prestador/[a-zA-Z0-9\-]+/portifolio$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/prestador/[a-zA-Z0-9\-]+$, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/areaprestador, roles: ROLE_PRESTADOR }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

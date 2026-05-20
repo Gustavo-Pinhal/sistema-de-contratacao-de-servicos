@@ -16,7 +16,7 @@
 
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
-        <many-to-one field="servico" target-entity="App\Entity\Servico\Servico" inversed-by="orcamentos">
+        <many-to-one field="servico" target-entity="App\Entity\Servico\Servico">
             <join-column name="id_servico" referenced-column-name="id" nullable="false" />
         </many-to-one>
 

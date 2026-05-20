@@ -2,76 +2,79 @@
 
 namespace App\Controller;
 
+use App\Entity\Auth\Usuario;
 use App\Entity\Servico\Servico;
-use App\Mapper\Servico\AgendamentosOutputMapper;
-use App\Mapper\Servico\OrcamentoOutputMapper;
-use App\Mapper\Servico\ServicosOutputMapper;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Enum\StatusServico;
+use App\Repository\Servico\PrestadorRepository;
+use App\Repository\Servico\ServicoRepository;
+use App\Service\PerfilMediaService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Entity\Auth\Usuario;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/servico/{id}')]
+#[Route('/api/servico')]
 final class ServicoController extends AbstractController
 {
-    #[Route('', methods: ['GET'], name: 'app_servico_get')]
-    public function index(
-        Servico $servico,
-        AgendamentosOutputMapper $agendamentoMapper,
-        OrcamentoOutputMapper $orcamentoMapper,
-        ServicosOutputMapper $servicoMapper,
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[Route('/{id}', methods: ['GET'], name: 'app_servico_detalhe')]
+    public function detalhe(
+        string $id,
+        ServicoRepository $repositorio,
+        PrestadorRepository $prestadorRepositorio,
+        PerfilMediaService $mediaService,
     ): JsonResponse {
+        /** @var Usuario $usuario */
         $usuario = $this->getUser();
 
-        if (!$servico->eParticipante($usuario)) {
-            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
+        $servico = $repositorio->find($id);
+
+        if (!$servico) {
+            return $this->json(['message' => 'Serviço não encontrado.'], 404);
         }
 
-        $agendamentos = $servico->getAgendamentos();
-        $orcamentos = $servico->getOrcamentos();
-        $valor = $servico->getValorTotal();
+        $clienteId = (string) $servico->getCliente()->getId();
+        $prestadorUsuario = $servico->getPrestador();
+        $prestadorUserId = (string) $prestadorUsuario->getId();
+        $usuarioId = (string) $usuario->getId();
+
+        if ($clienteId !== $usuarioId && $prestadorUserId !== $usuarioId) {
+            return $this->json(['message' => 'Acesso negado.'], 403);
+        }
+
+        $prestadorEntity = $prestadorRepositorio->find($prestadorUsuario->getId());
+        $endereco = $servico->getEndereco();
+
+        $descricao = null;
+        $sala = $servico->getSala();
+        if ($sala) {
+            $primeiraMensagem = $sala->getMensagens()->first();
+            if ($primeiraMensagem) {
+                $conteudo = $primeiraMensagem->getConteudo();
+                $descricao = is_array($conteudo) ? ($conteudo['text'] ?? null) : $conteudo;
+            }
+        }
+
+        $statusLabel = match ($servico->getStatus()) {
+            StatusServico::SolicitacaoDeOrcamento => 'Em Orçamento',
+            StatusServico::EmDecorrencia          => 'Em Andamento',
+            StatusServico::Concluido              => 'Concluído',
+            StatusServico::CanceladoPeloCliente,
+            StatusServico::CanceladoPeloPrestador => 'Cancelado',
+            default                               => 'Desconhecido',
+        };
 
         return $this->json([
-            'servico' =>  $servicoMapper->map($servico, ['completo' => true]),
-            'agendamentos' => $agendamentoMapper->mapCollection($agendamentos),
-            'orcamentos' => $orcamentoMapper->mapCollection($orcamentos),
-            'total' => $valor,
-        ]);
-    }
-
-    #[Route('/finalizar', methods: ['POST'], name: 'app_servico_finalizar')]
-    public function finalizar(
-        Servico $servico,
-        EntityManagerInterface $manager,
-    ): JsonResponse {
-        /** @var Usuario $usuario */
-        $usuario = $this->getUser();
-        if (!$usuario->getId()->equals($servico->getPrestador()->getId())) {
-            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
-        }
-
-        $servico->concluir();
-        $manager->flush();
-
-        return $this->json(['success' => true]);
-    }
-
-    #[Route('/cancelar', methods: ['POST'], name: 'app_servico_cancelar')]
-    public function cancelar(
-        Servico $servico,
-        EntityManagerInterface $manager,
-    ): JsonResponse {
-        /** @var Usuario $usuario */
-        $usuario = $this->getUser();
-        if (!$servico->eParticipante($usuario)) {
-            return $this->json(['error' => 'Acesso negado'], Response::HTTP_FORBIDDEN);
-        }
-
-        $servico->cancelar($usuario);
-        $manager->flush();
-
-        return $this->json(['success' => true]);
+            'id'          => (string) $servico->getId(),
+            'status'      => $statusLabel,
+            'descricao'   => $descricao,
+            'endereco'    => $endereco ? $endereco->exibir() : null,
+            'inicio'      => $servico->getInicio()->format('d/m/Y'),
+            'prestador'   => [
+                'id'        => $prestadorUserId,
+                'nome'      => $prestadorEntity ? $prestadorEntity->getNome() : $prestadorUsuario->getNome(),
+                'urlPerfil' => $mediaService->obterUrlFotoPerfil($prestadorUsuario),
+            ],
+        ], context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 }

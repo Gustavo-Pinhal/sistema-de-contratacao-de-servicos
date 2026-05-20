@@ -28,7 +28,8 @@ class PrestadorRepository extends ServiceEntityRepository
             ->addSelect('u')
             ->leftJoin('p.profissoes', 'pr_lista')
             ->addSelect('pr_lista')
-            ->where('p.excluidoEm IS NULL');
+            ->where('p.excluidoEm IS NULL')
+            ->andWhere('p.ativo = true');
 
         if (!empty($profissoes)) {
             $qb->innerJoin('p.profissoes', 'pr_filtro')
@@ -42,17 +43,16 @@ class PrestadorRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function buscarServicosPorPrestador(Prestador $prestador): array
+    public function buscarParaEdicaoDePerfil(Usuario $usuario): ?Prestador
     {
-        return $this->createQueryBuilder('s')
-            ->leftJoin('s.cliente', 'c')
-            ->leftJoin('s.endereco', 'e')
-            ->addSelect('c', 'e')
-            ->where('s.prestador = :prestadorId')
-            ->andWhere('s.excluidoEm IS NULL')
-            ->orderBy('s.inicio', 'DESC')
-            ->setParameter('prestadorId', $prestador->getUsuario()->getId())
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.usuario', 'u')
+            ->addSelect('u')
+            ->leftJoin('p.profissoes', 'pr')
+            ->addSelect('pr')
+            ->where('p.usuario = :usuario')
+            ->setParameter('usuario', $usuario)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 }

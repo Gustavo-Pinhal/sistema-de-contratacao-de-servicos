@@ -3,41 +3,41 @@
 namespace App\Entity\Servico;
 
 use App\Entity\Auth\Usuario;
-use App\Entity\Portifolio\Portifolio;
-use App\Entity\Localizacao\Cep;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Prestador
 {
-    private Uuid $id;
+    #[Groups('listagem_prestadores:read')]
     private Usuario $usuario;
+    #[Groups('listagem_prestadores:read')]
     private string $nome;
-    private Cep $cep;
+    private string $cidade;
     private bool $ativo = true;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
+
+    #[Groups('listagem_prestadores:read')]
     private Collection $profissoes;
-    private ?Portifolio $portifolio = null;
 
     public function __construct(
         Usuario $usuario,
         string $nome,
-        Cep $cep,
+        string $cidade,
     ) {
-        $this->id = $usuario->getId();
         $this->usuario = $usuario;
         $this->nome = $nome;
-        $this->cep = $cep;
+        $this->cidade = $cidade;
         $this->criadoEm = new \DateTimeImmutable();
-        $this->ativo = false;
+        $this->ativo = true;
         $this->profissoes = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
     {
-        return $this->id;
+        return $this->usuario->getId();
     }
 
     public function getUsuario(): Usuario
@@ -56,14 +56,14 @@ class Prestador
         return $this;
     }
 
-    public function getCep(): Cep
+    public function getCidade(): string
     {
-        return $this->cep;
+        return $this->cidade;
     }
 
-    public function setCep(Cep $cep): self
+    public function setCidade(string $cidade): self
     {
-        $this->cep = $cep;
+        $this->cidade = $cidade;
         return $this;
     }
 
@@ -100,17 +100,6 @@ class Prestador
     public function getProfissoes(): Collection
     {
         return $this->profissoes;
-    }
-
-    public function getPortifolio(): ?Portifolio
-    {
-        return $this->portifolio;
-    }
-
-    public function setPortifolio(?Portifolio $portifolio): self
-    {
-        $this->portifolio = $portifolio;
-        return $this;
     }
 
     public function addProfissao(Profissao $profissao): self

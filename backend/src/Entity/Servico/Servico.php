@@ -8,15 +8,16 @@ use App\Entity\Localizacao\Endereco;
 use App\Enum\StatusServico;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
-use App\Entity\Portifolio\Projeto;
-use App\Exception\Servico\StatusInvalidoParaAcao;
-use App\Entity\Avaliacao\Avaliacao;
 
 class Servico
 {
+    #[Groups(['meus_orcamentos:read', 'servico_dashboard:read'])]
     private Uuid $id;
+    #[Groups('servico_dashboard:read')]
     private Usuario $cliente;
+    #[Groups('meus_orcamentos:read')]
     private Usuario $prestador;
     private StatusServico $status;
     private Endereco $endereco;
@@ -25,10 +26,7 @@ class Servico
     private Sala $sala;
     private \DateTimeImmutable $inicio;
     private ?\DateTimeImmutable $encerramento = null;
-    private ?\DateTimeImmutable $avaliadoEm = null;
     private ?\DateTimeImmutable $excluidoEm = null;
-    private ?Projeto $projeto = null;
-    private ?Avaliacao $avaliacao = null;
 
     public function __construct(
         Usuario $cliente,
@@ -71,7 +69,7 @@ class Servico
         return $this->status;
     }
 
-    public function getEndereco(): Endereco
+    public function getEndereco(): ?Endereco
     {
         return $this->endereco;
     }
@@ -90,13 +88,6 @@ class Servico
 
     public function addOrcamento(Orcamento $orcamento): self
     {
-        if (
-            $this->status !== StatusServico::SolicitacaoDeOrcamento
-            && $this->status !== StatusServico::EmDecorrencia
-        ) {
-            throw new StatusInvalidoParaAcao($this->status);
-        }
-
         $this->status = StatusServico::EmDecorrencia;
         $this->orcamentos->add($orcamento);
         return $this;
@@ -111,25 +102,9 @@ class Servico
         );
     }
 
-    public function getSala(): Sala
+    public function getSala(): ?Sala
     {
         return $this->sala;
-    }
-
-    public function addAgendamento(Agendamento $agendamento): self
-    {
-        if (
-            $this->status !== StatusServico::SolicitacaoDeOrcamento
-            && $this->status !== StatusServico::EmDecorrencia
-        ) {
-            throw new StatusInvalidoParaAcao($this->status);
-        }
-
-        if (!$this->agendamentos->contains($agendamento)) {
-            $this->agendamentos->add($agendamento);
-        }
-
-        return $this;
     }
 
     public function getEncerramento(): ?\DateTimeImmutable
@@ -139,13 +114,6 @@ class Servico
 
     public function cancelar(Usuario $cancelante): self
     {
-        if (
-            $this->status !== StatusServico::SolicitacaoDeOrcamento
-            && $this->status !== StatusServico::EmDecorrencia
-        ) {
-            throw new StatusInvalidoParaAcao($this->status);
-        }
-
         $this->encerramento = new \DateTimeImmutable();
 
         $this->status = $cancelante->getId()->equals($this->cliente->getId())
@@ -157,10 +125,6 @@ class Servico
 
     public function concluir(): self
     {
-        if ($this->status !== StatusServico::EmDecorrencia) {
-            throw new StatusInvalidoParaAcao($this->status);
-        }
-
         $this->status = StatusServico::Concluido;
         $this->encerramento = new \DateTimeImmutable();
         return $this;
@@ -173,23 +137,6 @@ class Servico
         return $this;
     }
 
-    public function getProjeto(): ?Projeto
-    {
-        return $this->projeto;
-    }
-
-    public function setProjeto(?Projeto $projeto): self
-    {
-        $this->projeto = $projeto;
-
-        return $this;
-    }
-
-    public function getAvaliadoEm(): ?\DateTimeImmutable
-    {
-        return $this->avaliadoEm;
-    }
-
     public function getExcluidoEm(): ?\DateTimeImmutable
     {
         return $this->excluidoEm;
@@ -198,23 +145,5 @@ class Servico
     public function excluir(): void
     {
         $this->excluidoEm = new \DateTimeImmutable();
-    }
-
-    public function eParticipante(Usuario $usuario): bool
-    {
-        return $this->cliente->getId()->equals($usuario->getId())
-            || $this->prestador->getId()->equals($usuario->getId());
-    }
-
-    public function getAvaliacao(): ?Avaliacao
-    {
-        return $this->avaliacao;
-    }
-
-    public function setAvaliacao(?Avaliacao $avaliacao): self
-    {
-        $this->avaliacao = $avaliacao;
-        $this->avaliadoEm = new \DateTimeImmutable();
-        return $this;
     }
 }

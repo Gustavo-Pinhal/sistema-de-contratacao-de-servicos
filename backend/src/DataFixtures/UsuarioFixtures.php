@@ -2,8 +2,8 @@
 
 namespace App\DataFixtures;
 
-use App\Dto\Cadastro\CadastrarClienteInputDto;
-use App\Dto\Cadastro\CadastrarPrestadorInputDto;
+use App\Dto\Request\CadastroUsuario\CadastrarClienteInputDto;
+use App\Dto\Request\CadastroUsuario\CadastrarPrestadorInputDto;
 use App\Entity\Servico\Profissao;
 use App\Factory\Auth\UsuarioFactory;
 use App\Factory\Servico\ClienteFactory;
@@ -42,6 +42,7 @@ class UsuarioFixtures extends Fixture implements DependentFixtureInterface
             new CadastrarPrestadorInputDto(
                 'Prestador Comum',
                 'prestcomum@exemplo.com',
+                '11999999999',
                 $profissaoEletrista->getId(),
                 '78280000',
                 '123456',
@@ -56,6 +57,7 @@ class UsuarioFixtures extends Fixture implements DependentFixtureInterface
             new CadastrarPrestadorInputDto(
                 'Prestador Premium',
                 'prestprem@exemplo.com',
+                '11999999999',
                 $profissaoEletrista->getId(),
                 '78280000',
                 '123456',

@@ -10,13 +10,13 @@
 
         <field name="observacoes" type="text" column="observacoes" nullable="true" />
 
-        <field name="status" type="integer" column="status" nullable="false" enum-type="App\Enum\StatusAgendamento" />
+        <field name="status" type="integer" column="status" nullable="false" />
 
         <field name="criadoEm" type="datetime_immutable" column="criado_em" />
 
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
-        <many-to-one field="servico" target-entity="App\Entity\Servico\Servico" inversed-by="agendamentos">
+        <many-to-one field="servico" target-entity="App\Entity\Servico\Servico">
             <join-column name="id_servico" referenced-column-name="id" nullable="false" />
         </many-to-one>
 

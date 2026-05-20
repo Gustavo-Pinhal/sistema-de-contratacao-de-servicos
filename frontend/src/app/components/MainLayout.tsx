@@ -13,7 +13,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       <footer className="bg-white border-t border-slate-100 py-8 text-center text-slate-400 text-xs font-medium">
         <div className="max-w-7xl mx-auto px-4">
           <p>
-            &copy; {new Date().getFullYear()} Marido de Aluguel. Todos os
+            &copy; {new Date().getFullYear()} ServiçoFácil. Todos os
             direitos reservados.
           </p>
         </div>

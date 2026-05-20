@@ -1323,42 +1323,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enable_static_query_cache?: bool|Param, // Default: true
  *     connection_keys?: list<mixed>,
  * }
- * @psalm-type ArtprimaPrometheusMetricsConfig = array{
- *     namespace?: scalar|Param|null,
- *     type?: scalar|Param|null, // Deprecated: The type config parameter was deprecated in 1.14 and will be dropped in 2.0. // Default: "in_memory"
- *     redis?: array{ // Deprecated: The redis config parameter was deprecated in 1.14 and will be dropped in 2.0.
- *         host?: scalar|Param|null,
- *         port?: int|Param, // Default: 6379
- *         timeout?: float|Param,
- *         read_timeout?: float|Param,
- *         persistent_connections?: bool|Param,
- *         password?: scalar|Param|null,
- *         database?: int|Param,
- *         prefix?: scalar|Param|null,
- *     },
- *     storage?: string|array{
- *         url?: scalar|Param|null, // DSN of the storage. All parsed values will override explicitly set parameters. Ex: redis://127.0.0.1?timeout=0.1
- *         type?: scalar|Param|null, // The type of storage provide by factories. Default factories are ["in_memory","apcu","apcng","redis"]
- *         host?: scalar|Param|null, // Use by some factory like redis. Default value should be managed by the factory at runtime.
- *         port?: int|Param, // Use by some factory like redis. Default value should be managed by the factory at runtime.
- *         timeout?: float|Param, // Connection timeout used by some factory like redis.
- *         read_timeout?: float|Param,
- *         persistent_connections?: bool|Param,
- *         password?: scalar|Param|null,
- *         database?: int|Param,
- *         prefix?: scalar|Param|null, // Internal prefix used by the storage. Available for redis and apcu type.
- *         options?: array<string, mixed>,
- *     },
- *     ignored_routes?: list<scalar|Param|null>,
- *     disable_default_metrics?: bool|Param, // Default: false
- *     disable_default_promphp_metrics?: bool|Param, // Default: false
- *     enable_console_metrics?: bool|Param, // Default: false
- *     labels?: list<array{ // Default: []
- *         name?: scalar|Param|null, // Name of the label that will appear in the metric
- *         type?: "request_attribute"|"request_header"|Param, // Type of the label value. Where the value will be collected: in the request attribute or in the request header
- *         value?: scalar|Param|null, // Name of the attribute or header in the Request
- *     }>,
- * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1369,7 +1333,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     mercure?: MercureConfig,
  *     security?: SecurityConfig,
  *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
- *     artprima_prometheus_metrics?: ArtprimaPrometheusMetricsConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1381,7 +1344,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         mercure?: MercureConfig,
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
- *         artprima_prometheus_metrics?: ArtprimaPrometheusMetricsConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1393,7 +1355,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         mercure?: MercureConfig,
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
- *         artprima_prometheus_metrics?: ArtprimaPrometheusMetricsConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1406,7 +1367,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
- *         artprima_prometheus_metrics?: ArtprimaPrometheusMetricsConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

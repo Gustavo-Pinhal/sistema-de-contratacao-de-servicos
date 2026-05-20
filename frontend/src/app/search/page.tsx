@@ -2,23 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, User, Calendar, MapPin, Star } from "lucide-react";
+import { Search, Star, CheckCircle2, User } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import Image from "next/image";
-
-interface ServicoAtivo {
-  id: string;
-  prestador: { id: string; nome: string };
-  endereco: string;
-  data: string;
-  status: string;
-  encerradoEm?: string | null;
-  avaliacao?: {
-    nota: number;
-    data: string;
-  } | null;
-}
 
 interface Profissao {
   id: number;
@@ -29,19 +16,7 @@ interface Prestador {
   usuario: { id: string };
   nome: string;
   profissoes: Profissao[];
-  urlPerfil?: string; // Alterado de avatar para urlPerfil
-}
-
-function convertNotaParaCincoPontos(nota: number): number {
-  const notaConvertida = nota / 2;
-  return Math.max(0, Math.min(5, notaConvertida));
-}
-
-function formatarNotaCincoPontos(nota: number): string {
-  const notaConvertida = convertNotaParaCincoPontos(nota);
-  return Number.isInteger(notaConvertida)
-    ? `${notaConvertida}`
-    : notaConvertida.toFixed(1);
+  urlPerfil?: string;
 }
 
 export default function SearchProviders() {
@@ -51,7 +26,6 @@ export default function SearchProviders() {
 
   const [profissoes, setProfissoes] = useState<Profissao[]>([]);
   const [prestadores, setPrestadores] = useState<Prestador[]>([]);
-  const [servicos, setServicos] = useState<ServicoAtivo[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -64,12 +38,6 @@ export default function SearchProviders() {
         const resProf = await fetch("/api/ui/profissoes");
         setProfissoes(await resProf.json());
 
-        if (user?.token) {
-          const resServ = await fetch("/api/cliente/servicos", {
-            headers: { Authorization: `Bearer ${user.token}` },
-          });
-          if (resServ.ok) setServicos(await resServ.json());
-        }
       } catch (e) {
         console.error("Erro ao carregar dados iniciais", e);
       }
@@ -112,112 +80,9 @@ export default function SearchProviders() {
     p.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const canReviewService = (servico: ServicoAtivo) =>
-    (servico.status === "Finalizado" || servico.status === "Cancelado") &&
-    servico.avaliacao == null;
-
-  const getServiceCardColor = (servico: ServicoAtivo) => {
-    if (canReviewService(servico)) {
-      return {
-        border: "border-amber-200 hover:border-amber-300",
-        icon: "bg-amber-50 text-amber-600 group-hover:bg-amber-100",
-        status: "text-amber-600",
-      };
-    }
-
-    if (servico.status === "Finalizado") {
-      return {
-        border: "border-emerald-200 hover:border-emerald-300",
-        icon: "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100",
-        status: "text-emerald-600",
-      };
-    }
-
-    if (servico.status === "Cancelado") {
-      return {
-        border: "border-rose-200 hover:border-rose-300",
-        icon: "bg-rose-50 text-rose-600 group-hover:bg-rose-100",
-        status: "text-rose-600",
-      };
-    }
-
-    return {
-      border: "border-slate-200 hover:border-blue-500",
-      icon: "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white",
-      status: "text-slate-400",
-    };
-  };
-
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Seção de Serviços Ativos (Apenas se houver algum) */}
-        {user && servicos.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-2">
-              Seus Serviços Ativos
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {servicos.map((serv) => {
-                const colors = getServiceCardColor(serv);
-                return (
-                  <div
-                    key={serv.id}
-                    className={`bg-white p-4 rounded-2xl shadow-sm transition-all flex flex-col gap-4 group border ${colors.border}`}
-                  >
-                    <Link
-                      href={`/service/${serv.id}`}
-                      className="flex items-center justify-between gap-3 text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${colors.icon}`}
-                        >
-                          <User size={18} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900 text-sm">
-                            {serv.prestador.nome}
-                          </h4>
-                          <p
-                            className={`text-[10px] font-bold uppercase ${colors.status}`}
-                          >
-                            {serv.status}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold mb-1 justify-end">
-                          <Calendar size={12} /> {serv.data}
-                        </div>
-                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold justify-end">
-                          <MapPin size={12} /> {serv.endereco.split("-")[0]}
-                        </div>
-                        {serv.avaliacao?.nota !== undefined && (
-                          <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-amber-600 font-black">
-                            <Star size={12} className="fill-current" />
-                            {formatarNotaCincoPontos(serv.avaliacao.nota)}/5
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-
-                    {canReviewService(serv) && (
-                      <Link
-                        href={`/service/${serv.id}?review=1`}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-amber-700 transition-colors hover:bg-amber-100"
-                      >
-                        <Star size={16} />
-                        Avaliar
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Busca e Filtros */}
         <div className="bg-white rounded-3xl shadow-xl p-6 mb-10 border border-slate-100">
           <div className="relative">
@@ -248,27 +113,38 @@ export default function SearchProviders() {
           </div>
         </div>
 
+        {/* Contagem de resultados */}
+        {!loading && (
+          <p className="text-sm text-slate-600 mb-6">
+            <span className="font-bold text-slate-900">{filteredPrestadores.length}</span>{" "}
+            {filteredPrestadores.length === 1 ? "profissional encontrado" : "profissionais encontrados"}
+          </p>
+        )}
+
         {/* Listagem de Prestadores */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-64 bg-white animate-pulse rounded-3xl"
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
+                <div className="h-52 bg-slate-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 bg-slate-200 rounded w-3/4" />
+                  <div className="h-3 bg-slate-100 rounded w-1/2" />
+                  <div className="h-10 bg-slate-100 rounded" />
+                  <div className="h-10 bg-slate-200 rounded" />
+                </div>
+              </div>
             ))}
           </div>
+        ) : filteredPrestadores.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 font-bold">
+            Nenhum profissional encontrado.
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPrestadores.map((p) => (
               <ProviderCard key={p.usuario.id} provider={p} />
             ))}
-          </div>
-        )}
-
-        {!loading && filteredPrestadores.length === 0 && (
-          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 font-bold">
-            Nenhum profissional encontrado.
           </div>
         )}
       </div>
@@ -299,44 +175,87 @@ function FilterButton({
   );
 }
 
+function getInitials(nome: string): string {
+  return nome
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+}
+
 function ProviderCard({ provider }: { provider: Prestador }) {
-  const imageUrl =
-    provider.urlPerfil && provider.urlPerfil !== ""
-      ? provider.urlPerfil
-      : `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.nome)}&background=random`;
+  const hasPhoto = provider.urlPerfil && provider.urlPerfil !== "";
+  const especialidade =
+    provider.profissoes.length > 0
+      ? provider.profissoes.map((p) => p.descricao).join(", ")
+      : "Prestador de Serviços";
 
   return (
-    <Link
-      href={`/provider/${provider.usuario.id}`}
-      className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col h-full group"
-    >
-      <div className="aspect-square bg-slate-100 rounded-2xl mb-4 overflow-hidden relative">
-        <Image
-          src={imageUrl}
-          alt={`Foto de ${provider.nome}`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-          unoptimized={imageUrl.includes("localhost")}
-        />
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col">
+      {/* Avatar / Foto */}
+      <div className="relative h-52 flex items-center justify-center bg-emerald-500 overflow-hidden">
+        {hasPhoto ? (
+          <Image
+            src={provider.urlPerfil!}
+            alt={`Foto de ${provider.nome}`}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+            unoptimized={provider.urlPerfil!.includes("localhost")}
+          />
+        ) : (
+          <span className="text-white font-black text-5xl tracking-tight select-none">
+            {getInitials(provider.nome)}
+          </span>
+        )}
+        {/* Badge Verificado */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          Verificado
+        </div>
       </div>
 
-      <div className="flex-1">
-        <h3 className="font-black text-slate-900 mb-1">{provider.nome}</h3>
-        <div className="flex flex-wrap gap-1 mb-4">
-          {provider.profissoes.map((p) => (
-            <span
-              key={p.id}
-              className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
-            >
-              {p.descricao}
-            </span>
-          ))}
+      {/* Info */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Nome + Rating */}
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-bold text-slate-900 text-base leading-tight">{provider.nome}</h3>
+          <div className="flex items-center gap-1 text-sm font-bold text-amber-500 shrink-0 ml-2">
+            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+            <span>5</span>
+          </div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-          Ver perfil do prestador
-        </p>
+
+        {/* Especialidade */}
+        <p className="text-sm font-semibold text-blue-600 mb-4">{especialidade}</p>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 mb-4">
+          <div>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Serviços</p>
+            <p className="text-sm font-bold text-slate-900">0+</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Resposta</p>
+            <p className="text-sm font-bold text-slate-900">~2 horas</p>
+          </div>
+        </div>
+
+        {/* Preço + Botão */}
+        <div className="flex items-end justify-between mt-auto">
+          <div>
+            <p className="text-[10px] text-slate-400 font-semibold">A partir de</p>
+            <p className="text-sm font-bold text-slate-900">Sob orçamento</p>
+          </div>
+          <Link
+            href={`/provider/${provider.usuario.id}`}
+            className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors whitespace-nowrap"
+          >
+            Ver Perfil
+          </Link>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }

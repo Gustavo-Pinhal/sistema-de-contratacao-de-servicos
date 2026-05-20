@@ -10,6 +10,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     command: sh -c "npm install && npm run dev"
     networks:
       - app-network
@@ -21,7 +22,7 @@ services:
     working_dir: /app
     volumes:
       - ./frontend.old:/app
-      - ./frontend/node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "5173:5173" # Acesso direto via http://localhost:5173
     environment:
@@ -59,24 +60,11 @@ services:
     env_file: .env
     environment:
       MERCURE_JWT_SECRET: ${MERCURE_JWT_KEY}
-      PROM_METRICS_DSN: redis://redis:6379/0?prefix=myapp_metrics
     depends_on:
       - database
-      - redis
     networks:
       - app-network
   ###< Php ###
-
-  ###> Redis ###
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
-  ###< Redis ###
 
   ###> Postgres ###
   database:
@@ -145,40 +133,6 @@ services:
       - app-network
   ###< SeaweedFS ###
 
-  ###> Observability ###
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-    depends_on:
-      - nginx
-    networks:
-      - app-network
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
-    depends_on:
-      - prometheus
-    networks:
-      - app-network
-  ###< Observability ###
-
 networks:
   app-network:
     driver: bridge
@@ -190,6 +144,3 @@ volumes:
   seaweed_master_data:
   seaweed_volume_data:
   seaweed_filer_data:
-  prometheus_data:
-  grafana_data:
-  redis_data:

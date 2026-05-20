@@ -1,524 +1,291 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import {
-  Award,
   ChevronLeft,
-  Loader2,
-  MapPin,
-  MessageSquare,
   Star,
-  User,
-  CheckCircle,
+  CheckCircle2,
+  MapPin,
+  Clock,
   Briefcase,
+  MessageCircle,
 } from "lucide-react";
-import {
-  PortfolioCard,
-  ProjetoPortfolioData,
-} from "@/components/PortfolioCard";
+import Link from "next/link";
+import Image from "next/image";
+import { useUser } from "@/context/UserContext";
 
 interface Profissao {
   id: number;
   descricao: string;
 }
 
-interface ProviderProfileResponse {
-  nomeComercial?: string | null;
+interface Projeto {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  regiao: string;
+  valor: string | null;
+  concluido_em: string | null;
+  urls_fotos: string[];
+}
+
+interface Portifolio {
+  biografia: string | null;
+  servicos_concluidos: number;
+  projetos: Projeto[];
+}
+
+interface PerfilPrestador {
+  id: string;
   nome: string;
-  premium: boolean;
-  municipio: string;
+  urlPerfil: string | null;
   profissoes: Profissao[];
-  biografia?: string | null;
-  servicosConcluidos?: number | null;
-  urlPerfil?: string | null;
+  portifolio: Portifolio | null;
 }
 
-interface PortfolioResponse {
-  id: string;
-  biografia: string;
-  servicosConcluidos: number;
-  projetos: ProjetoPortfolioData[];
-}
-
-interface ReviewImage {
-  id: string;
-  url: string;
-}
-
-interface ReviewResponse {
-  id: string;
-  data: string;
-  nota: number;
-  comentario: string;
-  imagens: ReviewImage[];
-  servico: {
-    data: string;
-    total: number;
-  };
-}
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://localhost";
-
-function formatDate(value?: string | null) {
-  if (!value) return "Sem data";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function formatCurrency(value: number | null | undefined) {
-  if (value == null) return "Sob consulta";
-
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-}
-
-function convertNotaParaCincoPontos(nota: number): number {
-  const convertida = nota / 2;
-  return Math.max(0, Math.min(5, convertida));
-}
-
-function getProviderImage(name: string, url?: string | null) {
-  return url && url !== ""
-    ? url
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
-}
-
-function resolveImageUrl(url?: string | null) {
-  if (!url) return "";
-  if (/^https?:\/\//i.test(url)) return url;
-
-  if (!API_BASE_URL) {
-    return url;
-  }
-
-  try {
-    return new URL(url, API_BASE_URL).toString();
-  } catch {
-    return url;
-  }
+function getInitials(nome: string): string {
+  return nome
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 }
 
 export default function ProviderProfilePage() {
-  const params = useParams();
-  const providerId = params.id as string;
-
-  const [profile, setProfile] = useState<ProviderProfileResponse | null>(null);
-  const [portfolio, setPortfolio] = useState<PortfolioResponse | null>(null);
-  const [reviews, setReviews] = useState<ReviewResponse[]>([]);
+  const { id } = useParams<{ id: string }>();
+  const { user } = useUser();
+  const [perfil, setPerfil] = useState<PerfilPrestador | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
-    if (!providerId) return;
-
-    let mounted = true;
-
-    async function loadProvider() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const profileRes = await fetch(
-          `${API_BASE_URL}/api/prestador/${providerId}`,
-        );
-
-        if (profileRes.status === 404) {
-          throw new Error("Prestador não encontrado.");
-        }
-
-        if (!profileRes.ok) {
-          throw new Error("Erro ao carregar o perfil do prestador.");
-        }
-
-        const profileJson =
-          (await profileRes.json()) as ProviderProfileResponse;
-
-        const reviewsPromise = fetch(
-          `${API_BASE_URL}/api/prestador/${providerId}/avaliacoes`,
-        );
-        const portfolioPromise = profileJson.premium
-          ? fetch(`${API_BASE_URL}/api/prestador/${providerId}/portifolio`)
-          : null;
-
-        const [reviewsRes, portfolioRes] = await Promise.all([
-          reviewsPromise,
-          portfolioPromise,
-        ]);
-
-        let reviewsJson: ReviewResponse[] = [];
-        if (reviewsRes.ok) {
-          reviewsJson = (await reviewsRes.json()) as ReviewResponse[];
-        }
-
-        let portfolioJson: PortfolioResponse | null = null;
-        if (portfolioRes) {
-          if (portfolioRes.ok) {
-            portfolioJson = (await portfolioRes.json()) as PortfolioResponse;
-          } else if (portfolioRes.status !== 404) {
-            throw new Error("Erro ao carregar o portfólio do prestador.");
-          }
-        }
-
-        if (!mounted) return;
-
-        setProfile(profileJson);
-        setReviews(reviewsJson);
-        setPortfolio(portfolioJson);
-      } catch (loadError: any) {
-        if (!mounted) return;
-        setError(loadError?.message || "Falha ao carregar o perfil.");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    loadProvider();
-
-    return () => {
-      mounted = false;
-    };
-  }, [providerId]);
-
-  const sortedProjects = useMemo(() => {
-    return [...(portfolio?.projetos || [])].sort(
-      (a, b) => a.posicao - b.posicao,
-    );
-  }, [portfolio?.projetos]);
-
-  const sortedReviews = useMemo(() => {
-    return [...reviews].sort(
-      (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime(),
-    );
-  }, [reviews]);
-
-  const activeBio = portfolio?.biografia || profile?.biografia || null;
-  const serviceCount =
-    portfolio?.servicosConcluidos ?? profile?.servicosConcluidos ?? null;
-  const providerName = profile?.nomeComercial || profile?.nome || "Prestador";
-  const providerImage = getProviderImage(providerName, profile?.urlPerfil);
-
-  const hasProjects = sortedProjects.length > 0;
-
-  // Média de Notas Simplificada
-  const mediaAvaliacoes = useMemo(() => {
-    if (reviews.length === 0) return null;
-    const total = reviews.reduce(
-      (acc, r) => acc + convertNotaParaCincoPontos(r.nota),
-      0,
-    );
-    return (total / reviews.length).toFixed(1);
-  }, [reviews]);
+    if (!user?.token || !id) return;
+    fetch(`/api/prestadores/${id}/perfil`, {
+      headers: { Authorization: `Bearer ${user.token}` },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Prestador não encontrado");
+        return r.json();
+      })
+      .then(setPerfil)
+      .catch((e) => setErro(e.message))
+      .finally(() => setLoading(false));
+  }, [id, user?.token]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
-        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
-        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
-          Carregando perfil...
-        </p>
-      </div>
-    );
-  }
-
-  if (error || !profile) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
-        <p className="text-sm font-black text-red-500 uppercase tracking-widest mb-4">
-          {error || "Prestador não encontrado."}
-        </p>
-        <Link
-          href="/search"
-          className="text-xs font-bold text-slate-600 underline uppercase tracking-wider"
-        >
-          Voltar para a busca
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-8">
-      {/* Barra de Navegação Superior */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link
-            href="/search"
-            className="flex items-center gap-2 text-slate-500 font-bold hover:text-green-600 transition-colors"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-xs uppercase tracking-widest">Voltar</span>
-          </Link>
-          <div className="text-center">
-            <span className="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">
-              Perfil Público
-            </span>
-            <span className="block text-xs font-mono font-bold text-slate-600">
-              #{providerId?.slice(0, 8)}
-            </span>
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="max-w-5xl mx-auto px-4 space-y-6 animate-pulse">
+          <div className="h-4 w-32 bg-slate-200 rounded" />
+          <div className="bg-white rounded-2xl p-8 h-48 border border-slate-100" />
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-2 bg-white rounded-2xl h-80 border border-slate-100" />
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl h-36 border border-slate-100" />
+              <div className="bg-white rounded-2xl h-36 border border-slate-100" />
+            </div>
           </div>
-          <div className="w-10" />
         </div>
       </div>
+    );
+  }
 
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* Bloco Unificado de Apresentação e CTA Principal */}
-        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 md:p-8 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-slate-100">
-            <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start text-center sm:text-left">
-              {/* Foto de Perfil */}
-              <div className="relative h-24 w-24 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-inner">
-                <img
-                  src={resolveImageUrl(providerImage)}
-                  alt={`Foto de ${providerName}`}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading="eager"
+  if (erro || !perfil) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-500 font-bold">{erro || "Perfil não encontrado."}</p>
+          <Link href="/search" className="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">
+            Voltar para busca
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const especialidade =
+    perfil.profissoes.length > 0
+      ? perfil.profissoes.map((p) => p.descricao).join(", ")
+      : "Prestador de Serviços";
+
+  const servicosConcluidos = perfil.portifolio?.servicos_concluidos ?? 0;
+  const projetos = perfil.portifolio?.projetos ?? [];
+  const anoIngresso = new Date().getFullYear();
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-10">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Voltar */}
+        <Link
+          href="/search"
+          className="inline-flex items-center gap-1.5 text-slate-400 text-sm font-semibold mb-6 hover:text-slate-700 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Voltar para busca
+        </Link>
+
+        {/* Card Principal */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
+          {/* Badge Premium */}
+          <div className="inline-flex items-center gap-1.5 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full mb-5">
+            ⭐ PRESTADOR PREMIUM
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start gap-5">
+            {/* Avatar */}
+            <div className="relative w-20 h-20 rounded-full overflow-hidden bg-emerald-500 flex items-center justify-center shrink-0">
+              {perfil.urlPerfil ? (
+                <Image
+                  src={perfil.urlPerfil}
+                  alt={perfil.nome}
+                  fill
+                  className="object-cover"
+                  unoptimized={perfil.urlPerfil.includes("localhost")}
                 />
-              </div>
-
-              {/* Informações de Título */}
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                  <User size={12} className="text-slate-400" />
-                  <span>
-                    {profile.premium ? "Membro Premium" : "Prestador Autônomo"}
-                  </span>
-                  {profile.premium && (
-                    <span className="inline-flex items-center gap-0.5 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.2 text-amber-700 font-bold lowercase tracking-normal">
-                      <Award
-                        size={10}
-                        className="fill-amber-500 text-amber-600"
-                      />{" "}
-                      premium
-                    </span>
-                  )}
-                </div>
-
-                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 uppercase">
-                  {providerName}
-                </h1>
-
-                <p className="text-xs font-semibold text-slate-400">
-                  Nome registrado:{" "}
-                  <span className="text-slate-600">{profile.nome}</span>
-                </p>
-
-                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-1.5 pt-1">
-                  <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
-                    <MapPin size={12} className="text-slate-400" />
-                    {profile.municipio}
-                  </span>
-                  {profile.profissoes.map((profissao) => (
-                    <span
-                      key={profissao.id}
-                      className="inline-flex items-center rounded-lg border border-green-100 bg-green-50/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-green-700"
-                    >
-                      {profissao.descricao}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Botão de Conversão Superior Direita (Desktop) */}
-            <div className="hidden md:block shrink-0">
-              <Link
-                href={`/provider/${providerId}/request`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-green-700 shadow-md shadow-green-600/10 active:scale-95"
-              >
-                <MessageSquare size={16} />
-                Solicitar Orçamento
-              </Link>
-            </div>
-          </div>
-
-          {/* Painel Horizontal de Métricas de Confiança */}
-          <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
-            <div className="py-2 border-r border-slate-200">
-              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
-                Serviços
-              </p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">
-                {serviceCount ?? "0"}
-              </p>
-              <p className="text-[9px] font-semibold text-slate-400">
-                concluídos
-              </p>
-            </div>
-
-            <div className="py-2 border-r border-slate-200">
-              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
-                Avaliações
-              </p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">
-                {sortedReviews.length}
-              </p>
-              <p className="text-[9px] font-semibold text-slate-400">
-                de clientes
-              </p>
-            </div>
-
-            <div className="py-2">
-              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
-                Reputação
-              </p>
-              {mediaAvaliacoes ? (
-                <div className="flex items-center justify-center gap-0.5 mt-0.5 text-amber-600">
-                  <p className="text-xl font-black text-slate-900">
-                    {mediaAvaliacoes}
-                  </p>
-                  <Star size={14} className="fill-amber-500 text-amber-500" />
-                </div>
               ) : (
-                <p className="text-xs font-black text-slate-400 mt-1.5">Novo</p>
+                <span className="text-white font-black text-2xl select-none">
+                  {getInitials(perfil.nome)}
+                </span>
               )}
-              <p className="text-[9px] font-semibold text-slate-400">
-                média geral
-              </p>
+            </div>
+
+            {/* Info */}
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    {perfil.nome}
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  </h1>
+                  <p className="text-emerald-600 font-bold text-sm uppercase tracking-wide mt-0.5">
+                    {especialidade}
+                  </p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+                    <span className="flex items-center gap-1 font-semibold">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      5 (0 avaliações)
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      Localização não informada
+                    </span>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/provider/${id}/request`}
+                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-xl transition-colors shrink-0"
+                >
+                  Solicitar Orçamento
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 mt-6 bg-slate-50 rounded-xl p-4">
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold">Trabalhos</p>
+                  <p className="text-lg font-bold text-slate-900 mt-0.5">{servicosConcluidos}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold">Resposta</p>
+                  <p className="text-lg font-bold text-slate-900 mt-0.5">~2 horas</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold">Valor médio</p>
+                  <p className="text-lg font-bold text-slate-900 mt-0.5">Sob orçamento</p>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Apresentação Biográfica */}
-          {activeBio && (
-            <div className="space-y-1.5">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <CheckCircle size={12} className="text-green-600" /> Resumo
-                Profissional
-              </h3>
-              <p className="text-xs leading-relaxed font-medium text-slate-600 bg-slate-50/40 p-4 rounded-xl border border-slate-100">
-                {activeBio}
-              </p>
-            </div>
-          )}
-        </section>
+        {/* Corpo Principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Portfólio */}
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h2 className="text-base font-bold text-slate-900 mb-5">Portfólio de Serviços</h2>
 
-        {/* Seção de Portfólio Premium */}
-        {profile.premium && (
-          <section className="space-y-4">
-            <div className="px-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
-                Galeria Comercial
-              </span>
-              <h2 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-                Projetos e Casos de Sucesso
-              </h2>
-            </div>
-
-            {hasProjects ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedProjects.map((project) => (
-                  <PortfolioCard
-                    key={project.id}
-                    projeto={project}
-                    basePath={`/provider/${providerId}`}
-                  />
-                ))}
+            {projetos.length === 0 ? (
+              <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-xl text-slate-400 text-sm font-semibold">
+                Nenhum projeto cadastrado ainda.
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs text-slate-400 font-medium">
-                Este prestador ainda não anexou nenhum projeto prático ao seu
-                portfólio.
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {projetos.map((projeto) => (
+                  <div key={projeto.id} className="border border-slate-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                    {projeto.urls_fotos.length > 0 ? (
+                      <div className="relative h-40">
+                        <Image
+                          src={projeto.urls_fotos[0]}
+                          alt={projeto.titulo}
+                          fill
+                          className="object-cover"
+                          unoptimized={projeto.urls_fotos[0].includes("localhost")}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-40 bg-slate-100 flex items-center justify-center">
+                        <Briefcase className="w-8 h-8 text-slate-300" />
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <h3 className="font-bold text-slate-900 text-sm leading-snug">{projeto.titulo}</h3>
+                      {projeto.descricao && (
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{projeto.descricao}</p>
+                      )}
+                      {projeto.valor && (
+                        <p className="text-emerald-600 font-bold text-sm mt-2">
+                          R$ {parseFloat(projeto.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
-          </section>
-        )}
-
-        {/* Seção de Avaliações */}
-        <section className="space-y-4">
-          <div className="px-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
-              Opinião pública
-            </span>
-            <h2 className="text-lg font-black tracking-tight text-slate-900 uppercase">
-              O que dizem os clientes
-            </h2>
           </div>
 
-          {sortedReviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sortedReviews.map((review) => {
-                const firstImage = review.imagens?.[0];
-                const reviewScore = convertNotaParaCincoPontos(review.nota);
-
-                return (
-                  <article
-                    key={review.id}
-                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between gap-4"
-                  >
-                    <div className="flex gap-4 items-start">
-                      {firstImage ? (
-                        <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shrink-0">
-                          <img
-                            src={resolveImageUrl(firstImage.url)}
-                            alt="Evidência do serviço"
-                            className="absolute inset-0 h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-300 shrink-0">
-                          <Star size={16} />
-                        </div>
-                      )}
-
-                      <div className="space-y-1.5 min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="inline-flex items-center gap-0.5 rounded bg-amber-50 border border-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-700">
-                            <Star
-                              size={10}
-                              className="fill-amber-500 text-amber-500"
-                            />
-                            {reviewScore.toFixed(1)}
-                          </div>
-                          <span className="text-[9px] font-mono font-bold text-slate-400">
-                            {formatDate(review.data).split(" ")[0]}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-600 font-medium leading-relaxed line-clamp-3">
-                          "{review.comentario}"
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-50 text-[9px] font-mono font-bold text-slate-400">
-                      <span className="bg-slate-50 px-2 py-0.5 rounded">
-                        Executado em:{" "}
-                        {formatDate(review.servico.data).split(" ")[0]}
-                      </span>
-                      <span className="bg-slate-50 px-2 py-0.5 rounded">
-                        Investimento: {formatCurrency(review.servico.total)}
-                      </span>
-                    </div>
-                  </article>
-                );
-              })}
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Entre em Contato */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h2 className="text-base font-bold text-slate-900 mb-4">Entre em Contato</h2>
+              <Link
+                href={`/provider/${id}/request`}
+                className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm py-3 rounded-xl transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Solicitar Orçamento
+              </Link>
+              <div className="mt-4 flex items-center gap-2 text-sm text-slate-500 font-semibold">
+                <Clock className="w-4 h-4 text-slate-400" />
+                <span>~2 horas</span>
+                <span className="text-slate-400 font-normal text-xs">Tempo médio de resposta</span>
+              </div>
             </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs text-slate-400 font-medium">
-              Ainda não existem registros de avaliações para este profissional.
-            </div>
-          )}
-        </section>
-      </div>
 
-      {/* 📱 Botão Fixo de Ação na Base (Apenas telas Mobile/Tablet) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t border-slate-200 z-40 shadow-xl">
-        <Link
-          href={`/provider/${providerId}/request`}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-green-700 shadow"
-        >
-          <MessageSquare size={14} />
-          Solicitar Orçamento
-        </Link>
+            {/* Sobre */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h2 className="text-base font-bold text-slate-900 mb-4">Sobre</h2>
+              <ul className="space-y-2.5 text-sm text-slate-700">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  Identidade verificada
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  {servicosConcluidos}+ trabalhos concluídos
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  Membro desde {anoIngresso}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

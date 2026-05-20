@@ -8,13 +8,8 @@
         <id name="id" type="uuid" column="id" />
 
         <field name="status" type="integer" column="id_status" enum-type="App\Enum\StatusServico" />
-
         <field name="inicio" type="datetime_immutable" column="inicio" />
-
-        <field name="avaliadoEm" type="datetime_immutable" column="avaliado_em" />
-
         <field name="encerramento" type="datetime_immutable" column="encerramento" nullable="true" />
-
         <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
 
         <many-to-one field="cliente" target-entity="App\Entity\Auth\Usuario">
@@ -38,10 +33,6 @@
             </cascade>
         </one-to-one>
 
-        <one-to-one field="projeto" target-entity="App\Entity\Portifolio\Projeto" mapped-by="servico" />
-
-        <one-to-one field="avaliacao" target-entity="App\Entity\Avaliacao\Avaliacao" mapped-by="servico" />
-
         <one-to-many field="agendamentos" target-entity="App\Entity\Servico\Agendamento" mapped-by="servico">
             <order-by>
                 <order-by-field name="data" direction="DESC" />
@@ -50,7 +41,7 @@
 
         <one-to-many field="orcamentos" target-entity="App\Entity\Servico\Orcamento" mapped-by="servico">
             <order-by>
-                <order-by-field name="criadoEm" direction="DESC" />
+                <order-by-field name="sequencia" direction="ASC" />
             </order-by>
         </one-to-many>
 

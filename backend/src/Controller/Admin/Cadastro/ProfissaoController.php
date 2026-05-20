@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/cadastro/profissoes')]
+#[Route('/api/admin/cadastro/profissoes')]
 final class ProfissaoController extends AbstractController
 {
     public function __construct(

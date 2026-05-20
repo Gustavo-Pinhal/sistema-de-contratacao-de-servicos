@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -12,10 +12,9 @@ import {
   Home as HomeIcon,
   FileText,
   Bell,
-  RotateCcw,
-  Settings,
 } from "lucide-react";
 import { useUser } from "../../context/UserContext";
+import { useNotifications } from "../../context/NotificationContext";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
 import Image from "next/image";
 
@@ -30,19 +29,21 @@ export function Navbar() {
     isOpen: boolean;
     type: "login" | "register";
   }>({ isOpen: false, type: "login" });
+  const notifRef = useRef<HTMLDivElement>(null);
 
   const role = user?.role || "client";
+  const { notifications, totalUnread, clearAll } = useNotifications();
+  const unreadCount = totalUnread;
 
-  // Mock de notificações (no futuro virá de um contexto ou API)
-  const notifications = [
-    {
-      id: 1,
-      text: "Bem-vindo ao Marido de Aluguel!",
-      date: "Hoje",
-      read: false,
-    },
-  ];
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -64,14 +65,15 @@ export function Navbar() {
               <div className="relative w-15 h-15 group-hover:scale-105 transition-transform">
                 <Image
                   src="/logo.png"
-                  alt="Logo Marido de Aluguel"
+                  alt="Logo ServiçoFácil"
                   fill
+                  sizes="60px"
                   className="object-contain"
                   priority
                 />
               </div>
               <span className="text-xl font-bold text-slate-900 hidden sm:inline tracking-tighter">
-                Marido de Aluguel
+                ServiçoFácil
               </span>
             </Link>
 
@@ -80,16 +82,6 @@ export function Navbar() {
               {isLoggedIn && (
                 <>
                   {/* Links de acordo com a Role */}
-                  {(role === "admin" || role === "ROLE_ADMIN") && (
-                    <NavLink
-                      href="/admin/profissoes"
-                      active={pathname.startsWith("/admin")}
-                      icon={<Settings className="w-4 h-4" />}
-                    >
-                      Painel Administrativo
-                    </NavLink>
-                  )}
-
                   {(role === "client" || role === "ROLE_CLIENTE") && (
                     <>
                       <NavLink
@@ -100,8 +92,8 @@ export function Navbar() {
                         Buscar Prestadores
                       </NavLink>
                       <NavLink
-                        href="/quotes"
-                        active={pathname.startsWith("/quotes")}
+                        href="/client/requests"
+                        active={pathname.startsWith("/client/requests")}
                         icon={<FileText className="w-4 h-4" />}
                       >
                         Meus Orçamentos
@@ -112,8 +104,8 @@ export function Navbar() {
                   {(role === "provider" || role === "ROLE_PRESTADOR") && (
                     <>
                       <NavLink
-                        href="/affiliate/dashboard"
-                        active={pathname === "/affiliate/dashboard"}
+                        href="/dashboard"
+                        active={pathname === "/dashboard"}
                         icon={<HomeIcon className="w-4 h-4" />}
                       >
                         Painel
@@ -149,21 +141,8 @@ export function Navbar() {
                   </>
                 ) : (
                   <div className="flex items-center gap-5">
-                    {/* Botão Zerar (Útil durante desenvolvimento/simulação) */}
-                    <button
-                      onClick={() => {
-                        if (confirm("Deseja zerar os dados da sessão?")) {
-                          handleLogout();
-                        }
-                      }}
-                      className="text-slate-400 hover:text-orange-500 transition-colors"
-                      title="Zerar Sessão"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                    </button>
-
                     {/* Notificações */}
-                    <div className="relative">
+                    <div className="relative" ref={notifRef}>
                       <button
                         onClick={() => setShowNotifications(!showNotifications)}
                         className="relative p-1 text-slate-400 hover:text-blue-600 transition-colors"
@@ -171,10 +150,54 @@ export function Navbar() {
                         <Bell className="w-5 h-5" />
                         {unreadCount > 0 && (
                           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white animate-pulse">
-                            {unreadCount}
+                            {unreadCount > 9 ? "9+" : unreadCount}
                           </span>
                         )}
                       </button>
+
+                      {showNotifications && (
+                        <div className="absolute right-0 top-9 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Notificações</span>
+                            {unreadCount > 0 && (
+                              <button
+                                onClick={clearAll}
+                                className="text-[10px] font-bold text-blue-500 hover:text-blue-700"
+                              >
+                                Marcar todas como lidas
+                              </button>
+                            )}
+                          </div>
+                          <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                            {notifications.filter((n) => n.unread > 0).length === 0 ? (
+                              <div className="p-6 text-center">
+                                <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                                <p className="text-xs font-bold text-slate-400">Nenhuma notificação</p>
+                              </div>
+                            ) : (
+                              notifications
+                                .filter((n) => n.unread > 0)
+                                .map((n) => (
+                                  <a
+                                    key={n.servicoId}
+                                    href={`/service/${n.servicoId}`}
+                                    onClick={() => setShowNotifications(false)}
+                                    className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                                  >
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-black text-xs">
+                                      {n.unread}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-black text-slate-800 truncate">{n.prestadorNome}</p>
+                                      <p className="text-[11px] text-slate-500 truncate">{n.lastMessage}</p>
+                                      <p className="text-[10px] text-slate-400 mt-0.5">{n.lastAt}</p>
+                                    </div>
+                                  </a>
+                                ))
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Avatar do Usuário */}
@@ -182,7 +205,7 @@ export function Navbar() {
                       href={
                         role === "client"
                           ? "/client/profile"
-                          : "/affiliate/dashboard"
+                          : "/provider/dashboard"
                       }
                       className="group"
                     >
@@ -229,7 +252,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 />
                 <MobileNavLink
-                  href="/quotes"
+                  href="/client/requests"
                   icon={<FileText className="w-5 h-5" />}
                   label="Meus Orçamentos"
                   onClick={() => setMobileMenuOpen(false)}

@@ -3,8 +3,8 @@ import { Providers } from "./providers";
 import { MainLayout } from "./components/MainLayout";
 
 export const metadata = {
-  title: "Nome do seu App",
-  description: "Descrição do seu projeto",
+  title: "ServiçoFácil",
+  description: "Conecte-se com prestadores de serviço de forma rápida e fácil.",
 };
 
 export default function RootLayout({

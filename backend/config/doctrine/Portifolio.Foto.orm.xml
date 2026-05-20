@@ -8,14 +8,14 @@
 
         <field name="urlFoto" type="string" length="255" column="url_foto" />
 
-        <field name="posicao" type="integer" column="posicao" />
+        <field name="ordem" type="integer" column="ordem" />
 
         <many-to-one field="projeto" target-entity="App\Entity\Portifolio\Projeto" inversed-by="fotos">
             <join-column name="id_projeto" referenced-column-name="id" nullable="false" />
         </many-to-one>
 
         <unique-constraints>
-            <unique-constraint columns="id_projeto,posicao" name="uniq_projeto_posicao" />
+            <unique-constraint columns="id_projeto,ordem" name="uniq_projeto_ordem" />
         </unique-constraints>
     </entity>
 </doctrine-mapping>
