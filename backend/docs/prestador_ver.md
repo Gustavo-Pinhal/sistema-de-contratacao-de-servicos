@@ -14,6 +14,7 @@ A requisição responde com um objeto contendo os detalhes do perfil do prestado
     "nome": "Carlos Silva",
     "premium": true,
     "municipio": "Araraquara",
+    "servicosConcluidos": 2,
     "profissoes": [
         {
             "id": 1,

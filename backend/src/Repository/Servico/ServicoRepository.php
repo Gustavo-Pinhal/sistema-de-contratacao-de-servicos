@@ -3,6 +3,7 @@
 namespace App\Repository\Servico;
 
 use App\Entity\Auth\Usuario;
+use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
 use App\Enum\StatusServico;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -92,5 +93,21 @@ class ServicoRepository extends ServiceEntityRepository
             ->orderBy('s.inicio', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function contarServicos(?Prestador $prestador = null, ?StatusServico $status = null): int
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)');
+        $qb->where('s.excluidoEm IS NULL');
+        if ($prestador !== null) {
+            $qb->andWhere('s.prestador = :prestadorId')
+                ->setParameter('prestadorId', $prestador->getId());
+        }
+        if ($status !== null) {
+            $qb->andWhere('s.status = :status')
+                ->setParameter('status', $status->value);
+        }
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }
