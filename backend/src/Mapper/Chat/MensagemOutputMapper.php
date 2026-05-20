@@ -30,7 +30,7 @@ class MensagemOutputMapper extends AbstractMapper
             'texto' => $conteudo['text'] ?? $conteudo['texto'] ?? null,
             'referencia' => $referencia,
             'arquivo' => $arquivo,
-            'enviadoEm' => $mensagem->getEnvioEm()->format('d/m/Y às H:i'),
+            'enviadoEm' => $mensagem->getEnvioEm()->format('d/m/Y \à\s H:i'),
         ];
     }
 }
