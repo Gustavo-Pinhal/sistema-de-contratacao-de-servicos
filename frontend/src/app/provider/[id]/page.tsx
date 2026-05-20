@@ -5,21 +5,19 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   Award,
-  CalendarDays,
   ChevronLeft,
-  ChevronRight,
   Loader2,
   MapPin,
   MessageSquare,
   Star,
   User,
+  CheckCircle,
+  Briefcase,
 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  PortfolioCard,
+  ProjetoPortfolioData,
+} from "@/components/PortfolioCard";
 
 interface Profissao {
   id: number;
@@ -37,31 +35,11 @@ interface ProviderProfileResponse {
   urlPerfil?: string | null;
 }
 
-interface PortfolioPhoto {
-  id: string;
-  url: string;
-  posicao: number;
-}
-
-interface PortfolioProject {
-  id: string;
-  titulo: string;
-  descricao: string;
-  regiao: string;
-  valor: number | null;
-  exibirValor: boolean;
-  concluidoEm: string | null;
-  exibirConcluidoEm: boolean;
-  posicao: number;
-  fotos?: PortfolioPhoto[];
-  imagens?: PortfolioPhoto[];
-}
-
 interface PortfolioResponse {
   id: string;
   biografia: string;
   servicosConcluidos: number;
-  projetos: PortfolioProject[];
+  projetos: ProjetoPortfolioData[];
 }
 
 interface ReviewImage {
@@ -130,26 +108,6 @@ function resolveImageUrl(url?: string | null) {
   }
 }
 
-function getProjectPhotos(project: PortfolioProject): PortfolioPhoto[] {
-  const fotos = Array.isArray(project.fotos) ? project.fotos : [];
-  const imagens = Array.isArray(project.imagens) ? project.imagens : [];
-  const source = fotos.length > 0 ? fotos : imagens;
-
-  return [...source]
-    .filter((photo) => Boolean(photo?.url))
-    .sort((a, b) => a.posicao - b.posicao);
-}
-
-function getProjectCoverPhoto(
-  project: PortfolioProject,
-): PortfolioPhoto | null {
-  const photos = getProjectPhotos(project);
-  if (photos.length === 0) return null;
-
-  const priority = photos.find((photo) => photo.posicao === 0);
-  return priority || photos[0];
-}
-
 export default function ProviderProfilePage() {
   const params = useParams();
   const providerId = params.id as string;
@@ -159,9 +117,6 @@ export default function ProviderProfilePage() {
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProject, setSelectedProject] =
-    useState<PortfolioProject | null>(null);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   useEffect(() => {
     if (!providerId) return;
@@ -252,24 +207,22 @@ export default function ProviderProfilePage() {
   const providerName = profile?.nomeComercial || profile?.nome || "Prestador";
   const providerImage = getProviderImage(providerName, profile?.urlPerfil);
 
-  const openProject = (project: PortfolioProject) => {
-    setSelectedProject(project);
-    setSelectedPhotoIndex(0);
-  };
-
-  const selectedPhotos = selectedProject
-    ? getProjectPhotos(selectedProject)
-    : [];
-
-  const currentPhoto =
-    selectedPhotos[selectedPhotoIndex] || selectedPhotos[0] || null;
-
   const hasProjects = sortedProjects.length > 0;
+
+  // Média de Notas Simplificada
+  const mediaAvaliacoes = useMemo(() => {
+    if (reviews.length === 0) return null;
+    const total = reviews.reduce(
+      (acc, r) => acc + convertNotaParaCincoPontos(r.nota),
+      0,
+    );
+    return (total / reviews.length).toFixed(1);
+  }, [reviews]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
-        <Loader2 className="animate-spin text-blue-600 w-8 h-8" />
+        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
         <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
           Carregando perfil...
         </p>
@@ -294,19 +247,20 @@ export default function ProviderProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 pb-24 md:pb-8">
+      {/* Barra de Navegação Superior */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/search"
-            className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
+            className="flex items-center gap-2 text-slate-500 font-bold hover:text-green-600 transition-colors"
           >
             <ChevronLeft size={20} />
             <span className="text-xs uppercase tracking-widest">Voltar</span>
           </Link>
           <div className="text-center">
             <span className="block text-[10px] font-black uppercase text-slate-400 tracking-tighter">
-              Perfil do Prestador
+              Perfil Público
             </span>
             <span className="block text-xs font-mono font-bold text-slate-600">
               #{providerId?.slice(0, 8)}
@@ -316,214 +270,181 @@ export default function ProviderProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <section className="rounded-4xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="bg-slate-100 border-b border-slate-200 px-6 py-6 lg:px-8 lg:py-8">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-                <div className="relative h-24 w-24 rounded-3xl overflow-hidden border border-slate-200 bg-slate-200 shrink-0">
-                  <img
-                    src={resolveImageUrl(providerImage)}
-                    alt={`Foto de ${providerName}`}
-                    className="absolute inset-0 h-full w-full object-cover"
-                    loading="eager"
-                  />
-                </div>
-
-                <div className="space-y-4 max-w-3xl">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">
-                      <User size={14} />
-                      {profile.premium ? "Prestador premium" : "Prestador"}
-                      {profile.premium && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-700">
-                          <Award size={12} />
-                          Portfólio disponível
-                        </span>
-                      )}
-                    </div>
-                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-slate-900">
-                      {providerName}
-                    </h1>
-                    <p className="text-base font-semibold text-slate-500">
-                      {profile.nome}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                      <MapPin size={14} />
-                      {profile.municipio}
-                    </span>
-                    {profile.profissoes.map((profissao) => (
-                      <span
-                        key={profissao.id}
-                        className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-700"
-                      >
-                        {profissao.descricao}
-                      </span>
-                    ))}
-                  </div>
-
-                  {activeBio && (
-                    <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 text-slate-700 shadow-sm">
-                      <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400 mb-2">
-                        Biografia
-                      </p>
-                      <p className="text-sm leading-6 font-medium">
-                        {activeBio}
-                      </p>
-                    </div>
-                  )}
-                </div>
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* Bloco Unificado de Apresentação e CTA Principal */}
+        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 md:p-8 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start text-center sm:text-left">
+              {/* Foto de Perfil */}
+              <div className="relative h-24 w-24 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-inner">
+                <img
+                  src={resolveImageUrl(providerImage)}
+                  alt={`Foto de ${providerName}`}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="eager"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3 lg:min-w-70">
-                {profile.premium && (
-                  <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-amber-700">
-                      Portfólio
-                    </p>
-                    <p className="mt-2 text-2xl font-black text-amber-900">
-                      {hasProjects ? sortedProjects.length : 0}
-                    </p>
-                    <p className="text-xs font-semibold text-amber-700/80">
-                      projetos exibidos
-                    </p>
-                  </div>
-                )}
-                <div className="rounded-3xl border border-slate-200 bg-white p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                    Serviços
-                  </p>
-                  <p className="mt-2 text-2xl font-black text-slate-900">
-                    {serviceCount ?? "-"}
-                  </p>
-                  <p className="text-xs font-semibold text-slate-500">
-                    concluídos
-                  </p>
+              {/* Informações de Título */}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                  <User size={12} className="text-slate-400" />
+                  <span>
+                    {profile.premium ? "Membro Premium" : "Prestador Autônomo"}
+                  </span>
+                  {profile.premium && (
+                    <span className="inline-flex items-center gap-0.5 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.2 text-amber-700 font-bold lowercase tracking-normal">
+                      <Award
+                        size={10}
+                        className="fill-amber-500 text-amber-600"
+                      />{" "}
+                      premium
+                    </span>
+                  )}
                 </div>
-                <div className="col-span-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                      Avaliações
-                    </p>
-                    <p className="mt-2 text-2xl font-black text-slate-900">
-                      {sortedReviews.length}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/provider/${providerId}/request`}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 transition-colors hover:bg-blue-600 hover:text-white"
-                  >
-                    <MessageSquare size={16} />
-                    Solicitar Orçamento
-                  </Link>
+
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 uppercase">
+                  {providerName}
+                </h1>
+
+                <p className="text-xs font-semibold text-slate-400">
+                  Nome registrado:{" "}
+                  <span className="text-slate-600">{profile.nome}</span>
+                </p>
+
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-1.5 pt-1">
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
+                    <MapPin size={12} className="text-slate-400" />
+                    {profile.municipio}
+                  </span>
+                  {profile.profissoes.map((profissao) => (
+                    <span
+                      key={profissao.id}
+                      className="inline-flex items-center rounded-lg border border-green-100 bg-green-50/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-green-700"
+                    >
+                      {profissao.descricao}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        </section>
 
-        {profile.premium && (
-          <section className="space-y-5">
-            <div className="flex items-end justify-between gap-4 px-1">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                  Portfólio
-                </p>
-                <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
-                  Projetos em destaque
-                </h2>
-              </div>
-              <p className="hidden md:block text-sm font-semibold text-slate-500 max-w-xl text-right">
-                Clique em um projeto para ver as fotos e os detalhes completos.
+            {/* Botão de Conversão Superior Direita (Desktop) */}
+            <div className="hidden md:block shrink-0">
+              <Link
+                href={`/provider/${providerId}/request`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-green-700 shadow-md shadow-green-600/10 active:scale-95"
+              >
+                <MessageSquare size={16} />
+                Solicitar Orçamento
+              </Link>
+            </div>
+          </div>
+
+          {/* Painel Horizontal de Métricas de Confiança */}
+          <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+            <div className="py-2 border-r border-slate-200">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
+                Serviços
+              </p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">
+                {serviceCount ?? "0"}
+              </p>
+              <p className="text-[9px] font-semibold text-slate-400">
+                concluídos
               </p>
             </div>
 
+            <div className="py-2 border-r border-slate-200">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
+                Avaliações
+              </p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">
+                {sortedReviews.length}
+              </p>
+              <p className="text-[9px] font-semibold text-slate-400">
+                de clientes
+              </p>
+            </div>
+
+            <div className="py-2">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">
+                Reputação
+              </p>
+              {mediaAvaliacoes ? (
+                <div className="flex items-center justify-center gap-0.5 mt-0.5 text-amber-600">
+                  <p className="text-xl font-black text-slate-900">
+                    {mediaAvaliacoes}
+                  </p>
+                  <Star size={14} className="fill-amber-500 text-amber-500" />
+                </div>
+              ) : (
+                <p className="text-xs font-black text-slate-400 mt-1.5">Novo</p>
+              )}
+              <p className="text-[9px] font-semibold text-slate-400">
+                média geral
+              </p>
+            </div>
+          </div>
+
+          {/* Apresentação Biográfica */}
+          {activeBio && (
+            <div className="space-y-1.5">
+              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <CheckCircle size={12} className="text-green-600" /> Resumo
+                Profissional
+              </h3>
+              <p className="text-xs leading-relaxed font-medium text-slate-600 bg-slate-50/40 p-4 rounded-xl border border-slate-100">
+                {activeBio}
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* Seção de Portfólio Premium */}
+        {profile.premium && (
+          <section className="space-y-4">
+            <div className="px-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
+                Galeria Comercial
+              </span>
+              <h2 className="text-lg font-black tracking-tight text-slate-900 uppercase">
+                Projetos e Casos de Sucesso
+              </h2>
+            </div>
+
             {hasProjects ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {sortedProjects.map((project) => {
-                  const photos = getProjectPhotos(project);
-                  const cover = getProjectCoverPhoto(project);
-
-                  return (
-                    <button
-                      key={project.id}
-                      type="button"
-                      onClick={() => openProject(project)}
-                      className="group text-left rounded-[28px] overflow-hidden border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
-                    >
-                      <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
-                        {cover ? (
-                          <img
-                            src={resolveImageUrl(cover.url)}
-                            alt={project.titulo}
-                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-slate-400">
-                            Sem foto
-                          </div>
-                        )}
-                        {photos.length > 1 && (
-                          <div className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
-                            +{photos.length - 1} fotos
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-5 space-y-4">
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-black tracking-tight text-slate-900">
-                            {project.titulo}
-                          </h3>
-                          <p className="text-sm text-slate-600 line-clamp-2">
-                            {project.descricao}
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1">
-                            <CalendarDays size={12} />
-                            {formatDate(project.concluidoEm)}
-                          </span>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
-                            {project.regiao}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedProjects.map((project) => (
+                  <PortfolioCard
+                    key={project.id}
+                    projeto={project}
+                    basePath={`/provider/${providerId}`}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center text-slate-500">
-                Este prestador ainda não adicionou projetos ao portfólio.
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs text-slate-400 font-medium">
+                Este prestador ainda não anexou nenhum projeto prático ao seu
+                portfólio.
               </div>
             )}
           </section>
         )}
 
-        <section className="space-y-5">
-          <div className="flex items-end justify-between gap-4 px-1">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                Avaliações
-              </p>
-              <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
-                Experiência de clientes
-              </h2>
-            </div>
-            <p className="hidden md:block text-sm font-semibold text-slate-500 max-w-xl text-right">
-              As avaliações ficam em segundo plano em relação ao portfólio, como
-              definido para a experiência premium.
-            </p>
+        {/* Seção de Avaliações */}
+        <section className="space-y-4">
+          <div className="px-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
+              Opinião pública
+            </span>
+            <h2 className="text-lg font-black tracking-tight text-slate-900 uppercase">
+              O que dizem os clientes
+            </h2>
           </div>
 
           {sortedReviews.length > 0 ? (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {sortedReviews.map((review) => {
                 const firstImage = review.imagens?.[0];
                 const reviewScore = convertNotaParaCincoPontos(review.nota);
@@ -531,204 +452,74 @@ export default function ProviderProfilePage() {
                 return (
                   <article
                     key={review.id}
-                    className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between gap-4"
                   >
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
+                    <div className="flex gap-4 items-start">
                       {firstImage ? (
-                        <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shrink-0 opacity-85">
+                        <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shrink-0">
                           <img
                             src={resolveImageUrl(firstImage.url)}
-                            alt="Imagem da avaliação"
+                            alt="Evidência do serviço"
                             className="absolute inset-0 h-full w-full object-cover"
                             loading="lazy"
                           />
                         </div>
                       ) : (
-                        <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-slate-300 shrink-0">
-                          <Star size={18} />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-300 shrink-0">
+                          <Star size={16} />
                         </div>
                       )}
 
-                      <div className="min-w-0 flex-1 space-y-3">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-700">
-                            <Star size={14} className="fill-current" />
-                            {reviewScore.toFixed(1)}/5
+                      <div className="space-y-1.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="inline-flex items-center gap-0.5 rounded bg-amber-50 border border-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-700">
+                            <Star
+                              size={10}
+                              className="fill-amber-500 text-amber-500"
+                            />
+                            {reviewScore.toFixed(1)}
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                            {formatDate(review.data)}
+                          <span className="text-[9px] font-mono font-bold text-slate-400">
+                            {formatDate(review.data).split(" ")[0]}
                           </span>
                         </div>
-
-                        <p className="text-sm leading-6 text-slate-700">
-                          {review.comentario}
+                        <p className="text-xs text-slate-600 font-medium leading-relaxed line-clamp-3">
+                          "{review.comentario}"
                         </p>
-
-                        <div className="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1">
-                            Serviço em {formatDate(review.servico.data)}
-                          </span>
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1">
-                            Total {formatCurrency(review.servico.total)}
-                          </span>
-                        </div>
                       </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-50 text-[9px] font-mono font-bold text-slate-400">
+                      <span className="bg-slate-50 px-2 py-0.5 rounded">
+                        Executado em:{" "}
+                        {formatDate(review.servico.data).split(" ")[0]}
+                      </span>
+                      <span className="bg-slate-50 px-2 py-0.5 rounded">
+                        Investimento: {formatCurrency(review.servico.total)}
+                      </span>
                     </div>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center text-slate-500">
-              Ainda não existem avaliações públicas para este prestador.
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs text-slate-400 font-medium">
+              Ainda não existem registros de avaliações para este profissional.
             </div>
           )}
         </section>
       </div>
 
-      <Dialog
-        open={!!selectedProject}
-        onOpenChange={(open: boolean) => {
-          if (!open) {
-            setSelectedProject(null);
-            setSelectedPhotoIndex(0);
-          }
-        }}
-      >
-        <DialogContent className="max-w-6xl border border-slate-200 bg-white p-0 shadow-2xl overflow-hidden rounded-4xl">
-          {selectedProject && (
-            <div className="grid lg:grid-cols-[1.2fr_0.8fr] min-h-[70vh]">
-              <div className="relative bg-slate-950">
-                <div className="relative aspect-4/3 lg:h-full lg:min-h-[70vh]">
-                  {currentPhoto ? (
-                    <img
-                      src={resolveImageUrl(currentPhoto.url)}
-                      alt={selectedProject.titulo}
-                      className="absolute inset-0 h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-slate-300">
-                      Sem fotos disponíveis
-                    </div>
-                  )}
-                </div>
-
-                {selectedPhotos.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSelectedPhotoIndex((current) =>
-                          current === 0
-                            ? selectedPhotos.length - 1
-                            : current - 1,
-                        )
-                      }
-                      className="absolute left-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/70"
-                    >
-                      <ChevronLeft size={22} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSelectedPhotoIndex(
-                          (current) => (current + 1) % selectedPhotos.length,
-                        )
-                      }
-                      className="absolute right-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/70"
-                    >
-                      <ChevronRight size={22} />
-                    </button>
-                  </>
-                )}
-
-                {selectedPhotos.length > 0 && (
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                    <div className="rounded-full bg-black/55 px-4 py-2 text-xs font-black uppercase tracking-widest text-white backdrop-blur">
-                      {selectedPhotoIndex + 1} / {selectedPhotos.length}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col bg-slate-50">
-                <div className="border-b border-slate-200 px-6 py-6 lg:px-8">
-                  <DialogHeader className="text-left">
-                    <DialogTitle className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 pr-8">
-                      {selectedProject.titulo}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <p className="mt-3 text-sm font-semibold text-slate-500">
-                    {selectedProject.regiao}
-                  </p>
-                </div>
-
-                <div className="flex-1 overflow-auto px-6 py-6 lg:px-8 space-y-6">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-3xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                        Valor
-                      </p>
-                      <p className="mt-2 text-xl font-black text-slate-900">
-                        {formatCurrency(
-                          selectedProject.exibirValor
-                            ? selectedProject.valor
-                            : null,
-                        )}
-                      </p>
-                    </div>
-                    <div className="rounded-3xl border border-slate-200 bg-white p-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400">
-                        Conclusão
-                      </p>
-                      <p className="mt-2 text-sm font-black text-slate-900 leading-5">
-                        {selectedProject.exibirConcluidoEm
-                          ? formatDate(selectedProject.concluidoEm)
-                          : "Não exibida"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400 mb-2">
-                      Descrição
-                    </p>
-                    <p className="text-sm leading-6 text-slate-700">
-                      {selectedProject.descricao}
-                    </p>
-                  </div>
-
-                  {selectedPhotos.length > 1 && (
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-400 mb-3">
-                        Fotos
-                      </p>
-                      <div className="grid grid-cols-4 gap-3">
-                        {selectedPhotos.map((photo, index) => (
-                          <button
-                            key={photo.id}
-                            type="button"
-                            onClick={() => setSelectedPhotoIndex(index)}
-                            className={`relative aspect-square overflow-hidden rounded-2xl border transition-all ${index === selectedPhotoIndex ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 hover:border-slate-300"}`}
-                          >
-                            <img
-                              src={resolveImageUrl(photo.url)}
-                              alt={`${selectedProject.titulo} ${index + 1}`}
-                              className="absolute inset-0 h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* 📱 Botão Fixo de Ação na Base (Apenas telas Mobile/Tablet) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t border-slate-200 z-40 shadow-xl">
+        <Link
+          href={`/provider/${providerId}/request`}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-green-700 shadow"
+        >
+          <MessageSquare size={14} />
+          Solicitar Orçamento
+        </Link>
+      </div>
     </div>
   );
 }

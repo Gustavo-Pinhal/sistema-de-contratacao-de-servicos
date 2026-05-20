@@ -31,11 +31,7 @@ export interface ProjetoPortfolioData {
 
 interface PortfolioCardProps {
   projeto: ProjetoPortfolioData;
-  /**
-   * Define o prefixo da rota.
-   * Ex: "/affiliate" para o prestador ou "/provider" para o cliente.
-   */
-  basePath: "/affiliate" | "/provider";
+  basePath: string;
 }
 
 export function PortfolioCard({ projeto, basePath }: PortfolioCardProps) {
