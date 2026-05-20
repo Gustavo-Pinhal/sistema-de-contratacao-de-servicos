@@ -1,29 +1,47 @@
-"use client";
+import CachedImage, { ChatMessage } from "./CachedImage";
 
-export type Message = {
-  id: string;
-  sender: string;
-  text: string;
-  time: string;
-  isMe?: boolean;
-};
+interface MessageBubbleProps {
+  message: ChatMessage;
+  serviceId: string;
+  token: string;
+}
 
-export default function MessageBubble({ message }: { message: Message }) {
+export default function MessageBubble({
+  message,
+  serviceId,
+  token,
+}: MessageBubbleProps) {
+  const isImage =
+    message.tipo === "arquivo" &&
+    message.arquivo?.mime_type.startsWith("image/");
+
   return (
-    <div className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`flex w-full ${message.isMe ? "justify-end" : "justify-start"}`}
+    >
       <div
-        className={`max-w-[70%] rounded-2xl p-4 shadow-sm ${
-          message.isMe
-            ? "bg-blue-600 text-white"
-            : "bg-white text-slate-800 border border-slate-100"
-        }`}
+        className={`flex flex-col gap-1 max-w-[75%] ${message.isMe ? "items-end" : "items-start"}`}
       >
-        <p className="text-sm font-medium leading-relaxed wrap-break-words">
-          {message.text}
-        </p>
-        <span className="block text-[9px] font-black uppercase tracking-tight mt-2 text-right opacity-40">
-          {message.time}
-        </span>
+        <div
+          className={`px-4 py-3 rounded-2xl ${
+            message.isMe
+              ? "bg-blue-600 text-white rounded-tr-sm"
+              : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
+          }`}
+        >
+          {message.tipo === "texto" && (
+            <p className="text-sm">{message.texto}</p>
+          )}
+
+          {isImage && message.arquivo && (
+            <CachedImage
+              serviceId={serviceId}
+              messageId={message.arquivo.id}
+              token={token}
+            />
+          )}
+        </div>
+        <span className="text-xs text-slate-400 px-1">{message.enviadoEm}</span>
       </div>
     </div>
   );

@@ -7,10 +7,8 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
-  Clock,
   FileText,
   Loader2,
-  MapPin,
   MessageSquare,
   Star,
   User,
@@ -75,31 +73,6 @@ interface ServiceResponse {
   total: number;
 }
 
-interface FileMetadata {
-  id: string;
-  mime_type: string;
-}
-
-interface ChatMessage {
-  id: string;
-  enviado_por: string;
-  tipo: "texto" | "arquivo";
-  texto: string | null;
-  enviado_em: string;
-  arquivo: FileMetadata | null;
-}
-
-interface ChatResponse {
-  idServico: string;
-  mercureToken: string;
-  topico: string;
-  participantes: {
-    cliente: { id: string; nome: string };
-    prestador: { id: string; nome: string };
-  };
-  messagens: ChatMessage[];
-}
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function ServiceTrackingPage() {
@@ -109,7 +82,6 @@ export default function ServiceTrackingPage() {
   const { user, loading: userLoading } = useUser();
 
   const [serviceData, setServiceData] = useState<ServiceResponse | null>(null);
-  const [chatData, setChatData] = useState<ChatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -128,10 +100,12 @@ export default function ServiceTrackingPage() {
     action: "confirm",
   });
   const [serviceActionDialogOpen, setServiceActionDialogOpen] = useState(false);
+
   const servico = serviceData?.servico;
   const agendamentos = serviceData?.agendamentos ?? [];
   const orcamentos = serviceData?.orcamentos ?? [];
   const serviceStatus = servico?.status;
+
   const canCancelService =
     serviceStatus === "Orçamento" || serviceStatus === "Ativo";
   const canReviewService =
@@ -143,11 +117,9 @@ export default function ServiceTrackingPage() {
 
   const loadData = async (token: string) => {
     try {
-      const [serviceRes, chatRes, reviewRes] = await Promise.all([
+      // Carrega apenas os dados do serviço e avaliação (Chat foi removido daqui)
+      const [serviceRes, reviewRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE_URL}/api/servico/${serviceId}/avaliacao`, {
@@ -155,7 +127,7 @@ export default function ServiceTrackingPage() {
         }),
       ]);
 
-      if (serviceRes.status === 403 || chatRes.status === 403) {
+      if (serviceRes.status === 403) {
         setError("Você não tem permissão para acessar este serviço.");
         return;
       }
@@ -169,14 +141,7 @@ export default function ServiceTrackingPage() {
         throw new Error("Erro ao carregar dados do serviço.");
       }
 
-      if (!chatRes.ok) {
-        throw new Error("Erro ao carregar dados do chat.");
-      }
-
-      const [serviceJson, chatJson] = (await Promise.all([
-        serviceRes.json(),
-        chatRes.json(),
-      ])) as [ServiceResponse, ChatResponse];
+      const serviceJson = (await serviceRes.json()) as ServiceResponse;
 
       if (reviewRes.ok) {
         await reviewRes.json();
@@ -186,7 +151,6 @@ export default function ServiceTrackingPage() {
       }
 
       setServiceData(serviceJson);
-      setChatData(chatJson);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Falha na conexão.");
@@ -237,7 +201,6 @@ export default function ServiceTrackingPage() {
     }).format(value);
 
   const getServiceStatusClass = (status: ServiceStatus) => {
-    // If waiting for review (Finalizado/Cancelado without evaluation), show yellow
     if (
       (status === "Finalizado" || status === "Cancelado") &&
       !servico?.avaliacao
@@ -419,19 +382,9 @@ export default function ServiceTrackingPage() {
                 </div>
               </div>
 
+              {/* Uso simplificado e limpo do ChatRoom novo */}
               <div className="bg-slate-50">
-                {chatData ? (
-                  <ChatRoom
-                    serviceId={serviceId}
-                    initialMessages={chatData.messagens}
-                    topic={chatData.topico}
-                    mercureToken={chatData.mercureToken}
-                  />
-                ) : (
-                  <div className="min-h-160 flex items-center justify-center text-slate-500">
-                    Carregando chat...
-                  </div>
-                )}
+                <ChatRoom serviceId={serviceId} token={user?.token || ""} />
               </div>
             </div>
           </section>

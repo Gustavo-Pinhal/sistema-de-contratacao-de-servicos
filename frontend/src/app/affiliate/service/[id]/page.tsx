@@ -61,7 +61,7 @@ interface ServicoDetalhado {
   };
   data: string;
   status: ServiceStatus;
-  projeto: boolean; // Mapeado conforme endpoint do backend
+  projeto: boolean;
 }
 
 interface ServiceResponse {
@@ -69,31 +69,6 @@ interface ServiceResponse {
   agendamentos: Agendamento[];
   orcamentos: Orcamento[];
   total: number;
-}
-
-interface FileMetadata {
-  id: string;
-  mime_type: string;
-}
-
-interface ChatMessage {
-  id: string;
-  enviado_por: string;
-  tipo: "texto" | "arquivo";
-  texto: string | null;
-  enviado_em: string;
-  arquivo: FileMetadata | null;
-}
-
-interface ChatResponse {
-  idServico: string;
-  mercureToken: string;
-  topico: string;
-  participantes: {
-    cliente: { id: string; nome: string };
-    prestador: { id: string; nome: string };
-  };
-  messagens: ChatMessage[];
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
@@ -104,7 +79,6 @@ export default function ProviderServicePage() {
   const { user, loading: userLoading } = useUser();
 
   const [serviceData, setServiceData] = useState<ServiceResponse | null>(null);
-  const [chatData, setChatData] = useState<ChatResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateAgendamentoDialogOpen, setIsCreateAgendamentoDialogOpen] =
@@ -118,6 +92,7 @@ export default function ProviderServicePage() {
     isOpen: false,
     action: "finalize",
   });
+
   const servico = serviceData?.servico;
   const agendamentos = serviceData?.agendamentos ?? [];
   const orcamentos = serviceData?.orcamentos ?? [];
@@ -128,22 +103,20 @@ export default function ProviderServicePage() {
   const canCancelService = canManageFinancials;
   const canFinalizeService = serviceStatus === "Ativo";
 
-  // Regra para exibição do botão de Portfólio / Caso de Sucesso
   const isFinished = serviceStatus === "Finalizado";
   const hasPublishedProject = servico?.projeto === true;
 
   const loadData = async (token: string) => {
     try {
-      const [serviceRes, chatRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/servico/${serviceId}`, {
+      // Faz o fetch unificado apenas dos dados do serviço
+      const serviceRes = await fetch(
+        `${API_BASE_URL}/api/servico/${serviceId}`,
+        {
           headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${API_BASE_URL}/api/servico/${serviceId}/chat`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
+        },
+      );
 
-      if (serviceRes.status === 403 || chatRes.status === 403) {
+      if (serviceRes.status === 403) {
         setError("Você não tem permissão para acessar este serviço.");
         return;
       }
@@ -157,17 +130,9 @@ export default function ProviderServicePage() {
         throw new Error("Erro ao carregar dados do serviço.");
       }
 
-      if (!chatRes.ok) {
-        throw new Error("Erro ao carregar dados do chat.");
-      }
-
-      const [serviceJson, chatJson] = (await Promise.all([
-        serviceRes.json(),
-        chatRes.json(),
-      ])) as [ServiceResponse, ChatResponse];
+      const serviceJson = (await serviceRes.json()) as ServiceResponse;
 
       setServiceData(serviceJson);
-      setChatData(chatJson);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Falha na conexão.");
@@ -363,25 +328,14 @@ export default function ProviderServicePage() {
                 </div>
               </div>
 
+              {/* Injeção limpa e direta do ChatRoom encapsulado */}
               <div className="bg-slate-50">
-                {chatData ? (
-                  <ChatRoom
-                    serviceId={serviceId}
-                    initialMessages={chatData.messagens}
-                    topic={chatData.topico}
-                    mercureToken={chatData.mercureToken}
-                  />
-                ) : (
-                  <div className="min-h-160 flex items-center justify-center text-slate-500">
-                    Carregando chat...
-                  </div>
-                )}
+                <ChatRoom serviceId={serviceId} token={user?.token || ""} />
               </div>
             </div>
           </section>
 
           <aside className="space-y-6 xl:sticky xl:top-24">
-            {/* Bloco Dinâmico: Criar Caso de Sucesso / Portfólio (Apenas Serviços Concluídos) */}
             {isFinished && (
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
                 <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
