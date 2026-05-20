@@ -25,7 +25,7 @@ class MensagemOutputMapper extends AbstractMapper
 
         return [
             'id' => $mensagem->getId()->toString(),
-            'enviadorPor' => $mensagem->getUsuario()->getId(),
+            'enviadoPor' => $mensagem->getUsuario()->getId(),
             'tipo' => $tipo,
             'texto' => $conteudo['text'] ?? $conteudo['texto'] ?? null,
             'referencia' => $referencia,
