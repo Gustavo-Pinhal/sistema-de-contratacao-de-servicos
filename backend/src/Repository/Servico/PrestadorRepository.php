@@ -3,6 +3,7 @@
 namespace App\Repository\Servico;
 
 use App\Entity\Auth\Usuario;
+use App\Entity\Empresarial\EmpresaPrestador;
 use App\Entity\Servico\Prestador;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -52,6 +53,19 @@ class PrestadorRepository extends ServiceEntityRepository
             ->andWhere('s.excluidoEm IS NULL')
             ->orderBy('s.inicio', 'DESC')
             ->setParameter('prestadorId', $prestador->getUsuario()->getId())
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findPrestadoresPorEmpresa(Usuario $empresa): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.usuario', 'u')
+            ->innerJoin(EmpresaPrestador::class, 'ep', 'WITH', 'ep.idPrestador = p.id')
+            ->where('ep.empresa = :empresaId')
+            ->andWhere('ep.excluidoEm IS NULL')
+            ->andWhere('p.excluidoEm IS NULL')
+            ->setParameter('empresaId', $empresa->getId())
             ->getQuery()
             ->getResult();
     }
