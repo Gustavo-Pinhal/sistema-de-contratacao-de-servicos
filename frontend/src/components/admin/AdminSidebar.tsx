@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
+import { Building } from "lucide-react";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -32,6 +33,11 @@ export default function AdminSidebar() {
       title: "Prestadores",
       icon: <Users size={18} />,
       href: "/admin/prestadores",
+    },
+    {
+      title: "Empresas",
+      icon: <Building size={18} />,
+      href: "/admin/empresas",
     },
   ];
 
