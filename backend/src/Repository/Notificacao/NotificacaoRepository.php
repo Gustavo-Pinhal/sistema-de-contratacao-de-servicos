@@ -29,4 +29,15 @@ class NotificacaoRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findTodasPorUsuario(Usuario $usuario): array
+    {
+        return $this->createQueryBuilder('n')
+            ->where('n.receiver = :usuario')
+            ->andWhere('n.deletedAt IS NULL')
+            ->setParameter('usuario', $usuario)
+            ->orderBy('n.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

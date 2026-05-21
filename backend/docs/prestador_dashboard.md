@@ -11,6 +11,10 @@ A requisição responde com um objeto contendo coleções divididas pelo estado 
 
 ```json
 {
+    "filiado": {
+        "id": "019e47ea-7fca-7922-894c-723209c9b4a0",
+        "nome": "teste"
+    },
     "ativos": [],
     "pendentes": [
         {
@@ -79,8 +83,59 @@ A requisição responde com um objeto contendo coleções divididas pelo estado 
 
 - **Avaliações Residuais:** O nó `avaliacao` conterá a nota dada pelo cliente e o respectivo timestamp da ação. O nó constará como `null` caso o serviço não pertença à aba de concluídos ou ainda não tenha recebido uma nota do cliente.
 
+- **Quando não houver filiação:** Para prestadores que não possuírem filiação à nenhuma empresa, o atributo `filiado` possuirá valor `null`.
+
 #### Respostas possíveis:
 
 - **Sucesso (200 OK):** Retorna as listas de serviços segmentadas nas quatro chaves do dashboard operacionais do prestador autenticado.
 
 - **Acesso Negado (403 Forbidden):** Caso o token de autenticação enviado esteja ausente ou pertença a um usuário que não possua perfil ou papel de prestador cadastrado no ecossistema.
+
+## Obter Notificações
+
+Obtém todas as notificações do prestador:
+
+```bash
+curl -k https://localhost/api/areaprestador/notificacoes -H "Authorization: Bearer $TOKEN"
+```
+
+A requisição reponde com um array de objetos:
+
+```json
+[
+    {
+        "id": "019e4a4c-aa03-7304-abee-4befd6d7a3f3",
+        "remetente": {
+            "id": "019e47ea-7fca-7922-894c-723209c9b4a0",
+            "nome": "teste",
+            "email": "empresateste@exemplo.com"
+        },
+        "conteudo": { "type": "filiationInvitation", "companyName": "teste" },
+        "criadoEm": "2026-05-21T11:29:58+00:00"
+    }
+]
+```
+
+Notificações do tipo `filiationInvitation` se referem a convites de filiação.
+
+## Aceitar convite
+
+A seguinte requisição realiza a aceitação do convite de filiação
+
+```bash
+curl -k https://localhost/api/areaprestador/convite/019e4a82-7b96-70b8-bd41-3494d3ab774e/aceitar \
+    -H "Authorization: Bearer $TOKEN" -X POST
+```
+
+A requisição responde com `{"success":true}`.
+
+## Declinar convite
+
+Para declinar o convite de filiação, utilize a seguinte requisição
+
+```bash
+curl -k https://localhost/api/areaprestador/convite/019e4a86-f201-7b7a-b096-034e33ac71c4/declinar \
+    -H "Authorization: Bearer $TOKEN" -X POST
+```
+
+A requisição responde com `{"success":true}`.
