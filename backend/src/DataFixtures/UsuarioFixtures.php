@@ -46,7 +46,6 @@ class UsuarioFixtures extends Fixture implements DependentFixtureInterface
                 '78280000',
                 '123456',
             ),
-            $profissaoEletrista,
             $cep,
         );
         $manager->persist($prestadorComum->getUsuario());
@@ -60,7 +59,6 @@ class UsuarioFixtures extends Fixture implements DependentFixtureInterface
                 '78280000',
                 '123456',
             ),
-            $profissaoEletrista,
             $cep,
         );
         $prestadorPremium->getUsuario()->setRoles(['PRESTADOR', 'PREMIUM']);
