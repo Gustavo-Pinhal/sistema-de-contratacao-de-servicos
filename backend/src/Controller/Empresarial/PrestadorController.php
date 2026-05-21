@@ -77,10 +77,15 @@ final class PrestadorController extends AbstractController
         $usuario = $this->getUser();
         $empresa = $manager->getRepository(Empresa::class)->find($usuario->getId());
 
-        $prestador = $factory->criar($dto, $profissao, $cep);
+        $prestador = $factory->criar($dto, $cep);
 
         $manager->persist($prestador->getUsuario());
+        $prestador->setId($prestador->getUsuario()->getId());
         $manager->persist($prestador);
+        $manager->flush();
+        $prestador->addProfissao($profissao);
+        $manager->flush();
+
         $relacao = new EmpresaPrestador($empresa, $prestador->getId());
 
         $manager->persist($relacao);
@@ -117,7 +122,7 @@ final class PrestadorController extends AbstractController
         }
 
         $prestador = $prestadorRepository->find($usuarioAlvo->getId());
-        if (!$prestador || !$prestador->isAtivo() || $prestador->getExcluidoEm() !== null) {
+        if (!$prestador || $prestador->getExcluidoEm() !== null) {
             return $this->json([
                 'error' => 'O usuário localizado não possui um perfil de prestador ativo de serviços.'
             ], Response::HTTP_BAD_REQUEST);

@@ -16,7 +16,6 @@ class PrestadorFactory
 
     public function criar(
         CadastrarPrestadorInputDto $dto,
-        Profissao $profissao,
         Cep $cep
     ): Prestador {
         $usuario = $this->usuarioFactory->criar(
@@ -31,8 +30,6 @@ class PrestadorFactory
             $usuario->getNome(),
             $cep,
         );
-
-        $prestador->addProfissao($profissao);
 
         return $prestador;
     }

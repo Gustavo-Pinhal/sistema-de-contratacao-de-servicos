@@ -36,6 +36,7 @@ final class CadastroController extends AbstractController
 
         $cliente = $factory->criar($dto);
 
+        $this->manager->persist($cliente->getUsuario());
         $this->manager->persist($cliente);
         $this->manager->flush();
 
@@ -66,9 +67,13 @@ final class CadastroController extends AbstractController
             return $this->json(['message' => 'Erro de validação', 'errors' => ['cep' => 'CEP inválido.']], 400);
         }
 
-        $prestador = $factory->criar($dto, $profissao, $cep);
+        $prestador = $factory->criar($dto, $cep);
 
+        $this->manager->persist($prestador->getUsuario());
+        $prestador->setId($prestador->getUsuario()->getId());
         $this->manager->persist($prestador);
+        $this->manager->flush();
+        $prestador->addProfissao($profissao);
         $this->manager->flush();
 
         return $this->json(['success' => true]);

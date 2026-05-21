@@ -31,7 +31,7 @@ curl -k -X POST https://localhost/api/empresarial/prestador/criar \
        "email": "prestador@exemplo.com",
        "nome": "Carlos Henrique",
        "senha": "SenhaSegura123",
-       "profissao": "10",
+       "profissao": 1,
        "cep": "01001000"
      }'
 ```

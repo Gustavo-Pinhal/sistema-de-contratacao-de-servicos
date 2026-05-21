@@ -4,7 +4,6 @@ namespace App\Entity\Auth;
 
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
@@ -18,6 +17,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->id = Uuid::v4();
         $this->roles = [];
     }
 
