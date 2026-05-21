@@ -11,7 +11,6 @@ use Symfony\Component\Uid\Uuid;
 
 class Empresa
 {
-    private Uuid $id;
     private Usuario $usuario;
     private \DateTimeImmutable $criadoEm;
     private ?\DateTimeImmutable $excluidoEm = null;
@@ -19,15 +18,14 @@ class Empresa
 
     public function __construct(Usuario $usuario)
     {
-        $this->id = $usuario->getId();
         $this->usuario = $usuario;
         $this->criadoEm = new \DateTimeImmutable();
         $this->prestadores = new ArrayCollection();
     }
 
-    public function getId(): Uuid
+    public function getId(): ?Uuid
     {
-        return $this->id;
+        return $this->usuario->getId();
     }
 
     public function getUsuario(): Usuario
