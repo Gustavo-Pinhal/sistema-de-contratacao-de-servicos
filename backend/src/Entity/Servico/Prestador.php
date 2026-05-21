@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Entity\Servico;
+
+use App\Entity\Auth\Usuario;
+use App\Entity\Portifolio\Portifolio;
+use App\Entity\Localizacao\Cep;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
+
+class Prestador
+{
+    private ?Uuid $id = null;
+    private Usuario $usuario;
+    private string $nome;
+    private Cep $cep;
+    private bool $ativo = true;
+    private \DateTimeImmutable $criadoEm;
+    private ?\DateTimeImmutable $excluidoEm = null;
+    private Collection $profissoes;
+    private ?Portifolio $portifolio = null;
+
+    public function __construct(
+        Usuario $usuario,
+        string $nome,
+        Cep $cep,
+    ) {
+        $this->id = $usuario->getId();
+        $this->usuario = $usuario;
+        $this->nome = $nome;
+        $this->cep = $cep;
+        $this->criadoEm = new \DateTimeImmutable();
+        $this->ativo = false;
+        $this->profissoes = new ArrayCollection();
+    }
+
+    public function getId(): ?Uuid
+    {
+        return $this->id;
+    }
+
+    public function setId(?Uuid $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getUsuario(): Usuario
+    {
+        return $this->usuario;
+    }
+
+    public function getNome(): string
+    {
+        return $this->nome;
+    }
+
+    public function setNome(string $nome): self
+    {
+        $this->nome = $nome;
+        return $this;
+    }
+
+    public function getCep(): Cep
+    {
+        return $this->cep;
+    }
+
+    public function setCep(Cep $cep): self
+    {
+        $this->cep = $cep;
+        return $this;
+    }
+
+    public function isAtivo(): bool
+    {
+        return $this->ativo;
+    }
+
+    public function setAtivo(bool $ativo): self
+    {
+        $this->ativo = $ativo;
+        return $this;
+    }
+
+    public function getCriadoEm(): \DateTimeImmutable
+    {
+        return $this->criadoEm;
+    }
+
+    public function getExcluidoEm(): ?\DateTimeImmutable
+    {
+        return $this->excluidoEm;
+    }
+
+    public function setExcluidoEm(?\DateTimeImmutable $excluidoEm): self
+    {
+        $this->excluidoEm = $excluidoEm;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Profissao>
+     */
+    public function getProfissoes(): Collection
+    {
+        return $this->profissoes;
+    }
+
+    public function getPortifolio(): ?Portifolio
+    {
+        return $this->portifolio;
+    }
+
+    public function setPortifolio(?Portifolio $portifolio): self
+    {
+        $this->portifolio = $portifolio;
+        return $this;
+    }
+
+    public function addProfissao(Profissao $profissao): self
+    {
+        if (!$this->profissoes->contains($profissao)) {
+            $this->profissoes->add($profissao);
+        }
+        return $this;
+    }
+
+    public function removeProfissao(Profissao $profissao): self
+    {
+        $this->profissoes->removeElement($profissao);
+        return $this;
+    }
+}

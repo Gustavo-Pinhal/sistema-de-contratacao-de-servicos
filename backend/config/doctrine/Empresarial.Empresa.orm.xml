@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Empresarial\Empresa" table="empresas" schema="empresarial" repository-class="App\Repository\Empresarial\EmpresaRepository">
+
+        <id name="usuario" association-key="true" />
+
+        <one-to-one field="usuario" target-entity="App\Entity\Auth\Usuario">
+            <join-column name="id" referenced-column-name="id" nullable="false" unique="true" />
+        </one-to-one>
+
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <one-to-many field="prestadores" target-entity="App\Entity\Empresarial\EmpresaPrestador" mapped-by="empresa">
+            <cascade>
+                <cascade-persist />
+            </cascade>
+        </one-to-many>
+
+    </entity>
+</doctrine-mapping>

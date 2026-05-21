@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Localizacao\Municipio" table="municipios" schema="localizacao">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+
+        <field name="codigoIbge" type="string" length="7" column="codigo_ibge" unique="true" nullable="false" />
+
+        <field name="nome" type="string" length="255" column="nome" nullable="false" />
+
+        <field name="uf" type="string" length="2" column="uf" nullable="false" />
+
+        <one-to-many field="ceps" target-entity="App\Entity\Localizacao\Cep" mapped-by="municipio" />
+
+    </entity>
+</doctrine-mapping>

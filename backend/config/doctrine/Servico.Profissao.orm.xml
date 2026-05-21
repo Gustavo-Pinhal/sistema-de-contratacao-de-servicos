@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Servico\Profissao" table="profissoes" schema="servico" repository-class="App\Repository\Servico\ProfissaoRepository">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+
+        <field name="descricao" type="string" length="60" nullable="false" column="descricao" unique="true" />
+
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <many-to-many field="prestadores" target-entity="App\Entity\Servico\Prestador" mapped-by="profissoes" />
+
+    </entity>
+</doctrine-mapping>

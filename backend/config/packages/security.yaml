@@ -1,0 +1,48 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Auth\Usuario
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js|assets|build)/
+            security: false
+
+        # 1. Firewall para o Login
+        # Alterado para cobrir especificamente o endpoint de check
+        login:
+            pattern: ^/api/login_check
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                provider: app_user_provider
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # 2. Firewall para a API
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+
+    role_hierarchy:
+        ROLE_PREMIUM: ROLE_PRESTADOR
+
+    access_control:
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/cadastro, roles: PUBLIC_ACCESS }
+        - { path: ^/api/busca, roles: PUBLIC_ACCESS }
+        - { path: ^/api/ui, roles: PUBLIC_ACCESS }
+        - { path: ^/api/metrics/prometheus, roles: PUBLIC_ACCESS }
+        - { path: ^/api/prestador/[a-zA-Z0-9\-]+/avaliacoes$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/prestador/[a-zA-Z0-9\-]+/portifolio$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/prestador/[a-zA-Z0-9\-]+$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/areaprestador, roles: ROLE_PRESTADOR }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

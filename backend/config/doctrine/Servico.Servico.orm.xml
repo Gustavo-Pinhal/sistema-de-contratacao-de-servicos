@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Servico\Servico" table="servicos" schema="servico" repository-class="App\Repository\Servico\ServicoRepository">
+
+        <id name="id" type="uuid" column="id" />
+
+        <field name="status" type="integer" column="id_status" enum-type="App\Enum\StatusServico" />
+
+        <field name="inicio" type="datetime_immutable" column="inicio" />
+
+        <field name="avaliadoEm" type="datetime_immutable" column="avaliado_em" />
+
+        <field name="encerramento" type="datetime_immutable" column="encerramento" nullable="true" />
+
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <many-to-one field="cliente" target-entity="App\Entity\Auth\Usuario">
+            <join-column name="id_cliente" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="prestador" target-entity="App\Entity\Auth\Usuario">
+            <join-column name="id_prestador" referenced-column-name="id" nullable="false" />
+        </many-to-one>
+
+        <many-to-one field="endereco" target-entity="App\Entity\Localizacao\Endereco">
+            <join-column name="id_endereco" referenced-column-name="id" nullable="false" />
+            <cascade>
+                <cascade-persist/>
+            </cascade>
+        </many-to-one>
+
+        <one-to-one field="sala" target-entity="App\Entity\Chat\Sala" mapped-by="servico">
+            <cascade>
+                <cascade-persist/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="projeto" target-entity="App\Entity\Portifolio\Projeto" mapped-by="servico" />
+
+        <one-to-one field="avaliacao" target-entity="App\Entity\Avaliacao\Avaliacao" mapped-by="servico" />
+
+        <one-to-many field="agendamentos" target-entity="App\Entity\Servico\Agendamento" mapped-by="servico">
+            <order-by>
+                <order-by-field name="data" direction="DESC" />
+            </order-by>
+        </one-to-many>
+
+        <one-to-many field="orcamentos" target-entity="App\Entity\Servico\Orcamento" mapped-by="servico">
+            <order-by>
+                <order-by-field name="criadoEm" direction="DESC" />
+            </order-by>
+        </one-to-many>
+
+    </entity>
+</doctrine-mapping>

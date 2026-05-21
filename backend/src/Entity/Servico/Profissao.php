@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Entity\Servico;
+
+use App\Entity\Servico\Prestador;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Attribute\Groups;
+
+class Profissao
+{
+    #[Groups('profissao:read')]
+    private ?int $id = null;
+    #[Groups('profissao:read')]
+    private string $descricao;
+    #[Groups(['profissao:read'])]
+    private \DateTimeImmutable $criadoEm;
+    #[Groups(['profissao:read'])]
+    private ?\DateTimeImmutable $excluidoEm = null;
+    private Collection $prestadores;
+
+    public function __construct(
+        string $descricao,
+    ) {
+        $this->descricao = $descricao;
+        $this->criadoEm = new \DateTimeImmutable();
+        $this->prestadores = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getDescricao(): string
+    {
+        return $this->descricao;
+    }
+
+    public function setDescricao(string $descricao): self
+    {
+        $this->descricao = $descricao;
+        return $this;
+    }
+
+    public function getCriadoEm(): \DateTimeImmutable
+    {
+        return $this->criadoEm;
+    }
+
+    public function getExcluidoEm(): ?\DateTimeImmutable
+    {
+        return $this->excluidoEm;
+    }
+
+    public function setExcluidoEm(?\DateTimeImmutable $excluidoEm): self
+    {
+        $this->excluidoEm = $excluidoEm;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Prestador>
+     */
+    public function getPrestadores(): Collection
+    {
+        return $this->prestadores;
+    }
+}

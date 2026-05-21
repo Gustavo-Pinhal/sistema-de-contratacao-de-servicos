@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Entity\Avaliacao\Imagem" table="imagens" schema="avaliacao" repository-class="App\Repository\Avaliacao\ImagemRepository">
+
+        <id name="id" type="uuid" column="id" />
+
+        <field name="caminho" type="string" length="512" column="caminho" />
+
+        <field name="mimeType" type="string" length="100" column="mime_type" />
+
+        <field name="tamanho" type="integer" column="tamanho" />
+
+        <field name="criadoEm" type="datetime_immutable" column="criado_em" />
+
+        <field name="excluidoEm" type="datetime_immutable" column="excluido_em" nullable="true" />
+
+        <many-to-one field="avaliacao" target-entity="App\Entity\Avaliacao\Avaliacao" inversed-by="imagens">
+            <join-column name="id_avaliacao" referenced-column-name="id_servico" nullable="false" />
+        </many-to-one>
+
+    </entity>
+</doctrine-mapping>
