@@ -28,7 +28,7 @@ export default function CompanyLoginPage() {
       // Executa a autenticação no contexto global
       const success = await login(formData.email, formData.password);
       if (success) {
-        router.push("/company/dashboard");
+        router.push("/enterprise/dashboard");
       } else {
         setError("Credenciais corporativas inválidas ou inexistentes.");
         setLoading(false);
