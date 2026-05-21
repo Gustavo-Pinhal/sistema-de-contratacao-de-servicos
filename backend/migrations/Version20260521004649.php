@@ -16,11 +16,11 @@ final class Version20260521004649 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA notificao;');
+        $this->addSql('CREATE SCHEMA notificacao;');
 
         $this->addSql(<<<'SQL'
-        CREATE TABLE notificacoes.notificacoes (
-            id              UUID            PRIMARY KEY
+        CREATE TABLE notificacao.notificacoes (
+            id              UUID            PRIMARY KEY,
             receiver        UUID            NOT NULL,
             sender          UUID            ,
             message         JSONB           NOT NULL,
