@@ -17,6 +17,7 @@ use App\Entity\Notificacao\Notificacao;
 use App\Entity\Portifolio\Portifolio;
 use App\Entity\Servico\Prestador;
 use App\Mapper\AreaPrestador\NotificacaoOutputMapper;
+use App\Service\PerfilMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 
 #[IsGranted('ROLE_PRESTADOR')]
@@ -28,6 +29,7 @@ final class DashboardController extends AbstractController
         ServicoRepository $repositorio,
         ServicosOutputMapper $mapper,
         EntityManagerInterface $manager,
+        PerfilMediaService $perfilMedia,
     ): JsonResponse {
         /** @var Usuario $usuario */
         $usuario = $this->getUser();
@@ -55,11 +57,15 @@ final class DashboardController extends AbstractController
 
         /** @var EmpresaPrestador $relacao */
         $relacao = $manager->getRepository(EmpresaPrestador::class)->find($usuario->getId());
+        $prestador = $manager->getRepository(Prestador::class)->find($usuario->getId());
         return $this->json([
             'filiado' => !is_null($relacao) ? [
                 'id' => $relacao->getEmpresa()->getId(),
                 'nome' => $relacao->getEmpresa()->getUsuario()->getNome(),
             ] : null,
+            'premium' => in_array('ROLE_PREMIUM', $usuario->getRoles()),
+            'nome' => $prestador?->getNome() ?? $usuario->getNome(),
+            'urlPerfil' => $perfilMedia->obterUrlFotoPerfil($usuario),
             'ativos' => $mapper->mapCollection($ativos, ['completo' => true]),
             'pendentes' => $mapper->mapCollection($pendentes, ['completo' => true]),
             'concluidos' => $mapper->mapCollection($concluidos, ['completo' => true]),
@@ -127,5 +133,32 @@ final class DashboardController extends AbstractController
         $manager->flush();
 
         return $this->json(['success' => true]);
+    }
+
+    #[Route('/assinar', methods: ['POST'], name: 'app_area_prestador_assinar')]
+    public function assinar(
+        EntityManagerInterface $manager,
+    ): JsonResponse {
+        /** @var Usuario $usuario */
+        $usuario = $this->getUser();
+
+        /** @var Prestador $prestador */
+        $prestador = $manager->getRepository(Prestador::class)->find($usuario->getId());
+
+        if (!$prestador) {
+            return $this->json(['message' => 'Prestador não encontrado.'], 404);
+        }
+
+        $prestador->setAtivo(true);
+        $usuario->setRoles(['ROLE_PRESTADOR', 'ROLE_PREMIUM']);
+
+        if (is_null($prestador->getPortifolio())) {
+            $portifolio = new \App\Entity\Portifolio\Portifolio($prestador);
+            $manager->persist($portifolio);
+        }
+
+        $manager->flush();
+
+        return $this->json(['success' => true, 'message' => 'Plano Premium ativado com sucesso!']);
     }
 }

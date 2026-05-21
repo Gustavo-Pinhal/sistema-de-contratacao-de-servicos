@@ -13,6 +13,7 @@ export type UserRole =
   | "ROLE_ADMIN"
   | "ROLE_CLIENTE"
   | "ROLE_PRESTADOR"
+  | "ROLE_EMPRESA"
   | "admin"
   | "client"
   | "provider"
@@ -31,7 +32,7 @@ interface UserContextType {
   user: UserProfile | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<boolean>;
+  login: (email: string, pass: string) => Promise<string | null>;
   register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -88,7 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [user, loading]);
 
   // Ações
-  const login = useCallback(async (email: string, pass: string) => {
+  const login = useCallback(async (email: string, pass: string): Promise<string | null> => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/login_check`, {
         method: "POST",
@@ -96,52 +97,75 @@ export function UserProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ username: email, password: pass }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) return null;
 
       const { token } = await response.json();
       const decoded = parseJwt(token);
 
       if (decoded) {
+        const role: UserRole = (decoded.roles as string[] | undefined)?.find(
+          (r) => r !== "ROLE_USER"
+        ) as UserRole || decoded.roles?.[0] || "client";
         setUser({
           id: decoded.id || decoded.sub,
           email,
           token,
-          role: decoded.roles?.[0] || "client",
+          role,
           name: decoded.nome || decoded.name,
         });
-        return true;
+        return role;
       }
-      return false;
+      return null;
     } catch (error) {
       console.error("Login Error:", error);
-      return false;
+      return null;
     }
   }, []);
 
   const register = useCallback(async (userData: any) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/cadastro-usuario/cliente`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome: userData.name,
-            email: userData.email,
-            telefone: userData.phone,
-            senha: userData.password,
-          }),
-        },
-      );
+      const role = userData.role;
+      let endpoint = `${API_BASE_URL}/api/cadastro/cliente`;
+      let body: Record<string, any> = {
+        nome: userData.name,
+        email: userData.email,
+        telefone: userData.phone,
+        senha: userData.password,
+      };
 
-      const data = await response.json();
+      if (role === "provider") {
+        endpoint = `${API_BASE_URL}/api/cadastro/prestador`;
+        body = {
+          nome: userData.name,
+          email: userData.email,
+          senha: userData.password,
+          cep: userData.cep,
+          profissao: userData.profissao ? (Number.isNaN(parseInt(userData.profissao, 10)) ? undefined : parseInt(userData.profissao, 10)) : undefined,
+        };
+      } else if (role === "business") {
+        endpoint = `${API_BASE_URL}/api/empresarial/cadastro`;
+        body = {
+          nome: userData.name,
+          email: userData.email,
+          senha: userData.password,
+        };
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
       if (response.ok) return { success: true };
 
-      return {
-        success: false,
-        error: data.message || data.detail || "Erro ao realizar cadastro.",
-      };
+      let errorMsg = "Erro ao realizar cadastro.";
+      try {
+        const data = await response.json();
+        errorMsg = data.message || data.detail || errorMsg;
+      } catch {}
+
+      return { success: false, error: errorMsg };
     } catch (error) {
       console.error("Register Error:", error);
       return { success: false, error: "Conexão com o servidor falhou." };

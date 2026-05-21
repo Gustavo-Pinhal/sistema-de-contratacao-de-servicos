@@ -19,6 +19,8 @@ import {
   Check,
   X,
   RotateCcw,
+  Crown,
+  DollarSign,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 
@@ -59,6 +61,9 @@ interface DashboardData {
   pendentes: ServiceAPI[];
   concluidos: ServiceAPI[];
   cancelados: ServiceAPI[];
+  premium: boolean;
+  nome: string;
+  urlPerfil: string | null;
 }
 
 interface Notificacao {
@@ -85,11 +90,11 @@ export default function AffiliateDashboardPage() {
   const [loadingNotifs, setLoadingNotifs] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] =
-    useState<Exclude<keyof DashboardData, "filiado">>("pendentes");
+    useState<Exclude<keyof DashboardData, "filiado" | "premium" | "nome" | "urlPerfil">>("pendentes");
   const [showNotifs, setShowNotifs] = useState(false);
   const [actioningId, setActioningId] = useState<string | null>(null);
 
-  const isPremium = data?.concluidos.some((s) => s.projeto) || false;
+  const isPremium = data?.premium ?? false;
 
   const fetchDashboard = async () => {
     try {
@@ -282,30 +287,31 @@ export default function AffiliateDashboardPage() {
         {/* Topo do Dashboard */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm relative">
           <div className="flex items-center gap-4">
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${isPremium ? "bg-gradient-to-tr from-green-700 to-green-500 shadow-green-100" : "bg-gray-900 shadow-gray-200"}`}
-            >
-              <User className="w-6 h-6 text-white" />
+            <div className={`w-14 h-14 rounded-2xl overflow-hidden shrink-0 shadow-md border-2 ${isPremium ? "border-amber-400 shadow-amber-100" : "border-gray-200 shadow-gray-100"}`}>
+              {data?.urlPerfil ? (
+                <img src={data.urlPerfil} alt="Foto de perfil" className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center ${isPremium ? "bg-gradient-to-tr from-green-700 to-green-500" : "bg-gray-900"}`}>
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">
-                  Painel de Controle
+                  {data?.nome || user?.name || "Prestador"}
                 </h1>
                 {isPremium && (
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                     <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                     <span className="text-[9px] font-black uppercase tracking-wider">
-                      Destaque
+                      Premium
                     </span>
                   </div>
                 )}
               </div>
               <p className="text-gray-400 font-bold tracking-tight uppercase text-[10px] mt-0.5">
-                Prestador:{" "}
-                <span className="text-green-600 font-black">
-                  {user?.name || "André Oliveira"}
-                </span>
+                Painel de Controle do Prestador
               </p>
             </div>
           </div>
@@ -400,11 +406,19 @@ export default function AffiliateDashboardPage() {
             >
               <Settings className="w-3.5 h-3.5" /> Configurações
             </Link>
+            {isPremium && (
+              <Link
+                href="/provider/organize-profile"
+                className="flex items-center gap-1.5 px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-orange-100"
+              >
+                <Crown className="w-3.5 h-3.5" /> Organizar Perfil
+              </Link>
+            )}
             <Link
               href="/provider/subscription"
-              className="px-4 py-3 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-100"
+              className="px-4 py-3 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-100 flex items-center gap-1.5"
             >
-              Minha Conta
+              <DollarSign className="w-3.5 h-3.5" /> Assinatura
             </Link>
           </div>
         </div>
