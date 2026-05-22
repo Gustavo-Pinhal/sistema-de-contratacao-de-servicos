@@ -8,6 +8,7 @@ use App\Entity\Portifolio\Foto;
 use App\Entity\Portifolio\Projeto;
 use App\Entity\Servico\Prestador;
 use App\Entity\Servico\Servico;
+use App\Enum\StatusServico;
 use App\Factory\Portifolio\FotoFactory;
 use App\Mapper\Portifolio\PortifolioOutputMapper;
 use App\Repository\Portifolio\FotoRepository;
@@ -68,7 +69,7 @@ final class GerirProjetosController extends AbstractController
         }
 
         $servicosConcluidos = $manager->getRepository(Servico::class)
-            ->findBy(['prestador' => $prestador, 'status' => $manager->getRepository(\App\Entity\Servico\Status::class)->find(3)]);
+            ->findBy(['prestador' => $prestador, 'status' => StatusServico::Concluido]);
 
         if (empty($servicosConcluidos)) {
             return $this->json(['error' => 'Você não possui serviços concluídos para adicionar ao portfólio.'], Response::HTTP_BAD_REQUEST);
