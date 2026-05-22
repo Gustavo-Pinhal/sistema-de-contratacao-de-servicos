@@ -57,6 +57,22 @@ class PrestadorRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function buscarParaEdicaoDePerfil(Usuario $usuario): ?Prestador
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.usuario', 'u')
+            ->addSelect('u')
+            ->leftJoin('p.profissoes', 'pr')
+            ->addSelect('pr')
+            ->leftJoin('p.cep', 'cep')
+            ->addSelect('cep')
+            ->where('u.id = :id')
+            ->andWhere('p.excluidoEm IS NULL')
+            ->setParameter('id', $usuario->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findPrestadoresPorEmpresa(Usuario $empresa): array
     {
         return $this->createQueryBuilder('p')

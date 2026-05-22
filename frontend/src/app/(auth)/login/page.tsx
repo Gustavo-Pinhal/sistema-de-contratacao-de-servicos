@@ -11,7 +11,6 @@ import {
   ShoppingBag,
   ArrowLeft,
   User,
-  Phone,
   Briefcase,
   MapPin,
   CheckCircle2,
@@ -22,7 +21,15 @@ import { useUser } from "@/context/UserContext";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, register } = useUser();
+  const { login, register, user } = useUser();
+
+  const getRedirectPath = (jwtRole?: string | null) => {
+    if (jwtRole === "ROLE_CLIENTE" || jwtRole === "client") return "/search";
+    if (jwtRole === "ROLE_EMPRESA" || jwtRole === "business") return "/enterprise/dashboard";
+    if (jwtRole === "ROLE_PRESTADOR" || jwtRole === "provider") return "/affiliate/dashboard";
+    if (jwtRole === "ROLE_ADMIN" || jwtRole === "admin") return "/admin/dashboard";
+    return "/search";
+  };
 
   // Estados de controle
   const [isLogin, setIsLogin] = useState(true);
@@ -36,13 +43,24 @@ function LoginContent() {
     (searchParams.get("role") as "client" | "provider" | "business") ||
     "client";
 
+  const [profissoes, setProfissoes] = useState<{ id: number; descricao: string }[]>([]);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     name: "",
-    phone: "",
-    city: "",
+    cep: "",
+    profissao: "",
   });
+
+  useEffect(() => {
+    if (role === "provider" && !isLogin) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://localhost"}/api/ui/profissoes`)
+        .then((r) => r.json())
+        .then((data) => Array.isArray(data) && setProfissoes(data))
+        .catch(() => {});
+    }
+  }, [role, isLogin]);
 
   useEffect(() => {
     setIsLogin(searchParams.get("mode") !== "register");
@@ -56,10 +74,9 @@ function LoginContent() {
     setLoading(true);
 
     if (isLogin) {
-      const success = await login(formData.email, formData.password);
-      if (success) {
-        // Redireciona conforme a role após login real
-        router.push(role === "client" ? "/search" : "/affiliate/dashboard");
+      const role = await login(formData.email, formData.password);
+      if (role) {
+        router.push(getRedirectPath(role));
       } else {
         setError("E-mail ou senha incorretos.");
         setLoading(false);
@@ -74,9 +91,9 @@ function LoginContent() {
 
       const result = await register({ ...formData, role });
       if (result.success) {
-        const logged = await login(formData.email, formData.password);
-        if (logged) {
-          router.push(role === "client" ? "/search" : "/affiliate/dashboard");
+        const loggedRole = await login(formData.email, formData.password);
+        if (loggedRole) {
+          router.push(getRedirectPath(loggedRole));
         }
       } else {
         setError(result.error || "Falha ao realizar cadastro.");
@@ -202,36 +219,43 @@ function LoginContent() {
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">
-                    WhatsApp
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      required
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-200 outline-none font-bold text-slate-700"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">
-                    Cidade de Atuação
+                    CEP (somente números)
                   </label>
                   <div className="relative">
                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
                       required
+                      maxLength={8}
+                      pattern="\d{8}"
+                      placeholder="Ex: 01310100"
                       className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-200 outline-none font-bold text-slate-700"
-                      value={formData.city}
+                      value={formData.cep}
                       onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
+                        setFormData({ ...formData, cep: e.target.value.replace(/\D/g, "") })
                       }
                     />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">
+                    Profissão
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <select
+                      required
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-200 outline-none font-bold text-slate-700 appearance-none"
+                      value={formData.profissao}
+                      onChange={(e) =>
+                        setFormData({ ...formData, profissao: e.target.value })
+                      }
+                    >
+                      <option value="">Selecione uma profissão</option>
+                      {profissoes.map((p) => (
+                        <option key={p.id} value={p.id}>{p.descricao}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

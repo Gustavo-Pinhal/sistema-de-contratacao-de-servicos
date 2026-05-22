@@ -21,6 +21,20 @@ A requisição responde com um objeto no seguinte formato:
 }
 ```
 
+#### Observações:
+
+- `cep`: Retorna string vazia `""` caso o prestador ainda não tenha um endereço cadastrado.
+
+- `urlPerfil`: Retorna `null` caso nenhuma foto de perfil tenha sido enviada.
+
+#### Respostas possíveis:
+
+- **Sucesso (200 OK):** Retorna os dados atuais do perfil para preenchimento do formulário de edição.
+
+- **Não Encontrado (404 Not Found):** Se o registro de prestador não for localizado para o usuário autenticado.
+
+- **Acesso Negado (403 Forbidden):** Se o token pertencer a um usuário sem o papel `ROLE_PRESTADOR`.
+
 ## Atualizar Dados do Perfil
 
 Atualiza as informações textuais, localização e especialidades do prestador.

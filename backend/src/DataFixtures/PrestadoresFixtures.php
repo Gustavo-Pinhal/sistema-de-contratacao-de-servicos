@@ -52,7 +52,6 @@ class PrestadoresFixtures extends Fixture implements DependentFixtureInterface
                     cep: $data[3],
                     senha: '123456',
                 ),
-                $profissao,
                 $cep,
             );
 

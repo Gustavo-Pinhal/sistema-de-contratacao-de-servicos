@@ -12,7 +12,6 @@ import {
   Home as HomeIcon,
   FileText,
   Bell,
-  RotateCcw,
   Settings,
 } from "lucide-react";
 import { useUser } from "../../context/UserContext";
@@ -119,8 +118,8 @@ export function Navbar() {
                         Painel
                       </NavLink>
                       <NavLink
-                        href="/provider/profile"
-                        active={pathname.includes("/profile")}
+                        href="/provider/edit-profile"
+                        active={pathname.includes("/edit-profile")}
                         icon={<User className="w-4 h-4" />}
                       >
                         Meu Perfil
@@ -149,19 +148,6 @@ export function Navbar() {
                   </>
                 ) : (
                   <div className="flex items-center gap-5">
-                    {/* Botão Zerar (Útil durante desenvolvimento/simulação) */}
-                    <button
-                      onClick={() => {
-                        if (confirm("Deseja zerar os dados da sessão?")) {
-                          handleLogout();
-                        }
-                      }}
-                      className="text-slate-400 hover:text-orange-500 transition-colors"
-                      title="Zerar Sessão"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                    </button>
-
                     {/* Notificações */}
                     <div className="relative">
                       <button

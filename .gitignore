@@ -23,6 +23,7 @@ coverage/
 # Ignore the build output folder (dist for Vite, build for CRA)
 dist/
 build/
+.next/
 
 # Miscellaneous
 .DS_Store

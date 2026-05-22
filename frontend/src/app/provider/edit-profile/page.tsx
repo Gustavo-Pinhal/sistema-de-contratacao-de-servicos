@@ -168,48 +168,40 @@ export default function EditProviderProfile() {
   if (loading)
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-blue-600" size={40} />
+        <Loader2 className="animate-spin text-green-600" size={40} />
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <Link
-          href="/affiliate/dashboard"
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 font-bold text-xs uppercase tracking-widest"
-        >
-          <ArrowLeft size={16} /> Voltar ao Painel
-        </Link>
-
-        <header className="mb-10">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter italic">
-            EDITAR PERFIL
-          </h1>
-          <p className="text-slate-500 font-medium">
-            Gerencie sua identidade visual e profissional na plataforma.
-          </p>
-        </header>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <Link
+            href="/affiliate/dashboard"
+            className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 mb-4"
+          >
+            <ArrowLeft size={16} />
+            Voltar ao painel
+          </Link>
+          <h1 className="text-3xl font-black text-gray-900">Editar Meu Perfil</h1>
+          <p className="text-gray-600 mt-2 font-medium">Mantenha suas informações e foto sempre atualizadas</p>
+        </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold">
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-bold">
             <AlertCircle size={20} /> {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Foto de Perfil */}
-          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col items-center">
-            <div className="relative group">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-slate-100 relative">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+            <div className="relative inline-block">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl bg-gray-100 relative">
                 {formData.urlPerfil ? (
-                  <img
-                    src={formData.urlPerfil}
-                    className="w-full h-full object-cover"
-                    alt="Perfil"
-                  />
+                  <img src={formData.urlPerfil} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-full h-full p-6 text-slate-300" />
+                  <User className="w-full h-full p-8 text-gray-300" />
                 )}
                 {saving && (
                   <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
@@ -217,9 +209,13 @@ export default function EditProviderProfile() {
                   </div>
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 shadow-xl border-2 border-white transition-transform hover:scale-110">
+              <label
+                htmlFor="avatar-upload"
+                className="absolute bottom-0 right-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-green-700 transition-all shadow-lg border-2 border-white"
+              >
                 <Camera size={18} />
                 <input
+                  id="avatar-upload"
                   type="file"
                   className="hidden"
                   accept="image/*"
@@ -227,146 +223,124 @@ export default function EditProviderProfile() {
                 />
               </label>
             </div>
-            <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              Foto de Perfil
-            </p>
-          </section>
-
-          {/* Dados Pessoais */}
-          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-              <User className="text-blue-600" size={20} />
-              <h2 className="font-black text-slate-900 uppercase tracking-tight">
-                Informações Básicas
-              </h2>
+            <div className="mt-4">
+              <h3 className="text-sm font-black uppercase tracking-widest text-gray-900">Foto de Perfil</h3>
+              <p className="text-xs text-gray-500 mt-1">Sua foto aparecerá nos resultados de busca</p>
             </div>
+          </div>
 
+          {/* Informações Pessoais */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Informações Pessoais
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
-                  Nome Completo
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nome Completo *</label>
                 <input
                   type="text"
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-600/10 outline-none font-bold"
+                  required
                   value={formData.nome}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nome: e.target.value })
-                  }
-                  required
+                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
-                  Nome Profissional (Apelido)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nome Profissional *</label>
                 <input
                   type="text"
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-600/10 outline-none font-bold"
-                  value={formData.nomeProfissional}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      nomeProfissional: e.target.value,
-                    })
-                  }
                   required
+                  value={formData.nomeProfissional}
+                  onChange={(e) => setFormData({ ...formData, nomeProfissional: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
-                  E-mail (Não editável)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">E-mail (não editável)</label>
                 <input
                   type="email"
-                  className="w-full px-5 py-4 bg-slate-100 border border-slate-200 rounded-2xl font-bold text-slate-400 cursor-not-allowed"
-                  value={formData.email}
                   disabled
+                  value={formData.email}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed"
                 />
               </div>
             </div>
-          </section>
+          </div>
 
           {/* Especialidades */}
-          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <Briefcase className="text-blue-600" size={20} />
-              <h2 className="font-black text-slate-900 uppercase tracking-tight">
-                Minhas Especialidades
-              </h2>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              Especialidades
+            </h2>
             <div className="flex flex-wrap gap-2">
               {profissoes.map((p) => (
                 <button
                   key={p.id}
                   type="button"
                   onClick={() => toggleProfissao(p.id)}
-                  className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                     formData.profissoesIds.includes(p.id)
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                      ? "bg-green-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {p.descricao}
                 </button>
               ))}
             </div>
-          </section>
+          </div>
 
           {/* Localização */}
-          <section className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="text-blue-600" size={20} />
-              <h2 className="font-black text-slate-900 uppercase tracking-tight">
-                Localização
-              </h2>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Localização
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">
-                  CEP
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">CEP *</label>
                 <input
                   type="text"
+                  required
                   maxLength={8}
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-600/10 outline-none font-bold"
+                  placeholder="Somente números"
                   value={formData.cep}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, "");
                     setFormData({ ...formData, cep: val });
                     if (val.length === 8) fetchAddress(val);
                   }}
-                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                 />
               </div>
-              <div className="flex items-end pb-4 text-xs font-bold text-slate-500">
-                {addressPreview && (
-                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-4 rounded-2xl w-full border border-slate-100">
-                    <CheckCircle2 size={14} className="text-green-500" />{" "}
+              {addressPreview && (
+                <div className="flex items-end">
+                  <span className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200 w-full">
+                    <CheckCircle2 size={16} className="text-green-500 shrink-0" />
                     {addressPreview}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          </section>
+          </div>
 
-          <div className="flex justify-end gap-4 pt-4">
+          {/* Botões */}
+          <div className="flex items-center justify-end gap-4 pt-4">
             <Link
               href="/affiliate/dashboard"
-              className="px-8 py-4 text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900"
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </Link>
             <button
               type="submit"
               disabled={saving}
-              className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-xl disabled:opacity-50 flex items-center gap-2"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {saving ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : (
-                "Salvar Alterações"
-              )}
+              {saving ? <Loader2 className="animate-spin" size={16} /> : null}
+              Salvar Alterações
             </button>
           </div>
         </form>

@@ -32,6 +32,10 @@ final class PerfilController extends AbstractController
         $usuario = $this->getUser();
         $prestador = $repositorio->buscarParaEdicaoDePerfil($usuario);
 
+        if (!$prestador) {
+            return $this->json(['message' => 'Prestador não encontrado.'], 404);
+        }
+
         return $this->json($mapper->map($prestador), context: ['json_encode_options' => JSON_UNESCAPED_SLASHES]);
     }
 
